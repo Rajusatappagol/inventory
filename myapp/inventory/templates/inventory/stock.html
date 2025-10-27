@@ -1,0 +1,2941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management - Stock Overview</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { 
+            --nav-h: 70px;
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #dbeafe;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --border-radius: 0.75rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            min-height: 100vh;
+            padding-top: var(--nav-h);
+        }
+
+        /* Modal and form styles */
+        .addform {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--gray-200);
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            flex: 1;
+        }
+
+        .form-group-inline {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .addform label {
+            font-size: 0.75rem;
+            color: var(--gray-700);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .addform select, 
+        .addform input[type="number"], 
+        .addform input[type="text"] {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 2px solid var(--gray-300);
+            font-size: 0.875rem;
+            background: var(--white);
+            width: 100%;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .addform select:focus, 
+        .addform input[type="number"]:focus,
+        .addform input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+            outline: none;
+            transform: translateY(-1px);
+        }
+
+        .stock-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.2s ease;
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stock-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+        }
+
+        .stock-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--nav-h);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-lg);
+            padding: 0 2rem;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-list {
+            display: flex;
+            align-items: center;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .navbar-list a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .navbar-list a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            transform: translateY(-1px);
+        }
+
+        .logo {
+            background-image: url('https://www.aequs.com/wp-content/uploads/2021/06/Aequs-Logo-new.png');
+            width: 120px;
+            height: 45px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-color: var(--white);
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Main Layout */
+        .main {
+            max-width: 1400px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+            position: sticky;
+            top: calc(var(--nav-h) + 2rem);
+        }
+
+        .sidebar h4 {
+            margin: 0 0 1rem 0;
+            color: var(--gray-800);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            border-bottom: 2px solid var(--gray-200);
+            padding-bottom: 0.5rem;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .sidebar li {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            color: var(--gray-600);
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            text-transform: capitalize;
+            font-size: 0.85rem;
+        }
+
+        .sidebar li:hover {
+            background: var(--gray-50);
+            color: var(--gray-800);
+            transform: translateX(4px);
+        }
+
+        .sidebar li.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            border-color: var(--primary-dark);
+            box-shadow: var(--shadow-md);
+        }
+
+        .sidebar li.inactive {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Content Area */
+        .content-area {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+            min-height: 600px;
+        }
+
+        /* Top Controls */
+        .top-controls {
+            display: flex;
+            align-items: end;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 0 0 280px;
+        }
+
+        .control-group label {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .control-group select,
+        .control-group input {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--gray-300);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            background: var(--white);
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+            outline: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex: 1;
+            justify-content: center;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex: 0 0 auto;
+        }
+        /* Stock Grid Styles */
+        .table-section {
+            padding: 0;
+        }
+
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.4rem;
+            padding: 0.4rem;
+        }
+
+        .stock-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 0.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+        }
+
+        .stock-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+
+        .stock-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .stock-card.centered-form {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: min(720px, 90vw) !important;
+            max-height: 85vh !important;
+            z-index: 10001 !important;
+            padding: 2rem !important;
+            overflow-y: auto !important;
+            box-shadow: var(--shadow-xl) !important;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.4rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .card-icon {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gray-50);
+            border-radius: 50%;
+            border: 2px solid var(--gray-200);
+        }
+
+        .card-icon img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+            border-radius: 0.25rem;
+        }
+
+        .card-title-section {
+            flex: 1;
+        }
+
+        .card-title {
+            font-size: 0.8rem;
+            color: var(--gray-800);
+            margin: 0 0 0.15rem 0;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .card-subtitle {
+            color: var(--gray-500);
+            font-size: 0.65rem;
+            font-weight: 500;
+        }
+
+        .color-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 0.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .color-box {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 0.25rem;
+            padding: 0.3rem 0.4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .color-box:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .color-name {
+            font-weight: 600;
+            color: var(--gray-700);
+            text-transform: capitalize;
+            font-size: 0.75rem;
+        }
+
+        .color-quantity {
+            font-weight: 700;
+            color: var(--success);
+            font-size: 0.875rem;
+            background: var(--white);
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        .stock-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-top: 1px solid var(--gray-200);
+            font-weight: 700;
+            color: var(--gray-800);
+        }
+
+        .total-label {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .total-value {
+            font-size: 0.85rem;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 0.25rem 0.4rem;
+            border-radius: 0.25rem;
+            border: 1px solid var(--primary);
+        }
+
+        /* Modal Styles */
+        #formBackdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+        }
+
+        /* Popover Styles */
+        .popover {
+            position: fixed;
+            top: calc(var(--nav-h) + 1rem);
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            z-index: 999;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid;
+            backdrop-filter: blur(8px);
+        }
+
+        #successPopover {
+            background: var(--success);
+            color: var(--white);
+            border-color: var(--success);
+        }
+
+        #errorPopover {
+            background: var(--danger);
+            color: var(--white);
+            border-color: var(--danger);
+        }
+
+        #tableLoader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            background: var(--white);
+            padding: 2rem 3rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-xl);
+            font-weight: 600;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-200);
+        }
+
+        /* Available Stock Display */
+        #availableStockRow {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #dbeafe 100%);
+            border: 1px solid var(--primary);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        #availableStockRow label {
+            color: var(--primary-dark);
+            font-weight: 600;
+            margin: 0;
+            min-width: auto;
+        }
+
+        #availableStockValue {
+            background: var(--white);
+            color: var(--success);
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid var(--gray-200);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Form Styles */
+        .stock-form-title {
+            color: var(--gray-800);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        /* Radio button styles for formals */
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            cursor: pointer;
+            min-width: auto;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 999;
+            width: min(920px, 95vw);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--gray-200);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: var(--gray-100);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--gray-600);
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--gray-200);
+            color: var(--gray-800);
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 998;
+        }
+
+        /* Table Styles */
+        .category-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            background: var(--white);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .category-table th,
+        .category-table td {
+            padding: 1rem 0.75rem;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .category-table th {
+            background: var(--gray-50);
+            font-weight: 700;
+            color: var(--gray-800);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            font-size: 0.75rem;
+            border-bottom: 2px solid var(--gray-300);
+        }
+
+        .category-table td {
+            background: var(--white);
+            color: var(--gray-700);
+            font-weight: 600;
+        }
+
+        .category-table tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        .category-table tfoot th {
+            background: var(--primary);
+            color: var(--white);
+            font-weight: 700;
+            border-top: 2px solid var(--primary-dark);
+        }
+
+        /* Management List Styles */
+        #maintainList {
+            max-height: 400px;
+            overflow-y: auto;
+            border-top: 1px solid var(--gray-200);
+            padding-top: 1rem;
+        }
+
+        .manage-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+            transition: background 0.2s ease;
+        }
+
+        .manage-item:hover {
+            background: var(--gray-50);
+        }
+
+        .manage-item-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .manage-item-image {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 0.25rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        .manage-item-name {
+            font-weight: 700;
+            color: var(--gray-800);
+        }
+
+        .manage-item-right {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .manage-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            transition: all 0.2s ease;
+        }
+
+        .manage-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .sidebar {
+                position: static;
+                order: -1;
+            }
+
+            .sidebar ul {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 0.5rem;
+            }
+
+            .top-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .control-group {
+                flex: 1;
+            }
+
+            .action-buttons {
+                justify-content: stretch;
+            }
+
+            .export-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main {
+                padding: 0 0.5rem;
+                margin: 1rem auto;
+            }
+
+            .navbar {
+                padding: 0 1rem;
+            }
+
+            .navbar-right {
+                gap: 0.5rem;
+            }
+
+            .navbar-list a {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.75rem;
+            }
+
+            .stock-grid {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .color-row {
+                grid-template-columns: 1fr;
+            }
+
+            .stock-card.centered-form {
+                width: 95vw !important;
+                max-height: 90vh !important;
+                padding: 1rem !important;
+            }
+
+            .form-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+
+            .addform label {
+                min-width: auto;
+            }
+
+            .addform select,
+            .addform input {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .modal {
+                width: 95vw;
+                margin: 1rem;
+            }
+
+            .modal-content {
+                padding: 1rem;
+            }
+
+            .category-table {
+                font-size: 0.75rem;
+            }
+
+            .category-table th,
+            .category-table td {
+                padding: 0.5rem 0.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                height: 60px;
+                padding: 0 0.5rem;
+            }
+
+            :root {
+                --nav-h: 60px;
+            }
+
+            .logo {
+                width: 80px;
+                height: 30px;
+            }
+
+            .navbar-list a {
+                font-size: 0.7rem;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .card-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.75rem;
+            }
+
+            .card-icon {
+                width: 50px;
+                height: 50px;
+            }
+
+            .card-title {
+                font-size: 1.125rem;
+            }
+
+            .total-value {
+                font-size: 1.25rem;
+                padding: 0.375rem 0.75rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stock-card {
+            animation: fadeInUp 0.5s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .stock-card:nth-child(1) { animation-delay: 0ms; }
+        .stock-card:nth-child(2) { animation-delay: 100ms; }
+        .stock-card:nth-child(3) { animation-delay: 200ms; }
+        .stock-card:nth-child(4) { animation-delay: 300ms; }
+        .stock-card:nth-child(5) { animation-delay: 400ms; }
+        .stock-card:nth-child(6) { animation-delay: 500ms; }
+
+        /* Loading animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        #tableLoader {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray-400);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-500);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Backdrop for forms and modals -->
+    <div id="formBackdrop" style="display:none"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <ul class="navbar-list">
+            <li class="navbar-left">
+                <div class="logo"></div>
+            </li>
+            <li class="navbar-right">
+                <a href="/admin/dashboard/">
+                    <i class="fas fa-chart-line"></i>
+                    Dashboard
+                </a>
+                <a href="/inventory/employee_issue_items/">
+                    <i class="fas fa-user-tag"></i>
+                    Issue Items
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Success/Error Popovers -->
+    <div id="successPopover" class="popover" style="display:none;">
+        <i class="fas fa-check-circle"></i>
+        Item added successfully
+    </div>
+    <div id="errorPopover" class="popover" style="display:none;">
+        <i class="fas fa-exclamation-circle"></i>
+        Failed to add item
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="tableLoader" style="display:none;">
+        <i class="fas fa-spinner fa-spin"></i>
+        Loading stock data...
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+        <!-- Top Controls -->
+        <div class="top-controls">
+            <div class="control-group">
+                <label for="entityViewSelect">Filter by Entity</label>
+                <select id="entityViewSelect" name="entity_view">
+                    <option value="">All Entities</option>
+                    {% for ent in ENTITY_CHOICES %}
+                        <option value="{{ ent.value }}">{{ ent.label }}</option>
+                    {% empty %}
+                        <option value="" disabled>No entities configured</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="action-buttons">
+                <button id="showAddFormBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Add Stock
+                </button>
+                <button id="showAddCategoryBtn" class="btn btn-success">
+                    <i class="fas fa-tags"></i>
+                    Add Category
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Container -->
+        <div class="container">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="leftSidebar">
+                <h4>
+                    <i class="fas fa-list"></i>
+                    Categories
+                </h4>
+                <ul>
+                    <li data-cat="all" class="active">
+                        <i class="fas fa-th-large"></i>
+                        All Items
+                    </li>
+                    {% for cat in CATEGORY_CHOICES %}
+                        <li data-cat="{{ cat.value }}">
+                            <i class="fas fa-box"></i>
+                            {{ cat.label }}
+                        </li>
+                    {% empty %}
+                        <li data-cat="none">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            No categories
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div style="margin-top: 1.5rem;">
+                    <button id="openMaintainBtn" class="btn btn-warning" style="width: 100%;">
+                        <i class="fas fa-cogs"></i>
+                        Manage Cat
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <div class="table-section" id="tableSection">
+                    <div id="stockGrid" class="stock-grid" aria-live="polite">
+                        <!-- Stock cards will be dynamically generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Add Stock Form Modal -->
+    <form id="addStockForm" class="stock-card addform" style="display:none;" action="/inventory/stock/add/" method="post">
+        {% csrf_token %}
+        <h2 class="stock-form-title">
+            <i class="fas fa-plus-circle"></i>
+            Add New Stock
+        </h2>
+
+        <!-- Available Stock Display -->
+        <div id="availableStockRow" style="display:none;">
+            <label>
+                <i class="fas fa-warehouse"></i>
+                Available Stock:
+            </label>
+            <span id="availableStockValue">0</span>
+        </div>
+
+        <!-- Item Type Selection -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="itemType">
+                    <i class="fas fa-tag"></i>
+                    Item Type
+                </label>
+                <select id="itemType" name="item_type" required>
+                    <option value="tshirt">👕 T-Shirt</option>
+                    <option value="jeans">👖 Jeans</option>
+                    <option value="safety_shoes">👟 Safety Shoes</option>
+                    <option value="goggles">🕶️ Goggles</option>
+                    <option value="formals">👔 Formals</option>
+                    <option value="trainee">🧑‍🎓 Trainee</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Entity Selection -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="addEntitySelect">
+                    <i class="fas fa-building"></i>
+                    Entity
+                </label>
+                <select id="addEntitySelect" name="entity">
+                    <option value="" disabled selected>-- Select Entity --</option>
+                    {% for ent in ENTITY_CHOICES %}
+                        <option value="{{ ent.value }}">{{ ent.label }}</option>
+                    {% empty %}
+                        <option value="" disabled>No entities configured</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+    <!-- T-Shirt Options -->
+        <div id="tshirtOptions" class="form-row">
+            <div class="form-group-inline">
+                <div class="form-group">
+                    <label for="tshirtColor">
+                        <i class="fas fa-palette"></i>
+                        Color
+                    </label>
+                    <select id="tshirtColor" name="color">
+                        {% for sc in SUBCATEGORY_CHOICES %}
+                            <option value="{{ sc.value }}">{{ sc.label }}</option>
+                        {% empty %}
+                            <option value="">No colors configured</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tshirtSize">
+                        <i class="fas fa-ruler"></i>
+                        Size
+                    </label>
+                    <select id="tshirtSize" name="size">
+                        {% for s in CATEGORY_SIZES.tshirt %}
+                            <option value="{{ s }}">{{ s }}</option>
+                        {% empty %}
+                            <option value="">No sizes configured</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jeans Options -->
+        <div id="jeansOptions" class="form-row" style="display:none;">
+            <div class="form-group-inline">
+                <div class="form-group">
+                    <label for="jeansColor">
+                        <i class="fas fa-palette"></i>
+                        Color
+                    </label>
+                    <select id="jeansColor" name="color">
+                        {% for sc in SUBCATEGORY_CHOICES %}
+                            <option value="{{ sc.value }}">{{ sc.label }}</option>
+                        {% empty %}
+                            <option value="jeans">Jeans</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="jeansSize">
+                        <i class="fas fa-ruler"></i>
+                        Size
+                    </label>
+                    <select id="jeansSize" name="size">
+                        {% for s in CATEGORY_SIZES.jeans %}
+                            <option value="{{ s }}">{{ s }}</option>
+                        {% empty %}
+                            <option value="">No sizes configured</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Safety Shoes Options -->
+        <div id="safety_shoesOptions" class="form-row" style="display:none;">
+            <div class="form-group-inline">
+                <div class="form-group">
+                    <label for="safety_shoes">
+                        <i class="fas fa-user"></i>
+                        Type
+                    </label>
+                    <select id="safety_shoes" name="color">
+                        {% for sc in SUBCATEGORY_CHOICES %}
+                            <option value="{{ sc.value }}">{{ sc.label }}</option>
+                        {% empty %}
+                            <option value="gents">Gents</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="safety_shoes_size">
+                        <i class="fas fa-ruler"></i>
+                        Size
+                    </label>
+                    <select id="safety_shoes_size" name="size">
+                        {% for s in CATEGORY_SIZES.safety_shoes %}
+                            <option value="{{ s }}">{{ s }}</option>
+                        {% empty %}
+                            <option value="">No sizes configured</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goggles Options -->
+        <div id="gogglesOptions" class="form-row" style="display:none;">
+            <div class="form-group-inline">
+                <div class="form-group">
+                    <label for="goggles">
+                        <i class="fas fa-glasses"></i>
+                        Type
+                    </label>
+                    <select id="goggles" name="color">
+                        {% for sc in SUBCATEGORY_CHOICES %}
+                            <option value="{{ sc.value }}">{{ sc.label }}</option>
+                        {% empty %}
+                            <option value="normal">Normal</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="gogglessize">
+                        <i class="fas fa-ruler"></i>
+                        Size
+                    </label>
+                    <select id="gogglessize" name="gogglessize">
+                        {% for s in CATEGORY_SIZES.goggles %}
+                            <option value="{{ s }}">{{ s }}</option>
+                        {% empty %}
+                            <option value="normal">Normal</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formals Options -->
+        <div id="formalsOptions" class="form-row" style="display:none;">
+            <div class="form-group">
+                <label for="formalColor">
+                    <i class="fas fa-palette"></i>
+                    Color
+                </label>
+                <select id="formalColor">
+                    <option value="grey" selected>Grey shirt</option>
+                    <option value="white">White shirt</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-users"></i>
+                    Gender
+                </label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="gender" value="ladies">
+                        <i class="fas fa-female"></i>
+                        Ladies
+                    </label>
+                    <label>
+                        <input type="radio" name="gender" value="gents" checked>
+                        <i class="fas fa-male"></i>
+                        Gents
+                    </label>
+                </div>
+            </div>
+
+            <input type="hidden" id="formalCombined" name="color_or_type">
+            
+            <div class="form-group">
+                <label for="FormalsSize">
+                    <i class="fas fa-ruler"></i>
+                    Size
+                </label>
+                <select id="FormalsSize" name="size">
+                    {% for s in CATEGORY_SIZES.formals %}
+                        <option value="{{ s }}">{{ s }}</option>
+                    {% empty %}
+                        <option value="">No sizes configured</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+    <!-- Trainee Options -->
+        <div id="traineeOptions" class="form-row" style="display:none;">
+            <div class="form-group-inline">
+                <div class="form-group">
+                    <label for="trainee">
+                        <i class="fas fa-user-graduate"></i>
+                        Type
+                    </label>
+                    <select id="trainee" name="color">
+                        {% for sc in SUBCATEGORY_CHOICES %}
+                            <option value="{{ sc.value }}">{{ sc.label }}</option>
+                        {% empty %}
+                            <option value="trainee">Trainee</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="traineeSize">
+                        <i class="fas fa-ruler"></i>
+                        Size
+                    </label>
+                    <select id="traineeSize" name="size">
+                        {% for s in CATEGORY_SIZES.trainee %}
+                            <option value="{{ s }}">{{ s }}</option>
+                        {% empty %}
+                            <option value="">No sizes configured</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Category Options (for user-defined categories) -->
+        <div id="customOptions" class="form-row" style="display:none;">
+            <div class="form-group-inline">
+                <div class="form-group">
+                    <label for="customVariant">
+                        <i class="fas fa-shapes"></i>
+                        Variant
+                    </label>
+                    <select id="customVariant" name="color"></select>
+                </div>
+                <div class="form-group">
+                    <label for="customSize">
+                        <i class="fas fa-ruler-horizontal"></i>
+                        Size
+                    </label>
+                    <select id="customSize" name="size"></select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quantity -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="add_quantity">
+                    <i class="fas fa-calculator"></i>
+                    Quantity
+                </label>
+                <input type="number" id="add_quantity" name="quantity" min="1" value="1" required>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="stock-btn">
+            <i class="fas fa-plus"></i>
+            Add to Stock
+        </button>
+    </form>
+
+    <!-- Script for formal color/gender combination -->
+    <script>
+        const colorSelect = document.getElementById("formalColor");
+        const genderRadios = document.querySelectorAll("input[name='gender']");
+        const hiddenInput = document.getElementById("formalCombined");
+
+        function updateCombinedValue() {
+            const color = (colorSelect?.value || '').toString().trim().toLowerCase();
+            const gender = (document.querySelector("input[name='gender']:checked")?.value || 'gents').toString().trim().toLowerCase();
+            if (color && gender && hiddenInput) {
+                hiddenInput.value = `${gender}_${color}`;
+                try { 
+                    if (typeof updateAvailableStock === 'function') updateAvailableStock(); 
+                } catch(e) {}
+            } else if (hiddenInput) {
+                hiddenInput.value = '';
+            }
+        }
+
+        if (colorSelect && genderRadios.length && hiddenInput) {
+            updateCombinedValue();
+            colorSelect.addEventListener("change", updateCombinedValue);
+            genderRadios.forEach(radio => radio.addEventListener("change", updateCombinedValue));
+        }
+    </script>
+    <!-- Add Category Modal -->
+    <div id="addCategoryBackdrop" class="modal-backdrop" style="display:none"></div>
+    <div id="addCategoryModal" class="modal" style="display:none">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-plus-circle"></i>
+                    Create New Category
+                </h3>
+                <button id="closeAddCategory" class="modal-close">
+                    <i class="fas fa-times"></i>
+                    Close
+                </button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:1rem;">
+                <div class="form-row">
+                    <label for="newCategoryName">Category Key</label>
+                    <input id="newCategoryName" placeholder="e.g., coveralls" style="padding:0.75rem 1rem; border-radius:0.5rem; border:2px solid var(--gray-300); font-size:0.875rem;">
+                </div>
+                <div class="form-row">
+                    <label for="newCategoryLabel">Display Name</label>
+                    <input id="newCategoryLabel" placeholder="e.g., Coveralls" style="padding:0.75rem 1rem; border-radius:0.5rem; border:2px solid var(--gray-300); font-size:0.875rem;">
+                </div>
+                <div class="form-row">
+                    <label for="newVariantLabel">Variant Label</label>
+                    <input id="newVariantLabel" placeholder="e.g., Color / Type" value="Type" style="padding:0.75rem 1rem; border-radius:0.5rem; border:2px solid var(--gray-300); font-size:0.875rem;">
+                </div>
+                <div class="form-row">
+                    <label for="newCategoryVariants">Subcategory / Variants (comma separated)</label>
+                    <input id="newCategoryVariants" placeholder="e.g., Red, Blue, Green" style="padding:0.75rem 1rem; border-radius:0.5rem; border:2px solid var(--gray-300); font-size:0.875rem;">
+                </div>
+                <div class="form-row">
+                    <label for="newSizeType">Size Type</label>
+                    <select id="newSizeType" style="padding:0.75rem 1rem; border-radius:0.5rem; border:2px solid var(--gray-300); font-size:0.875rem;">
+                        <option value="alpha">Alpha (XS - 5XL)</option>
+                        <option value="numeric">Numeric (e.g., 28 - 48)</option>
+                        <option value="custom">Custom list</option>
+                    </select>
+                </div>
+                <div id="sizeRangeRow" class="form-row">
+                    <div class="form-group-inline">
+                        <div class="form-group">
+                            <label for="newSizeFrom">Size From</label>
+                            <input id="newSizeFrom" placeholder="e.g., XS or 28" style="padding:0.75rem 1rem; border-radius:0.5rem; border:2px solid var(--gray-300); font-size:0.875rem;">
+                        </div>
+                        <div class="form-group">
+                            <label for="newSizeTo">Size To</label>
+                            <input id="newSizeTo" placeholder="e.g., 5XL or 48" style="padding:0.75rem 1rem; border-radius:0.5rem; border:2px solid var(--gray-300); font-size:0.875rem;">
+                        </div>
+                    </div>
+                </div>
+                <div id="sizesCustomRow" class="form-row" style="display:none;">
+                    <label for="newSizesList">Custom Sizes (comma separated)</label>
+                    <input id="newSizesList" placeholder="e.g., Small, Medium, Large" style="padding:0.75rem 1rem; border-radius:0.5rem; border:2px solid var(--gray-300); font-size:0.875rem;">
+                </div>
+
+                <div class="form-row">
+                    <label for="newCategoryImage">Image URL</label>
+                    <input id="newCategoryImage" placeholder="https://example.com/image.jpg" style="padding:0.75rem 1rem; border-radius:0.5rem; border:2px solid var(--gray-300); font-size:0.875rem;">
+                </div>
+                <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1rem;">
+                    <button id="createCategoryBtn" class="btn btn-success">
+                        <i class="fas fa-plus"></i>
+                        Create Category
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Management Modal -->
+    <div id="maintainBackdrop" class="modal-backdrop" style="display:none"></div>
+    <div id="maintainModal" class="modal" style="display:none">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-cogs"></i>
+                    Manage Categories
+                </h3>
+                <button id="closeMaintain" class="modal-close">
+                    <i class="fas fa-times"></i>
+                    Close
+                </button>
+            </div>
+            <div id="maintainList" style="max-height:400px;overflow-y:auto;border-top:1px solid var(--gray-200);padding-top:1rem;">
+                <!-- Category management items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Details Modal -->
+    <div id="modalBackdrop" class="modal-backdrop" style="display:none"></div>
+    <div id="tshirtModal" class="modal" style="display:none">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle" class="modal-title">Category Details</h2>
+                <button id="closeTshirtModal" class="modal-close">
+                    <i class="fas fa-times"></i>
+                    Close
+                </button>
+            </div>
+            <div id="tshirtModalBody">
+                <!-- Table content will be populated here -->
+            </div>
+        </div>
+    </div>
+
+          
+                <style>
+                    .stock-grid {
+                                    display: grid;
+                                    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                                    gap: 18px;
+                                    align-items: stretch;
+                                    grid-auto-rows: 1fr;
+                                }
+                    .stock-card {  
+                                    background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+                                    border-radius: 14px;
+                                    padding: 14px;
+                                    box-shadow: 0 10px 30px rgba(24,39,81,0.06);
+                                    min-height: 120px;
+                                    height: 100%;
+                                    display: flex;
+                                    flex: 1 1 auto;
+                                    flex-direction: column;
+                                    justify-content: flex-start;
+                                    transition: transform 160ms ease, box-shadow 160ms ease, opacity 200ms ease;
+                                    overflow: hidden;
+                                    /* entrance animation with optional per-card delay */
+                                    animation: cardEnter 420ms cubic-bezier(.2,.9,.2,1) both;
+                                    animation-delay: var(--enter-delay, 0ms);
+                                }
+                                .stock-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 30px 64px rgba(18,38,92,0.16); }
+                                .color-box { transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease; }
+                                .color-box:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(18,38,92,0.08); }
+                                .stock-total { transition: color 180ms ease, transform 160ms ease; }
+                                /* loader pulse */
+                                #tableLoader { transition: opacity 220ms ease; }
+                                @keyframes pulse { 0%{ transform: scale(.995); opacity: .95 } 50%{ transform: scale(1.01); opacity: 1 } 100%{ transform: scale(.995); opacity: .95 } }
+                                #tableLoader[style*="display:block"]{ animation: pulse 900ms ease-in-out infinite; }
+                    .card-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+                    .card-icon { width:58px; height:68px; flex:0 0 48px; display:inline-block; }
+                    .card-icon img { width:48px; height:48px; object-fit:contain; display:block; }
+                    .card-title { font-size:1.05em; color:#11263b; margin:0; font-weight:800; }
+                    .card-sub { color:#4b6b95; font-size:0.9em; margin-top:2px; }
+                    .color-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+                    .color-box { background:#fff; border-radius:10px; padding:6px 10px; font-weight:700; color:#1f3f73; border:1px solid #e9f0fb; box-shadow:0 6px 18px rgba(16,40,88,0.03); display:flex; gap:8px; align-items:center; font-size:0.95em; }
+                    .stock-total { margin-top:10px; font-weight:900; color:#0b2d4a; font-size:0.98em; }
+                    @media (max-width: 880px){
+                        .container{
+                            flex-direction:row;
+                            flex-wrap:nowrap;
+                            overflow-x:auto;
+                            -webkit-overflow-scrolling:touch;
+                            gap:20px;
+                            padding-bottom:8px;
+                        }
+                        .sidebar{
+                            width:220px;
+                            flex:0 0 220px;
+                            min-width:220px;
+                            display:block;
+                            order:0;
+                        }
+                        .stock-grid{
+                            order:0;
+                            flex:1 0 auto;
+                            min-width:720px; 
+                            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                        }
+                        .top-controls{
+                            flex-direction:row;
+                            gap:8px;
+                            flex-wrap:nowrap;
+                            overflow:auto;
+                        }
+                        .top-controls .add-btn, .top-controls #showAddFormBtn{ width:auto; white-space:nowrap }
+                    }
+                </style>
+
+<script>
+(() => {
+    const API_URL = '/api/stocks/';
+
+    const ITEM_LABELS = {
+        tshirt: 'T-Shirt',
+        jeans: 'Jeans',
+        safety_shoes: 'Safety_Shoes',
+        goggles: 'Goggles',
+        formals: 'Formals',
+        trainee: 'Trainee',
+    };
+
+    const ITEM_IMAGES = {
+        tshirt: 'https://img.freepik.com/premium-vector/t-shirt-logo-template-black-silhouette-vector-white-background_1034165-3315.jpg',
+        jeans: 'https://cdn.vectorstock.com/i/preview-1x/56/06/jeans-store-flat-line-icon-women-apparel-denim-vector-19405606.jpg',
+        safety_shoes:'https://static.vecteezy.com/system/resources/thumbnails/045/879/109/small_2x/running-shoes-design-images-sport-shoes-isolated-on-white-vector.jpg',
+        goggles: 'https://tse1.mm.bing.net/th/id/OIP.w6OCXDYAJjWvPhPmuIlSWQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
+        formals: 'https://images2.drct2u.com/pdp_main_tablet_x2/products/au/au835/p01au835500s.jpg',
+        trainee: 'https://cdn4.vectorstock.com/i/1000x1000/51/78/engineer-icon-on-white-background-vector-30725178.jpg',
+    };
+
+    const PREFERRED_ORDER = ['tshirt','jeans','safety_shoes','goggles','formals' ,'trainee',''];
+    function mapKeyForOrder(k){
+        if (!k) return '';
+        const s = k.toString().toLowerCase();
+        if (s === 'formals') return 'formals';
+        return s;
+    }
+
+    function orderedKeysFrom(groups){
+        const keys = Object.keys(groups || {});
+        keys.sort((a,b) => {
+            const ma = mapKeyForOrder(a);
+            const mb = mapKeyForOrder(b);
+            const ia = PREFERRED_ORDER.indexOf(ma);
+            const ib = PREFERRED_ORDER.indexOf(mb);
+            const va = ia === -1 ? PREFERRED_ORDER.length : ia;
+            const vb = ib === -1 ? PREFERRED_ORDER.length : ib;
+            if (va === vb) return ma.localeCompare(mb);
+            return va - vb;
+        });
+        return keys;
+    }
+    function formatItemType(val) {
+        if (!val) return '';
+        return ITEM_LABELS[val] || (val.charAt(0).toUpperCase() + val.slice(1));
+    }
+    const showAddFormBtn = document.getElementById('showAddFormBtn');
+    const addStockForm = document.getElementById('addStockForm');
+    const stockGrid = document.getElementById('stockGrid');
+    const tableSection = document.getElementById('tableSection');
+    let latestStocks = [];
+    const sidebar = document.getElementById('leftSidebar');
+    const itemType = document.getElementById('itemType');
+    const tshirtOptions = document.getElementById('tshirtOptions');
+    const jeansOptions = document.getElementById('jeansOptions');
+    const safety_shoesOptions = document.getElementById('safety_shoesOptions');
+    const gogglesOptions = document.getElementById('gogglesOptions');
+    const formalsOptions = document.getElementById('formalsOptions');
+    const traineeOptions = document.getElementById('traineeOptions');
+    const customOptions = document.getElementById('customOptions');
+    const customVariant = document.getElementById('customVariant');
+    const customSize = document.getElementById('customSize');
+    const addEntitySelect = document.getElementById('addEntitySelect');
+    const entityViewSelect = document.getElementById('entityViewSelect');
+    const successPopover = document.getElementById('successPopover');
+
+    function getCookie(name){
+        const v = '; ${document.cookie}';
+        const parts = v.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    async function fetchStocks(){
+        const res = await fetch(API_URL, { credentials: 'same-origin' });
+        return await res.json();
+    }
+
+    async function addStock(payload){
+        const csrftoken = getCookie('csrftoken');
+        return fetch(API_URL, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken || '' },
+            body: JSON.stringify(payload)
+        });
+    }
+
+    async function renderGrid(){
+        try{ document.getElementById('tableLoader').style.display = 'block'; } catch(e){}
+        const stocks = await fetchStocks();
+        // if an entity is selected in the view selector, filter to that entity
+        const viewEntity = entityViewSelect ? (entityViewSelect.value || '').toString().trim() : '';
+        // determine active sidebar category; when 'all' is active we should NOT filter by entity
+        let activeCat = 'all';
+        try{ const activeLi = sidebar && sidebar.querySelector && sidebar.querySelector('ul li.active'); activeCat = activeLi && activeLi.dataset ? (activeLi.dataset.cat || 'all') : 'all'; }catch(e){ /* ignore */ }
+        latestStocks = (stocks || []).filter(s => {
+            if (!viewEntity) return true;
+            if ((activeCat || 'all') === 'all') return true; // ignore entity filter when showing All
+            const ent = (s.entity || '').toString().trim();
+            return ent === viewEntity;
+        });
+        stockGrid.innerHTML = '';
+        
+
+        const groups = {};
+        latestStocks.forEach(s => {
+            const item = (s.item_type || 'other').toString();
+            const color = (s.color_or_type || s.color || '—').toString();
+            groups[item] = groups[item] || {};
+            groups[item][color] = groups[item][color] || { total: 0, lastUpdated: null };
+            groups[item][color].total += Number(s.quantity || 0);
+            const updated = s.updated_at ? new Date(s.updated_at) : null;
+            if (updated && (!groups[item][color].lastUpdated || updated > groups[item][color].lastUpdated)) {
+                groups[item][color].lastUpdated = updated;
+            }
+        });
+
+    const customCats = (function(){ try{ return JSON.parse(localStorage.getItem('customCategories')||'[]') }catch(e){return []} })();
+    customCats.forEach(c => { if (!groups[c.key]) groups[c.key] = {}; });
+
+        orderedKeysFrom(groups).forEach((itemKey, idx) => {
+            const itemLabel = formatItemType(itemKey);
+            const card = document.createElement('div'); 
+            card.className = 'stock-card';
+            try { 
+                card.style.setProperty('--enter-delay', (idx * 60) + 'ms'); 
+            } catch(e) {}
+
+            // Create card header with icon and title
+            const header = document.createElement('div'); 
+            header.className = 'card-header';
+            
+            const iconWrap = document.createElement('div'); 
+            iconWrap.className = 'card-icon';
+            const img = document.createElement('img'); 
+            img.alt = itemLabel; 
+            img.src = ITEM_IMAGES[itemKey] || ''; 
+            img.onerror = () => { img.style.display = 'none'; };
+            iconWrap.appendChild(img);
+            
+            const titleSection = document.createElement('div'); 
+            titleSection.className = 'card-title-section';
+            const title = document.createElement('div'); 
+            title.className = 'card-title'; 
+            title.textContent = itemLabel;
+            const subtitle = document.createElement('div'); 
+            subtitle.className = 'card-subtitle';
+            const colorCount = Object.keys(groups[itemKey] || {}).length; 
+            subtitle.innerHTML = `<i class="fas fa-palette"></i> ${colorCount} variant${colorCount === 1 ? '' : 's'}`;
+            
+            titleSection.appendChild(title); 
+            titleSection.appendChild(subtitle);
+            header.appendChild(iconWrap); 
+            header.appendChild(titleSection);
+            card.appendChild(header);
+
+            // Create color variants section
+            const colorRow = document.createElement('div'); 
+            colorRow.className = 'color-row';
+            let itemTotal = 0;
+            
+            if ((itemKey || '').toString().toLowerCase() === 'formals') {
+                // Special handling for formals - group by gender
+                let gentsTotal = 0, ladiesTotal = 0;
+                Object.keys(groups[itemKey] || {}).forEach(color => {
+                    const info = groups[itemKey][color];
+                    itemTotal += info.total;
+                    const lc = (color || '').toString().toLowerCase();
+                    const isGents = lc.includes('gents') || lc.includes('gent') || lc.includes('men') || lc.includes('male');
+                    const isLadies = lc.includes('ladies') || lc.includes('lady') || lc.includes('women') || lc.includes('female');
+                    if (isGents) gentsTotal += info.total;
+                    else if (isLadies) ladiesTotal += info.total;
+                    else gentsTotal += info.total; // fallback to gents
+                });
+                
+                const gBox = document.createElement('div'); 
+                gBox.className = 'color-box';
+                gBox.innerHTML = `
+                    <span class="color-name"><i class="fas fa-male"></i> Gents Formals</span>
+                    <span class="color-quantity">${gentsTotal}</span>
+                `;
+                
+                const lBox = document.createElement('div'); 
+                lBox.className = 'color-box';
+                lBox.innerHTML = `
+                    <span class="color-name"><i class="fas fa-female"></i> Ladies Formals</span>
+                    <span class="color-quantity">${ladiesTotal}</span>
+                `;
+                
+                colorRow.appendChild(gBox);
+                colorRow.appendChild(lBox);
+            } else {
+                // Standard handling for other items
+                Object.keys(groups[itemKey] || {}).forEach(color => {
+                    const info = groups[itemKey][color];
+                    itemTotal += info.total;
+                    const box = document.createElement('div'); 
+                    box.className = 'color-box';
+                    const displayLabel = (color || '').toString().replace(/_/g, ' ');
+                    const icon = getColorIcon(itemKey, color);
+                    box.innerHTML = `
+                        <span class="color-name">${icon} ${displayLabel}</span>
+                        <span class="color-quantity">${info.total}</span>
+                    `;
+                    colorRow.appendChild(box);
+                });
+            }
+
+            // Create total section
+            const totalSection = document.createElement('div'); 
+            totalSection.className = 'stock-total';
+            totalSection.innerHTML = `
+                <span class="total-label">Total Stock</span>
+                <span class="total-value">${itemTotal}</span>
+            `;
+            
+            card.appendChild(colorRow);
+            card.appendChild(totalSection);
+            stockGrid.appendChild(card);
+        });
+
+        function getColorIcon(itemKey, color) {
+            const colorLower = (color || '').toString().toLowerCase();
+            const itemLower = (itemKey || '').toString().toLowerCase();
+            
+            // Color-based icons
+            if (colorLower.includes('black')) return '<i class="fas fa-circle" style="color: #000;"></i>';
+            if (colorLower.includes('white')) return '<i class="fas fa-circle" style="color: #fff; text-shadow: 0 0 1px #000;"></i>';
+            if (colorLower.includes('grey') || colorLower.includes('gray')) return '<i class="fas fa-circle" style="color: #6b7280;"></i>';
+            if (colorLower.includes('blue')) return '<i class="fas fa-circle" style="color: #3b82f6;"></i>';
+            
+            // Item-based icons
+            if (itemLower === 'safety_shoes') {
+                if (colorLower.includes('ladies')) return '<i class="fas fa-female"></i>';
+                if (colorLower.includes('gents')) return '<i class="fas fa-male"></i>';
+            }
+            if (itemLower === 'goggles') {
+                if (colorLower.includes('overhead')) return '<i class="fas fa-hard-hat"></i>';
+                return '<i class="fas fa-glasses"></i>';
+            }
+            if (itemLower === 'trainee') return '<i class="fas fa-user-graduate"></i>';
+            if (itemLower === 'jeans') return '<i class="fas fa-tshirt"></i>';
+            
+            // Default icon
+            return '<i class="fas fa-tag"></i>';
+        }        try{ document.getElementById('tableLoader').style.display = 'none'; } catch(e){}
+    }
+
+    // Category management 
+    function loadCustomCategories(){
+        try{ return JSON.parse(localStorage.getItem('customCategories')||'[]'); }catch(e){ return []; }
+    }
+    function saveCustomCategories(list){
+        try{ localStorage.setItem('customCategories', JSON.stringify(list||[])); }catch(e){}
+    }
+
+    // Delete all inventory rows on the server for a given item_type (category key)
+    async function deleteStocksForItemType(itemType){
+        try{
+            const res = await fetch(API_URL, { credentials: 'same-origin' });
+            if (!res.ok) return false;
+            const items = await res.json();
+            const targets = (items || []).filter(it => (it.item_type||'').toString().toLowerCase() === (itemType||'').toString().toLowerCase());
+            // Fire deletes (best-effort)
+            await Promise.all(targets.map(it => {
+                const url = API_URL + String(it.id) + '/';
+                return fetch(url, { method: 'DELETE', credentials: 'same-origin' }).catch(()=>{});
+            }));
+            return true;
+        }catch(err){
+            console.error('Failed to delete stocks for', itemType, err);
+            return false;
+        }
+    }
+
+    const DEFAULT_TYPES = ['tshirt','jeans','safety_shoes','goggles','formals','trainee'];
+    function isDefaultType(key){ return DEFAULT_TYPES.includes((key||'').toString().toLowerCase()); }
+
+    function alphaOrder(){ return ['XS','S','M','L','XL','2XL','3XL','4XL','5XL']; }
+    function makeAlphaRange(from,to){
+        const order = alphaOrder();
+        const i1 = order.indexOf((from||'').toString().toUpperCase());
+        const i2 = order.indexOf((to||'').toString().toUpperCase());
+        if (i1 === -1 || i2 === -1) return order.slice();
+        const [a,b] = i1 <= i2 ? [i1,i2] : [i2,i1];
+        return order.slice(a,b+1);
+    }
+    function makeNumericRange(from,to){
+        const s = parseInt(from,10); const e = parseInt(to,10);
+        if (Number.isNaN(s) || Number.isNaN(e)) return [];
+        const step = s <= e ? 1 : -1; const out = [];
+        for (let i=s; step>0 ? i<=e : i>=e; i+=step){ out.push(String(i)); }
+        return out;
+    }
+
+    function syncItemTypeOptions(){
+        if (!itemType) return;
+        const customs = loadCustomCategories();
+        // remove existing custom options to avoid duplicates
+        Array.from(itemType.querySelectorAll('option[data-custom="1"]')).forEach(o=>o.remove());
+        customs.filter(c => c.active !== false).forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.key; opt.textContent = c.label || c.key; opt.setAttribute('data-custom','1');
+            itemType.appendChild(opt);
+        });
+        // disable default options that are deactivated via overrides
+        const overrides = customs; // same storage
+        const inactiveDefaultKeys = (overrides||[]).filter(x => isDefaultType(x.key) && x.active === false).map(x=>x.key);
+        const defaultOptions = Array.from(itemType.querySelectorAll('option')).filter(o => isDefaultType(o.value));
+        defaultOptions.forEach(opt => {
+            if (inactiveDefaultKeys.includes(opt.value)){
+                opt.disabled = true;
+                if (!/\(inactive\)$/i.test(opt.textContent)) opt.textContent = (opt.textContent||'') + ' (inactive)';
+            } else {
+                opt.disabled = false;
+                opt.textContent = (opt.textContent||'').replace(/\s*\(inactive\)$/i, '');
+            }
+        });
+    }
+
+    function isCategoryActive(key){
+        const k = (key||'').toString().toLowerCase();
+        const cfgs = loadCustomCategories() || [];
+        const found = cfgs.find(c => (c.key||'').toLowerCase() === k);
+        if (found) return !(found.active === false);
+        // no override: default categories are active by default; unknown custom keys default to active
+        return true;
+    }
+
+    function showErrorPopover(msg){
+        const err = document.getElementById('errorPopover');
+        if (err){ err.textContent = msg || 'Action not allowed'; err.style.display='block'; setTimeout(()=> err.style.display='none', 2000); }
+    }
+
+    function ensureActiveSelection(){
+        if (!itemType) return;
+        const val = (itemType.value||'');
+        if (val && !isCategoryActive(val)){
+            // choose the first enabled option
+            const firstEnabled = Array.from(itemType.options).find(o => !o.disabled);
+            if (firstEnabled){ itemType.value = firstEnabled.value; itemType.dispatchEvent(new Event('change')); }
+        }
+    }
+
+    function renderSidebarCategories(){
+        const ul = sidebar && sidebar.querySelector('ul');
+        if (!ul) return;
+        const defaults = ['all','tshirt','formals','jeans','safety_shoes','goggles' ,'trainee',];
+        ul.innerHTML = '';
+        const customs = loadCustomCategories();
+        // render defaults first, 
+        defaults.forEach(k => {
+            const override = (customs || []).find(x => x.key === k);
+            const li = document.createElement('li'); li.dataset.cat = k;
+            const label = (override && override.label) ? override.label : formatItemType(k);
+            li.textContent = label;
+            if (k === 'all') li.classList.add('active');
+            // if override says inactive, mark stock
+            if (override && override.active === false) { li.style.opacity = '5.0'; li.title = 'Inactive category'; li.classList.add('inactive'); }
+            ul.appendChild(li);
+        });
+        // then append any custom categories 
+        const extras = (customs || []).filter(x => !defaults.includes(x.key));
+        if (extras && extras.length){
+            const sep = document.createElement('hr'); sep.style.border='none'; sep.style.height='8px'; ul.appendChild(sep);
+            extras.forEach(c => {
+                const li = document.createElement('li'); li.dataset.cat = c.key; li.textContent = c.label || c.key;
+                if (c.active === false) { li.style.opacity = '0.45'; li.title = 'Inactive category'; li.classList.add('inactive'); }
+                ul.appendChild(li);
+            });
+        }
+    }
+
+    // show add category modal
+    (function wireAddCategory(){
+        const addBtn = document.getElementById('showAddCategoryBtn');
+        const modal = document.getElementById('addCategoryModal');
+        const backdrop = document.getElementById('addCategoryBackdrop');
+        const close = document.getElementById('closeAddCategory');
+        const createBtn = document.getElementById('createCategoryBtn');
+        const newKeyEl = document.getElementById('newCategoryName');
+        const newLabelEl = document.getElementById('newCategoryLabel');
+        const newVariantLabelEl = document.getElementById('newVariantLabel');
+        const newVariantsEl = document.getElementById('newCategoryVariants');
+        const newSizeTypeEl = document.getElementById('newSizeType');
+        const newSizeFromEl = document.getElementById('newSizeFrom');
+        const newSizeToEl = document.getElementById('newSizeTo');
+        const newSizesListEl = document.getElementById('newSizesList');
+        const sizeRangeRow = document.getElementById('sizeRangeRow');
+        const sizesCustomRow = document.getElementById('sizesCustomRow');
+        const newImgEl = document.getElementById('newCategoryImage');
+        let editMode = false; // false => create, otherwise holds key being edited
+        if (!addBtn || !modal) return;
+        function toggleSizeRows(){
+            const t = (newSizeTypeEl?.value || 'alpha').toString();
+            if (t === 'custom'){ sizesCustomRow.style.display = 'block'; sizeRangeRow.style.display = 'none'; }
+            else { sizesCustomRow.style.display = 'none'; sizeRangeRow.style.display = 'block'; }
+        }
+        if (newSizeTypeEl) newSizeTypeEl.addEventListener('change', toggleSizeRows);
+        addBtn.addEventListener('click', ()=>{
+            editMode = false;
+            if (newKeyEl){ newKeyEl.disabled = false; newKeyEl.value = ''; }
+            if (newLabelEl) newLabelEl.value = '';
+            if (newVariantLabelEl) newVariantLabelEl.value = 'Type';
+            if (newVariantsEl) newVariantsEl.value = '';
+            if (newSizeTypeEl) newSizeTypeEl.value = 'alpha';
+            if (newSizeFromEl) newSizeFromEl.value = '';
+            if (newSizeToEl) newSizeToEl.value = '';
+            if (newSizesListEl) newSizesListEl.value = '';
+            if (newImgEl) newImgEl.value = '';
+            toggleSizeRows();
+            if (modal && modal.hasAttribute('data-edit-key')) modal.removeAttribute('data-edit-key');
+            createBtn.textContent = 'Create';
+            modal.style.display='block'; if (backdrop) backdrop.style.display='block';
+            try{ document.documentElement.style.paddingRight = (window.innerWidth - document.documentElement.clientWidth) + 'px'; }catch(e){}
+            document.documentElement.style.overflow='hidden';
+        });
+    if (close) close.addEventListener('click', ()=>{ modal.style.display='none'; if (backdrop) backdrop.style.display='none'; try{ document.documentElement.style.paddingRight = ''; }catch(e){} document.documentElement.style.overflow=''; if (modal && modal.hasAttribute('data-edit-key')) modal.removeAttribute('data-edit-key'); editMode = false; if (newKeyEl) newKeyEl.disabled = false; });
+    if (backdrop) backdrop.addEventListener('click', ()=>{ modal.style.display='none'; backdrop.style.display='none'; try{ document.documentElement.style.paddingRight = ''; }catch(e){} document.documentElement.style.overflow=''; if (modal && modal.hasAttribute('data-edit-key')) modal.removeAttribute('data-edit-key'); editMode = false; if (newKeyEl) newKeyEl.disabled = false; });
+                if (createBtn){
+            createBtn.addEventListener('click', ()=>{
+                const keyEl = document.getElementById('newCategoryName');
+                const labelEl = document.getElementById('newCategoryLabel');
+                const variantLabelEl = document.getElementById('newVariantLabel');
+                const variantsEl = document.getElementById('newCategoryVariants');
+                const sizeTypeEl = document.getElementById('newSizeType');
+                const sizeFromEl = document.getElementById('newSizeFrom');
+                const sizeToEl = document.getElementById('newSizeTo');
+                const sizesListEl = document.getElementById('newSizesList');
+                const imgEl = document.getElementById('newCategoryImage');
+                if (!keyEl) return;
+                const key = (keyEl.value||'').toString().trim().toLowerCase().replace(/\s+/g,'_');
+                const label = (labelEl && labelEl.value) ? labelEl.value.toString().trim() : key;
+                const variantLabel = (variantLabelEl && variantLabelEl.value) ? variantLabelEl.value.toString().trim() : 'Type';
+                const variants = (variantsEl && variantsEl.value) ? variantsEl.value.toString().split(',').map(s=>s.trim()).filter(Boolean) : [];
+                const sizeType = (sizeTypeEl && sizeTypeEl.value) ? sizeTypeEl.value.toString() : 'alpha';
+                const sizeFrom = (sizeFromEl && sizeFromEl.value) ? sizeFromEl.value.toString().trim() : '';
+                const sizeTo = (sizeToEl && sizeToEl.value) ? sizeToEl.value.toString().trim() : '';
+                const sizesList = (sizesListEl && sizesListEl.value) ? sizesListEl.value.toString().split(',').map(s=>s.trim()).filter(Boolean) : [];
+                const img = (imgEl && imgEl.value) ? imgEl.value.toString().trim() : '';
+                if (!key){ showErrorPopover('Please provide a category key'); return; }
+                const reserved = ['all','tshirt','formals','jeans','safety_shoes','goggles' ,'trainee',''];
+                if (reserved.includes(key)){
+                    showErrorPopover('"'+(label||key)+'" already exists. Use a different key');
+                    return;
+                }
+                // validations
+                if (!label){ showErrorPopover('Please provide a display name'); return; }
+                if (variants.length === 0){ showErrorPopover('Add at least one subcategory/variant'); return; }
+                if (sizeType === 'custom' && sizesList.length === 0){ showErrorPopover('Provide custom sizes'); return; }
+                if (sizeType !== 'custom' && (!sizeFrom || !sizeTo)){ showErrorPopover('Provide size From and To'); return; }
+                const existing = loadCustomCategories();
+                // determine edit mode
+                if (!editMode && modal && modal.getAttribute && modal.getAttribute('data-edit-key')){
+                    editMode = modal.getAttribute('data-edit-key');
+                }
+                if (!editMode){
+                    if (existing.find(x=>x.key===key)){ alert('Category already exists'); return; }
+                    existing.push({ 
+                        key,
+                        label,
+                        image: img,
+                        variantLabel,
+                        variants,
+                        sizeType,
+                        sizeFrom,
+                        sizeTo,
+                        sizesList,
+                        active: true
+                    }); 
+                    saveCustomCategories(existing);
+                } else {
+                    const idx = existing.findIndex(x=>x.key === editMode);
+                    if (key !== editMode && existing.find(x=>x.key===key)){ alert('Another category with that key exists'); return; }
+                    if (idx === -1){
+                        // creating an override for a default category
+                        existing.push({ key, label, image: img, variantLabel, variants, sizeType, sizeFrom, sizeTo, sizesList, active: true });
+                    } else {
+                        Object.assign(existing[idx], { key, label, image: img, variantLabel, variants, sizeType, sizeFrom, sizeTo, sizesList });
+                    }
+                    saveCustomCategories(existing);
+                    if (modal && modal.hasAttribute('data-edit-key')) modal.removeAttribute('data-edit-key');
+                    editMode = false;
+                }
+                modal.style.display='none'; if (backdrop) backdrop.style.display='none'; try{ document.documentElement.style.paddingRight = ''; }catch(e){} document.documentElement.style.overflow='';
+                renderSidebarCategories(); syncItemTypeOptions(); renderGrid();
+            });
+        }
+    })();
+
+    try{ renderSidebarCategories(); syncItemTypeOptions(); }catch(e){}
+
+    (function wireMaintenance(){
+        const open = document.getElementById('openMaintainBtn');
+        const modal = document.getElementById('maintainModal');
+        const backdrop = document.getElementById('maintainBackdrop');
+        const close = document.getElementById('closeMaintain');
+        const listEl = document.getElementById('maintainList');
+
+        function makeBtn(text, bg, onClick){
+            const b = document.createElement('button');
+            b.textContent = text; b.style.background = bg; b.style.color = '#fff'; b.style.border = 'none'; b.style.padding = '6px 10px'; b.style.borderRadius = '6px'; b.style.cursor = 'pointer';
+            if (onClick) b.addEventListener('click', onClick);
+            return b;
+        }
+
+        function refreshList(){
+            const defaults = ['tshirt','formals','jeans','safety_shoes','goggles','trainee',''];
+            const overrides = loadCustomCategories() || [];
+            listEl.innerHTML = '';
+
+            // render defaults
+            defaults.forEach(def => {
+                const ov = overrides.find(x => x.key === def);
+                const c = ov || { key: def, label: formatItemType(def), image: '', meta: '', active: true, isDefault: true };
+
+                const row = document.createElement('div'); row.style.display='flex'; row.style.alignItems='center'; row.style.justifyContent='space-between'; row.style.padding='6px 4px'; row.style.borderBottom='1px solid #eef3fb';
+                const left = document.createElement('div'); left.style.display='flex'; left.style.alignItems='center'; left.style.gap='8px';
+                const img = document.createElement('img'); img.src = c.image || ''; img.alt = c.label || c.key; img.style.width='28px'; img.style.height='28px'; img.style.objectFit='contain'; img.onerror = ()=>{ img.style.display='none'; };
+                const name = document.createElement('div'); name.textContent = c.label || c.key; name.style.fontWeight='700'; if (c.active === false) { name.style.opacity = '0.5'; }
+                left.appendChild(img); left.appendChild(name);
+
+                const right = document.createElement('div'); right.style.display='flex'; right.style.alignItems='center'; right.style.gap='8px';
+
+                const editBtn = makeBtn('Edit', '#0b74de', ()=>{
+                    const am = document.getElementById('addCategoryModal'); const ab = document.getElementById('addCategoryBackdrop');
+                    const newKey = document.getElementById('newCategoryName'); const newLabel = document.getElementById('newCategoryLabel'); const newVariantLabel = document.getElementById('newVariantLabel'); const newVariants = document.getElementById('newCategoryVariants'); const newSizeType = document.getElementById('newSizeType'); const newSizeFrom = document.getElementById('newSizeFrom'); const newSizeTo = document.getElementById('newSizeTo'); const newSizesList = document.getElementById('newSizesList'); const newImg = document.getElementById('newCategoryImage'); const createBtn = document.getElementById('createCategoryBtn');
+                    if (!newKey || !createBtn || !am) return;
+                    newKey.value = c.key; newKey.disabled = true; newLabel.value = c.label || c.key; if (newVariantLabel) newVariantLabel.value = c.variantLabel || 'Type'; if (newVariants) newVariants.value = (c.variants||[]).join(', '); if (newSizeType) newSizeType.value = c.sizeType || 'alpha'; if (newSizeFrom) newSizeFrom.value = c.sizeFrom || ''; if (newSizeTo) newSizeTo.value = c.sizeTo || ''; if (newSizesList) newSizesList.value = (c.sizesList||[]).join(', '); newImg.value = c.image || '';
+                    am.setAttribute('data-edit-key', c.key);
+                    createBtn.textContent = 'Save'; am.style.display='block'; if (ab) ab.style.display='block'; try{ document.documentElement.style.paddingRight = (window.innerWidth - document.documentElement.clientWidth) + 'px'; }catch(e){} document.documentElement.style.overflow='hidden';
+                });
+
+                const actBtn = makeBtn(c.active === false ? 'Activate' : 'Deactivate', c.active === false ? '#32a053' : '#f0ad4e', ()=>{
+                    const list = loadCustomCategories();
+                    const idx = list.findIndex(x=>x.key===c.key);
+                    if (idx === -1){
+                        list.push({ key: c.key, label: c.label, image: c.image || '', meta: c.meta || '', active: !(c.active === false) });
+                    } else {
+                        list[idx].active = !(list[idx].active === false);
+                    }
+                    saveCustomCategories(list); refreshList(); renderSidebarCategories(); syncItemTypeOptions(); ensureActiveSelection(); renderGrid();
+                });
+
+                if (ov){
+                    const resetBtn = makeBtn('Reset', '#777', ()=>{
+                        if (!confirm('Reset customizations for "'+(c.label||c.key)+'" to defaults?')) return;
+                        const remaining = loadCustomCategories().filter(x=>x.key!==c.key); saveCustomCategories(remaining); refreshList(); renderSidebarCategories(); renderGrid();
+                    });
+                    right.appendChild(resetBtn);
+                }
+
+                const del = makeBtn('Delete', '#c33', ()=>{
+                    if (!confirm('Remove customizations for "'+(c.label||c.key)+'"? This will restore default behavior.')) return;
+                    const remaining = loadCustomCategories().filter(x=>x.key!==c.key); saveCustomCategories(remaining); refreshList(); renderSidebarCategories(); renderGrid();
+                });
+
+                right.appendChild(editBtn); right.appendChild(actBtn); right.appendChild(del);
+                row.appendChild(left); row.appendChild(right); listEl.appendChild(row);
+            });
+
+            // extras
+            const extras = overrides.filter(x => !defaults.includes(x.key));
+            extras.forEach(c => {
+                const row = document.createElement('div'); row.style.display='flex'; row.style.alignItems='center'; row.style.justifyContent='space-between'; row.style.padding='6px 4px'; row.style.borderBottom='1px solid #eef3fb';
+                const left = document.createElement('div'); left.style.display='flex'; left.style.alignItems='center'; left.style.gap='8px';
+                const img = document.createElement('img'); img.src = c.image || ''; img.alt = c.label || c.key; img.style.width='28px'; img.style.height='28px'; img.style.objectFit='contain'; img.onerror = ()=>{ img.style.display='none'; };
+                const name = document.createElement('div'); name.textContent = c.label || c.key; name.style.fontWeight='700'; if (c.active === false) { name.style.opacity = '0.5'; }
+                left.appendChild(img); left.appendChild(name);
+                const right = document.createElement('div'); right.style.display='flex'; right.style.alignItems='center'; right.style.gap='8px';
+
+                const editBtn = makeBtn('Edit', '#0b74de', ()=>{
+                    const am = document.getElementById('addCategoryModal'); const ab = document.getElementById('addCategoryBackdrop');
+                    const newKey = document.getElementById('newCategoryName'); const newLabel = document.getElementById('newCategoryLabel'); const newVariantLabel = document.getElementById('newVariantLabel'); const newVariants = document.getElementById('newCategoryVariants'); const newSizeType = document.getElementById('newSizeType'); const newSizeFrom = document.getElementById('newSizeFrom'); const newSizeTo = document.getElementById('newSizeTo'); const newSizesList = document.getElementById('newSizesList'); const newImg = document.getElementById('newCategoryImage'); const createBtn = document.getElementById('createCategoryBtn');
+                    if (!newKey || !createBtn || !am) return;
+                    newKey.value = c.key; newKey.disabled = true; newLabel.value = c.label || c.key; if (newVariantLabel) newVariantLabel.value = c.variantLabel || 'Type'; if (newVariants) newVariants.value = (c.variants||[]).join(', '); if (newSizeType) newSizeType.value = c.sizeType || 'alpha'; if (newSizeFrom) newSizeFrom.value = c.sizeFrom || ''; if (newSizeTo) newSizeTo.value = c.sizeTo || ''; if (newSizesList) newSizesList.value = (c.sizesList||[]).join(', '); newImg.value = c.image || '';
+                    am.setAttribute('data-edit-key', c.key);
+                    createBtn.textContent = 'Save'; am.style.display='block'; if (ab) ab.style.display='block'; try{ document.documentElement.style.paddingRight = (window.innerWidth - document.documentElement.clientWidth) + 'px'; }catch(e){} document.documentElement.style.overflow='hidden';
+                });
+
+                const actBtn = makeBtn(c.active === false ? 'Activate' : 'Deactivate', c.active === false ? '#32a053' : '#f0ad4e', ()=>{
+                            const list = loadCustomCategories(); const idx = list.findIndex(x=>x.key===c.key); if (idx===-1) return; list[idx].active = !(list[idx].active === false); saveCustomCategories(list); refreshList(); renderSidebarCategories(); syncItemTypeOptions(); ensureActiveSelection(); renderGrid();
+                });
+
+                const del = makeBtn('Delete', '#c33', ()=>{
+                    (async () => {
+                        if (!confirm('Delete custom category "'+(c.label||c.key)+'" and remove all its stock? This cannot be undone.')) return;
+                        // 1) Delete stocks from server
+                        const ok = await deleteStocksForItemType(c.key);
+                        // 2) Remove from local categories
+                        const remaining = loadCustomCategories().filter(x=>x.key!==c.key);
+                        saveCustomCategories(remaining);
+                        // 3) Refresh UI
+                        refreshList(); renderSidebarCategories(); syncItemTypeOptions(); await renderGrid();
+                        try {
+                            const pop = document.getElementById('successPopover');
+                            if (pop){ pop.textContent = 'Category and stock deleted'; pop.style.display='block'; setTimeout(()=> pop.style.display='none', 1800); }
+                        } catch(_){ }
+                    })();
+                });
+
+                right.appendChild(editBtn); right.appendChild(actBtn); right.appendChild(del);
+                row.appendChild(left); row.appendChild(right); listEl.appendChild(row);
+            });
+        }
+
+        if (!open || !modal) return;
+        open.addEventListener('click', ()=>{ modal.style.display='block'; if (backdrop) backdrop.style.display='block'; try{ document.documentElement.style.paddingRight = (window.innerWidth - document.documentElement.clientWidth) + 'px'; }catch(e){} document.documentElement.style.overflow='hidden'; refreshList(); });
+        if (close) close.addEventListener('click', ()=>{ modal.style.display='none'; if (backdrop) backdrop.style.display='none'; try{ document.documentElement.style.paddingRight = ''; }catch(e){} document.documentElement.style.overflow=''; });
+        if (backdrop) backdrop.addEventListener('click', ()=>{ modal.style.display='none'; backdrop.style.display='none'; try{ document.documentElement.style.paddingRight = ''; }catch(e){} document.documentElement.style.overflow=''; });
+    })();
+
+    // Sidebar filter
+    if (sidebar){
+        sidebar.addEventListener('click', (e) => {
+            const li = e.target.closest('li'); if(!li) return;
+            Array.from(sidebar.querySelectorAll('li')).forEach(i => i.classList.remove('active'));
+            li.classList.add('active');
+            if (li.classList.contains('inactive')){
+                const errEl = document.getElementById('errorPopover'); if (errEl){ errEl.textContent = 'This category is inactive'; errEl.style.display='block'; setTimeout(()=> errEl.style.display='none', 1800); }
+                return;
+            }
+            renderGrid();
+        });
+    }
+
+    // toggle add form
+    if (showAddFormBtn && addStockForm){
+        showAddFormBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const hidden = addStockForm.style.display === 'none' || !addStockForm.style.display;
+            const backdrop = document.getElementById('formBackdrop');
+            if (hidden){
+                addStockForm.classList.add('centered-form');
+                addStockForm.style.display = 'block';
+                try{
+                    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+                    if (scrollBarWidth > 0) document.documentElement.style.paddingRight = scrollBarWidth + 'px';
+                }catch(err){}
+                document.documentElement.style.overflow = 'hidden';
+                if (backdrop) backdrop.style.display = 'block';
+                try{ if (typeof updateCombinedValue === 'function') updateCombinedValue(); }catch(e){}
+            } else {
+                addStockForm.classList.remove('centered-form');
+                addStockForm.style.display = 'none';
+                try{ document.documentElement.style.paddingRight = ''; }catch(e){}
+                document.documentElement.style.overflow = '';
+                if (backdrop) backdrop.style.display = 'none';
+                if(tableSection) tableSection.style.display = 'block';
+            }
+            updateAvailableStock();
+        });
+    }
+
+    // close add form when clicking on the form backdrop
+    try{
+        const fb = document.getElementById('formBackdrop');
+        if (fb){
+            fb.addEventListener('click', ()=>{
+                try{ addStockForm.classList.remove('centered-form'); }catch(e){}
+                try{ addStockForm.style.display = 'none'; }catch(e){}
+                try{ fb.style.display = 'none'; }catch(e){}
+                try{ if (tableSection) tableSection.style.display = 'block'; }catch(e){}
+                try{ document.documentElement.style.paddingRight = ''; }catch(e){}
+                document.documentElement.style.overflow = '';
+            });
+        }
+    }catch(e){}
+
+    // toggle option panels
+    if (itemType){
+        itemType.addEventListener('change', () => {
+            const val = (itemType.value || '').toString().toLowerCase();
+            // block UI panels if category is inactive
+            if (!isCategoryActive(val)){
+                showErrorPopover('This category is deactivated');
+            }
+            tshirtOptions.style.display = 'none'; jeansOptions.style.display = 'none'; safety_shoesOptions.style.display = 'none'; gogglesOptions.style.display = 'none'; formalsOptions.style.display = 'none'; traineeOptions.style.display = 'none'; customOptions.style.display = 'none';
+            if (val === 'tshirt') tshirtOptions.style.display = 'flex';
+            else if (val === 'jeans') jeansOptions.style.display = 'flex';
+            else if (val === 'safety_shoes') safety_shoesOptions.style.display = 'flex';
+            else if (val === 'goggles') gogglesOptions.style.display = 'flex';
+            else if (val === 'formal' || val === 'formals') formalsOptions.style.display = 'flex';
+            else if (val === 'trainee') traineeOptions.style.display = 'flex';
+            else {
+                // custom category: build variant and size controls
+                const cfg = (loadCustomCategories()||[]).find(c => (c.key||'').toLowerCase() === val);
+                if (cfg){
+                    // populate variants
+                    customVariant.innerHTML = '';
+                    (cfg.variants||[]).forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; customVariant.appendChild(o); });
+                    // populate sizes
+                    customSize.innerHTML = '';
+                    let sizes = [];
+                    if (cfg.sizeType === 'alpha') sizes = makeAlphaRange(cfg.sizeFrom||'XS', cfg.sizeTo||'5XL');
+                    else if (cfg.sizeType === 'numeric') sizes = makeNumericRange(cfg.sizeFrom||'1', cfg.sizeTo||'10');
+                    else sizes = (cfg.sizesList||[]);
+                    sizes.forEach(s => { const o=document.createElement('option'); o.value=s; o.textContent=s; customSize.appendChild(o); });
+                    // set variant label text
+                    try {
+                        const lbl = customOptions.querySelector("label[for='customVariant']");
+                        if (lbl){ lbl.innerHTML = `<i class=\"fas fa-shapes\"></i> ${cfg.variantLabel || 'Variant'}`; }
+                    } catch(_){ }
+                    customOptions.style.display = 'flex';
+                }
+            }
+            updateAvailableStock();
+        });
+    }
+
+    // submit form
+    if (addStockForm){
+        addStockForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let type = (itemType.value || '').toString();
+            if (!isCategoryActive(type)){
+                showErrorPopover('This category is deactivated');
+                return;
+            }
+            let colorOrType = '';
+            let size = '';
+            if (type === 'tshirt'){ colorOrType = document.getElementById('tshirtColor').value; size = document.getElementById('tshirtSize').value; }
+            else if (type === 'jeans'){ colorOrType = document.getElementById('jeansColor').value; size = document.getElementById('jeansSize').value; }
+            else if (type === 'safety_shoes'){ colorOrType = document.getElementById('safety_shoes').value; size = document.getElementById('safety_shoes_size').value; }
+            else if (type === 'goggles'){ colorOrType = document.getElementById('goggles').value; size = document.getElementById('gogglessize').value; }
+            else if (type === 'formal' || type === 'formals'){
+                // prefer the combined hidden value (gender_color). If missing, build it from controls.
+                const combined = (document.getElementById('formalCombined').value || '').toString().trim();
+                if (combined) {
+                    colorOrType = combined;
+                } else {
+                    const colorVal = (document.getElementById('formalColor').value || '').toString().trim().toLowerCase();
+                    const genderVal = (document.querySelector("input[name='gender']:checked")?.value || 'gents').toString().trim().toLowerCase();
+                    colorOrType = genderVal && colorVal ? `${genderVal}_${colorVal}` : (colorVal || genderVal || '');
+                }
+                size = document.getElementById('FormalsSize').value; type = 'formals'; }
+            else if (type === 'trainee'){ colorOrType = document.getElementById('trainee').value; size = document.getElementById('traineeSize').value; }
+            else {
+                // custom category
+                colorOrType = (customVariant?.value || '').toString();
+                size = (customSize?.value || '').toString();
+            }
+            const qty = Number(document.getElementById('add_quantity').value || 0);
+
+            // --- Client-side validation ---
+            if (!qty || qty <= 0) {
+                const errEl = document.getElementById('errorPopover');
+                if (errEl){ errEl.textContent = 'select quantity!'; errEl.style.display = 'block'; setTimeout(()=> errEl.style.display = 'none', 2200); }
+                return;
+            }
+            // for formals require color/gender and size
+            if ((type === 'formal' || type === 'formals') && (!colorOrType || colorOrType.trim() === '')){
+                const errEl = document.getElementById('errorPopover');
+                if (errEl){ errEl.textContent = 'Please select gender and color for Formals'; errEl.style.display = 'block'; setTimeout(()=> errEl.style.display = 'none', 2200); }
+                return;
+            }
+            const selectedEntity = addEntitySelect ? (addEntitySelect.value || '').toString().trim() : '';
+            // POST and handle response
+            let resp = null;
+            try{
+                resp = await addStock({ item_type: type, color_or_type: colorOrType, size: size, quantity: qty, entity: selectedEntity });  
+            }catch(err){
+                console.error('Add failed', err);
+            }
+                if (resp && resp.ok){
+                try{ localStorage.setItem('stockUpdated', Date.now().toString()); } catch(_){}
+                if (successPopover){ successPopover.style.display = 'block'; setTimeout(()=> successPopover.style.display = 'none', 1800); }
+                // reset and hide form only after success
+                addStockForm.reset();
+                try{ if (tshirtOptions) tshirtOptions.style.display = 'flex'; }catch(e){}
+                try{ if (jeansOptions) jeansOptions.style.display = 'none'; }catch(e){}
+                try{ if (safety_shoesOptions) safety_shoesOptions.style.display = 'none'; }catch(e){}
+                try{ if (gogglesOptions) gogglesOptions.style.display = 'none'; }catch(e){}
+                try{ if (formalsOptions) formalsOptions.style.display = 'none'; }catch(e){}
+                try{ if (traineeOptions) traineeOptions.style.display = 'none'; }catch(e){}
+                if (tableSection) tableSection.style.display = 'block';
+                try{ addStockForm.classList.remove('centered-form'); }catch(e){}
+                addStockForm.style.display = 'none';
+                // hide the form backdrop if present and restore scrollbar compensation
+                const fb = document.getElementById('formBackdrop'); if (fb) fb.style.display = 'none';
+                try{ document.documentElement.style.paddingRight = ''; }catch(e){}
+                document.documentElement.style.overflow = '';
+                await renderGrid();
+                try{ if (window.updateTshirtTable) window.updateTshirtTable(); }catch(e){}
+            } else {
+                // show error
+                const errEl = document.getElementById('errorPopover');
+                if (errEl){ errEl.style.display = 'block'; setTimeout(()=> errEl.style.display = 'none', 2200); }
+                console.error('Add failed', resp && resp.status, resp && resp.statusText);
+            }
+        });
+    }
+
+    async function updateAvailableStock(){
+        if (!itemType) return;
+        const type = (itemType.value || '').toString();
+        if (type && !isCategoryActive(type)){
+            // hide available stock display when deactivated
+            const row = document.getElementById('availableStockRow');
+            if (row) row.style.display = 'none';
+            return;
+        }
+        const viewEntity = addEntitySelect ? (addEntitySelect.value || '').toString().trim() : '';
+        const row = document.getElementById('availableStockRow');
+        const val = document.getElementById('availableStockValue');
+        if (!row || !val) return;
+        if (!type){ row.style.display = 'none'; return; }
+    let color = '', size = '';
+        if (type === 'tshirt'){ color = document.getElementById('tshirtColor').value || ''; size = document.getElementById('tshirtSize').value || ''; }
+        else if (type === 'jeans'){ color = document.getElementById('jeansColor').value || ''; size = document.getElementById('jeansSize').value || ''; }
+        else if ( type === 'safety_shoes'){ color = document.getElementById('safety_shoes').value || ''; size = document.getElementById('safety_shoes_size').value || ''; }
+        else if (type === 'goggles'){ color = document.getElementById('goggles').value || ''; size = document.getElementById('gogglessize').value || ''; }
+        else if (type === 'formal' || type === 'formals'){
+            // prefer the combined key (gender_color)
+            color = document.getElementById('formalCombined') ? document.getElementById('formalCombined').value || document.getElementById('formalColor').value : (document.getElementById('formalColor').value || '');
+            size = document.getElementById('FormalsSize').value || '';
+        }
+        else if (type === 'trainee'){ color = document.getElementById('trainee').value || ''; size = document.getElementById('traineeSize').value || ''; }
+        else { color = (customVariant?.value || ''); size = (customSize?.value || ''); }
+            try{
+            const stocksAll = await fetchStocks();
+            // when sidebar 'all' is active, ignore entity filter (show aggregate availability across entities)
+            let activeCat = 'all';
+            try{ const activeLi = sidebar && sidebar.querySelector && sidebar.querySelector('ul li.active'); activeCat = activeLi && activeLi.dataset ? (activeLi.dataset.cat || 'all') : 'all'; }catch(e){ }
+            const stocks = (stocksAll || []).filter(s => {
+                if (!viewEntity) return true;
+                if ((activeCat || 'all') === 'all') return true;
+                const ent = (s.entity || '').toString().trim();
+                return ent === viewEntity;
+            });
+            let total = 0;
+            // For formals, compute both total across sizes for the selected gender/color and per-size availability
+            if ((type === 'formal' || type === 'formals')){
+                const wantToken = (color || '').toString().trim().toLowerCase();
+                let perSize = 0;
+                (stocks || []).forEach(s => {
+                    if (!s) return;
+                    if ((s.item_type || '').toString().toLowerCase() !== 'formals') return;
+                    const col = (s.color_or_type || s.color || '').toString().trim().toLowerCase();
+                    const sz = (s.size || '').toString().trim();
+                    // determine if this stock row matches the requested gender/color token
+                    let matches = false;
+                    if (!wantToken) matches = true;
+                    else if (col === wantToken) matches = true;
+                    else if (col.includes(wantToken) || wantToken.includes(col)) matches = true;
+                    else {
+                        const parts = wantToken.split('_');
+                        if (parts.length === 2){
+                            const g = parts[0]; const c = parts[1];
+                            const isGents = col.includes('gents') || col.includes('gent') || col.includes('men') || col.includes('male');
+                            const isLadies = col.includes('ladies') || col.includes('lady') || col.includes('women') || col.includes('female');
+                            const isGrey = col.includes('grey') || col.includes('gray');
+                            const isWhite = col.includes('white');
+                            if ((g === 'gents' && isGents) || (g === 'ladies' && isLadies)){
+                                if ((c === 'grey' && isGrey) || (c === 'white' && isWhite) || (!isGrey && !isWhite && col.includes(c))) matches = true;
+                            }
+                        }
+                    }
+                    if (!matches) return;
+                    total += Number(s.quantity || 0);
+                    if (size){ if (sz.toLowerCase() === size.toString().trim().toLowerCase()) perSize += Number(s.quantity || 0); }
+                });
+                row.style.display = 'flex';
+                if (size){
+                    val.textContent = `${total} (size ${size}: ${perSize})`;
+                } else {
+                    val.textContent = `${total}`;
+                }
+                val.style.color = total > 0 ? '#32a053' : '#d32f2f';
+            } else {
+                (stocks || []).forEach(s => {
+                    if (!s) return;
+                    if ((s.item_type || '').toString().toLowerCase() !== type.toString().toLowerCase()) return;
+                    const col = (s.color_or_type || '').toString().trim().toLowerCase();
+                    const sz = (s.size || '').toString().trim().toLowerCase();
+                    const wantColor = color ? color.toString().trim().toLowerCase() : '';
+                    const wantSize = size ? size.toString().trim().toLowerCase() : '';
+                    const matchColor = wantColor ? (col === wantColor) : true;
+                    const matchSize = wantSize ? (sz === wantSize) : true;
+                    if (matchColor && matchSize) total += Number(s.quantity || 0);
+                });
+                row.style.display = 'flex'; val.textContent = total > 0 ? total : '0'; val.style.color = total > 0 ? '#32a053' : '#d32f2f';
+            }
+        }catch(err){ row.style.display = 'none'; console.error(err); }
+    }
+
+    ['tshirtColor','tshirtSize','jeansSize','jeansColor','formalColor','FormalsSize','safety_shoes','safety_shoes_size','gogglesColor','gogglesize','itemType','trainee','traineeSize',].forEach(id => {
+        const el = document.getElementById(id); if (el) el.addEventListener('change', updateAvailableStock);
+    });
+
+        // when the view entity changes, re-render the grid
+        if (entityViewSelect){ entityViewSelect.addEventListener('change', ()=> { renderGrid(); }); }
+        // when the add-form entity changes, update availability shown in the add form
+        if (addEntitySelect){ addEntitySelect.addEventListener('change', ()=> { updateAvailableStock(); }); }
+
+    
+
+    window.addEventListener('storage', (e) => { if (e.key === 'stockUpdated') renderGrid(); });
+
+        renderGrid();
+        syncItemTypeOptions();
+        ensureActiveSelection();
+})();
+</script>
+
+    <style>
+        body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;margin:20px;background:#f7f7fb}
+        .card{background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(20,20,50,0.06);padding:18px;max-width:980px;margin:24px auto}
+        h1,h2{font-size:20px;margin:0 0 14px}
+        table{width:100%;border-collapse:collapse;font-size:14px}
+        th,td{padding:10px 8px;text-align:center;border:1px solid #e6e8ef}
+        th{background:#f1f3f8;font-weight:600}
+        td{background:#fff}
+    </style>
+</head>
+<body>
+        <div class="card" id="tshirtCard" style="display:none;">
+            <h2>Subcategories</h2>
+            <h1>T-shirts — by Color & Size</h1>
+            <table id="tshirtTable" aria-label="Tshirt sizes by color">
+                <thead>
+                        <tr>
+                        <th>Size</th>
+                        <th> <img src="{% static 'static/White.jpg' %}" alt="White" style="height: 24px;">White</th>
+                        <th> <img src="{% static 'static/black.jpg' %}" alt="Black" style="height: 24px;">Black</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>XS</td><td>0</td><td>0</td></tr>
+                    <tr><td>S</td><td>0</td><td>0</td></tr>
+                    <tr><td>M</td><td>0</td><td>0</td></tr>
+                    <tr><td>L</td><td>0</td><td>0</td></tr>
+                    <tr><td>XL</td><td>0</td><td>0</td></tr>
+                    <tr><td>XXL</td><td>0</td><td>0</td></tr>
+                    <tr><td>3XL</td><td>0</td><td>0</td></tr>
+                    <tr><td>4XL</td><td>0</td><td>0</td></tr>
+                    <tr><td>5XL</td><td>0</td><td>0</td></tr>
+                </tbody>
+                <tfoot>
+                    <tr><th>Total</th><th id="totalWhite">0</th><th id="totalBlack">0</th></tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <script>
+        // Fetch stocks and update the T-shirt table grouped by color and size
+        window.updateTshirtTable = async function(){
+            const API = '/api/stocks/';
+            function normalize(v){ return (v||'').toString().trim().toLowerCase(); }
+            try{
+                const res = await fetch(API, { credentials: 'same-origin' });
+                if (!res.ok) return console.error('Failed to load stocks', res.status);
+                let data = await res.json();
+                // apply entity view filter if selected, but skip filtering when sidebar 'all' is active
+                const viewEntity = entityViewSelect ? (entityViewSelect.value || '').toString().trim() : '';
+                let activeCatForTshirt = 'all';
+                try{ const activeLi = sidebar && sidebar.querySelector && sidebar.querySelector('ul li.active'); activeCatForTshirt = activeLi && activeLi.dataset ? (activeLi.dataset.cat || 'all') : 'all'; }catch(e){}
+                if (viewEntity && (activeCatForTshirt || 'all') !== 'all'){
+                    data = (data || []).filter(s => (s.entity || '').toString().trim() === viewEntity);
+                }
+                const colors = ['white','black',];
+                const sizes = ['XS','S','M','L','XL','XXL','3XL','4XL','5XL'];
+                function canonicalizeSize(sz){
+                    if (!sz) return null;
+                    const s = sz.toString().trim().toUpperCase();
+                    if (/^\d+XL$/.test(s)) return s;
+                    const m = s.match(/^X+L$/);
+                    if (m){
+                        const countX = s.length - 1; // number of X characters
+                        if (countX === 1) return 'XL';
+                        if (countX === 2) return 'XXL';
+                        return String(countX) + 'XL';
+                    }
+                    const m2 = s.replace(/\s+/g,'');
+                    if (/^\dXL$/.test(m2) || /^\d+XL$/.test(m2)) return m2;
+                    return s;
+                }
+                const grid = {};
+                colors.forEach(c=> grid[c] = {});
+                sizes.forEach(sz=> colors.forEach(c=> grid[c][sz]=0));
+
+                data.forEach(it=>{
+                    if (normalize(it.item_type) !== 'tshirt') return;
+                    const col = normalize(it.color_or_type || it.color || '');
+                    const size = (it.size||'').toString();
+                    if (!colors.includes(col)) return; // ignore other colors
+                    const cs = canonicalizeSize(size);
+                    const canonicalSize = sizes.find(s => s.toString().toUpperCase() === (cs||'').toUpperCase());
+                    if (!canonicalSize) return;
+                    grid[col][canonicalSize] = (grid[col][canonicalSize] || 0) + Number(it.quantity || 0);
+                });
+
+                const tbl = document.getElementById('tshirtTable');
+                if (!tbl) return;
+                const tbody = tbl.querySelector('tbody');
+                let totals = { white:0, black:0, all:0 };
+                // Update rows by size (only White and Black columns)
+                Array.from(tbody.rows).forEach(r=>{
+                    const size = r.cells[0].textContent.trim();
+                    const w = grid.white[size] || 0;
+                    const b = grid.black[size] || 0;
+                    r.cells[1].textContent = w;
+                    r.cells[2].textContent = b;
+                    totals.white += w;
+                    totals.black += b;
+                });
+                document.getElementById('totalWhite').textContent = totals.white;
+                document.getElementById('totalBlack').textContent = totals.black;
+            }catch(err){ console.error(err); }
+        };
+
+        document.addEventListener('DOMContentLoaded', ()=>{ try{ window.updateTshirtTable(); }catch(e){} });
+
+        try{ const tc = document.getElementById('tshirtCard'); if (tc) tc.style.display='none'; }catch(e){}
+
+        window.addEventListener('storage', (e)=>{ if (e.key === 'stockUpdated') try{ window.updateTshirtTable(); }catch(err){} });
+
+        (function(){
+            const modal = document.getElementById('tshirtModal');
+            const backdrop = document.getElementById('modalBackdrop');
+            const modalBody = document.getElementById('tshirtModalBody');
+            const closeBtn = document.getElementById('closeTshirtModal');
+            const sidebar = document.getElementById('leftSidebar');
+            function buildCategoryTable(category, data){
+                const table = document.createElement('table');
+                table.className = 'category-table';
+                const header = table.createTHead();
+                const hrow = header.insertRow();
+
+                // category-specific mapping for columns and sizes
+                const mappings = {
+                    'tshirt': { cols:['White', 'Black'], sizes:['XS','S','M','L','XL','XXL','3XL','4XL','5XL'] },
+                    'jeans': { cols:['Jeans'], sizes:['28','30','32','34','36','38','40','42','44','46','48'] },
+                    'safety_shoes': { cols:['Ladies','Gents'], sizes:['2','3','5','6','7','8','9','10','11','12'] },
+                    'formals': { cols:['Gents_Grey','Gents_White','Ladies_Grey','Ladies_White'], sizes:[ 'XS','S','M','L','XL','XXL','3XL','4XL','5XL'] },
+                    'goggles': { cols:['Normal','Overhead'], sizes:['normal','overhead'] },
+                    'trainee': { cols:['Trainee'], sizes:['XS','S','M','L','XL', 'XXL', '3XL', '4XL', '5XL'] },
+                };
+                const map = mappings[category] || { cols:['Type'], sizes:[] };
+
+                // build headers
+                // For formals we want a grouped header: Size | Gents (Grey Shirt, White Shirt) | Ladies (Grey Shirt, White Shirt)
+                const thSize = document.createElement('th'); thSize.textContent = 'Size'; hrow.appendChild(thSize);
+
+                if (category === 'formals') {
+                    // first header row: group labels
+                    const gentsTh = document.createElement('th'); gentsTh.textContent = 'Gents'; gentsTh.colSpan = 2; gentsTh.style.textAlign = 'center'; hrow.appendChild(gentsTh);
+                    const ladiesTh = document.createElement('th'); ladiesTh.textContent = 'Ladies'; ladiesTh.colSpan = 2; ladiesTh.style.textAlign = 'center'; hrow.appendChild(ladiesTh);
+
+                    const hrow2 = header.insertRow();
+                    // empty cell under Size for second header row
+                    const empty = document.createElement('th'); empty.textContent = '';
+                    hrow2.appendChild(empty);
+                    const thGentsGrey = document.createElement('th'); thGentsGrey.textContent = 'Grey Shirt'; hrow2.appendChild(thGentsGrey);
+                    const thGentsWhite = document.createElement('th'); thGentsWhite.textContent = 'White Shirt'; hrow2.appendChild(thGentsWhite);
+                    const thLadiesGrey = document.createElement('th'); thLadiesGrey.textContent = 'Grey Shirt'; hrow2.appendChild(thLadiesGrey);
+                    const thLadiesWhite = document.createElement('th'); thLadiesWhite.textContent = 'White Shirt'; hrow2.appendChild(thLadiesWhite);
+                } else {
+                    map.cols.forEach(c=>{ const th = document.createElement('th'); th.textContent = (c||'').toString().replace(/_/g,' '); hrow.appendChild(th); });
+                }
+
+                const tbody = table.createTBody();
+                // prepare counts grid
+                const grid = {};
+                // normalize column keys for consistent lookup
+                map.cols.forEach(c=> grid[c.toString().toLowerCase()] = {});
+                map.sizes.forEach(sz => map.cols.forEach(c => grid[c.toString().toLowerCase()][sz] = 0));
+
+                data.forEach(it=>{
+                    if ((it.item_type||'').toString().toLowerCase() !== category) return;
+                    const color = (it.color_or_type || it.color || '').toString().trim().toLowerCase();
+                    const size = (it.size||'').toString().trim();
+                    // determine column key for formals
+                    const availableCols = map.cols.map(x=>x.toString().toLowerCase());
+                    let colKey = null;
+                    const token = (color||'').toString().toLowerCase().replace(/\s+/g,'_');
+                    // Accept explicit tokens like 'gents_grey' or 'ladies_white'
+                    if (token && availableCols.includes(token)) colKey = token;
+                    if (!colKey) {
+                        const isGents = token.includes('gents') || token.includes('male');
+                        const isLadies = token.includes('ladies') || token.includes('female');
+                        const isGrey = token.includes('grey') || token.includes('gray');
+                        const isWhite = token.includes('white');
+                        if (isGents && isGrey) colKey = 'gents_grey';
+                        else if (isGents && isWhite) colKey = 'gents_white';
+                        else if (isLadies && isGrey) colKey = 'ladies_grey';
+                        else if (isLadies && isWhite) colKey = 'ladies_white';
+                        else if (isGents) colKey = 'grey shirt'; 
+                        else if (isLadies) colKey = 'grey shirt'; 
+                        else if (isGents) colKey = 'white shirt'; 
+                        else if (isLadies) colKey = 'white shirt'; 
+                    }
+                    if (!colKey){
+                        // try find any column with substring match
+                        colKey = availableCols.find(k => token && (k.includes(token) || token.includes(k)));
+                    }
+                    if (!colKey) colKey = availableCols[0] || null;
+                    if (!colKey) return;
+                    let canonical = size;
+                    if (category === 'tshirt' || category === 'formals'){
+                        const s = size.toUpperCase();
+                        if (/^\d+XL$/.test(s)) canonical = s;
+                        else if (/^X+L$/.test(s)){
+                            const count = s.length - 1; canonical = (count<=2 ? (count===1?'XL':'XXL') : String(count)+'XL');
+                        }
+                    }
+                    if (colKey && grid[colKey] && !(canonical in grid[colKey])) grid[colKey][canonical] = 0;
+                    if (colKey && grid[colKey]) grid[colKey][canonical] += Number(it.quantity || 0);
+                });
+
+                // populate rows
+                map.sizes.forEach(sz=>{
+                    const r = tbody.insertRow();
+                    const c0 = r.insertCell(); c0.textContent = sz;
+                    // when formals, the order of columns is: gents_grey, gents_white, ladies_grey, ladies_white
+                    if (category === 'formals'){
+                        // use canonical column keys matching map.cols: gents_grey, gents_white, ladies_grey, ladies_white
+                        const order = ['gents_grey','gents_white','ladies_grey','ladies_white'];
+                        order.forEach(colKey => {
+                            const v = (grid[colKey] && grid[colKey][sz]) ? grid[colKey][sz] : 0;
+                            const cell = r.insertCell(); cell.textContent = v;
+                        });
+                    } else {
+                        map.cols.forEach(col => {
+                            const key = col.toString().toLowerCase();
+                            const v = grid[key] && grid[key][sz] ? grid[key][sz] : 0;
+                            const cell = r.insertCell(); cell.textContent = v;
+                        });
+                    }
+                });
+
+                const tfoot = table.createTFoot(); const fr = tfoot.insertRow();
+                const fth = document.createElement('th'); fth.textContent = 'Total'; fr.appendChild(fth);
+                if (category === 'formals'){
+                    const order = ['gents_grey','gents_white','ladies_grey','ladies_white'];
+                    order.forEach(colKey => { const th=document.createElement('th'); let sum=0; map.sizes.forEach(sz=>{ sum += Number((grid[colKey]||{})[sz]||0); }); th.textContent = sum; fr.appendChild(th); });
+                } else {
+                    map.cols.forEach(col=>{ const th=document.createElement('th'); let sum=0; map.sizes.forEach(sz=>{ sum += Number((grid[col.toString().toLowerCase()]||{})[sz]||0); }); th.textContent = sum; fr.appendChild(th); });
+                }
+
+                return table;
+            }
+
+            const CATEGORY_LABELS = {
+                tshirt: 'T-Shirts',
+                jeans: 'Jeans',
+                safety_shoes: 'Safety Shoes',
+                goggles: 'Goggles',
+                formals: 'Formals',
+                trainee: 'Trainee',
+
+            };
+
+            function openModalFor(category){
+                modalBody.innerHTML = '';
+                const titleEl = document.getElementById('modalTitle');
+                let label = CATEGORY_LABELS[category] || (category ? category.replace(/_/g, ' ') : 'Category');
+                if (category === 'formals') label = 'Formals';
+                if (titleEl) titleEl.textContent = (category === 'formals' ? label + ' — by Gender & Color' : label + ' — by Color & Size');
+                modal.setAttribute('data-category', category);
+                // fetch current stocks then build table
+                fetch('/api/stocks/', { credentials: 'same-origin' }).then(r=> r.ok ? r.json() : Promise.reject(r)).then(data=>{
+                    // if an entity is selected in the view selector, filter the data to that entity
+                    const viewEntity = entityViewSelect ? (entityViewSelect.value || '').toString().trim() : '';
+                    let activeCatForModal = 'all';
+                    try{ const activeLi = sidebar && sidebar.querySelector && sidebar.querySelector('ul li.active'); activeCatForModal = activeLi && activeLi.dataset ? (activeLi.dataset.cat || 'all') : 'all'; }catch(e){}
+                    const filtered = (data || []).filter(s => {
+                        if (!viewEntity) return true;
+                        if ((activeCatForModal || 'all') === 'all') return true;
+                        const ent = (s.entity || '').toString().trim();
+                        return ent === viewEntity;
+                    });
+                    const tbl = buildCategoryTable(category, filtered);
+                    modalBody.appendChild(tbl);
+                    modal.style.display = 'block'; backdrop.style.display = 'block';
+                    try{ document.getElementById('tableSection').style.display = 'none'; }catch(e){}
+                    document.documentElement.style.overflow = 'hidden';
+                }).catch(err=>{ console.error('Failed to build category table', err); });
+            }
+
+            function closeModal(){
+                modal.style.display = 'none'; backdrop.style.display = 'none';
+                modal.removeAttribute('data-category');
+                try{ document.getElementById('tableSection').style.display = 'block'; }catch(e){}
+                document.documentElement.style.overflow = '';
+            }
+            if (sidebar){
+                sidebar.addEventListener('click', (e)=>{
+                    const li = e.target.closest('li'); if(!li) return;
+                    const cat = li.getAttribute('data-cat');
+                    if (!cat || cat === 'all') { closeModal(); return; }
+                    // block opening inactive custom categories
+                    if (li.classList && li.classList.contains('inactive')){
+                        const errEl = document.getElementById('errorPopover'); if (errEl){ errEl.textContent = 'This category is inactive'; errEl.style.display='block'; setTimeout(()=> errEl.style.display='none', 1800); }
+                        return;
+                    }
+                    // open modal for the selected category
+                    openModalFor(cat);
+                });
+            }
+            if (backdrop) backdrop.addEventListener('click', closeModal);
+            if (closeBtn) closeBtn.addEventListener('click', closeModal);
+            const originalUpdate = window.updateTshirtTable;
+            window.updateTshirtTable = async function(){
+                if (typeof originalUpdate === 'function') await originalUpdate();
+                    try{
+                        // If modal is open and showing a category, refresh it
+                        if (modal.style.display === 'block'){
+                            const current = modal.getAttribute('data-category');
+                            if (current) openModalFor(current);
+                        }
+                        // Additionally, if the entity-view produced no rows but the sidebar is on 'all',
+                        // ensure the underlying fetch-based table updater doesn't remain empty.
+                        // (originalUpdate already re-ran, but originalUpdate filters by entity;
+                        // if that produced an empty set while 'all' is active, call originalUpdate again
+                        // with the unfiltered stocks by re-fetching and re-running original logic.)
+                        try{
+                            const activeLi = sidebar && sidebar.querySelector && sidebar.querySelector('ul li.active');
+                            const activeCat = activeLi && activeLi.dataset ? (activeLi.dataset.cat || 'all') : 'all';
+                            const viewEntity = entityViewSelect ? (entityViewSelect.value || '').toString().trim() : '';
+                            if ((activeCat || 'all') === 'all' && viewEntity){
+                                // re-fetch to check whether there are any rows for this entity
+                                const res = await fetch('/api/stocks/', { credentials: 'same-origin' });
+                                // when sidebar 'all' is active we intentionally ignore entity filtering,
+                                // so nothing additional is required here. originalUpdate has already run.
+                                // (leave behavior as-is)
+                            }
+                        }catch(_){ }
+                    }catch(e){ /* ignore */ }
+            };
+        })();
+        </script>
+</body>
+</html>
+<script>
+(function(){
+    function setNavHeight(){
+        try{
+            const nav = document.querySelector('.navbar');
+            if (!nav) return;
+            const h = Math.max(56, Math.min(96, Math.round(nav.getBoundingClientRect().height)));
+            document.documentElement.style.setProperty('--nav-h', h + 'px');
+            document.body.style.paddingTop = getComputedStyle(document.documentElement).getPropertyValue('--nav-h');
+        }catch(e){/* ignore */}
+    }
+    function onScroll(){
+        const nav = document.querySelector('.navbar'); if (!nav) return;
+        if (window.scrollY > 8) nav.classList.add('scrolled'); else nav.classList.remove('scrolled');
+    }
+    window.addEventListener('resize', setNavHeight);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('DOMContentLoaded', ()=>{ setNavHeight(); onScroll(); });
+    setTimeout(()=>{ setNavHeight(); }, 250);
+})();
+</script>
+

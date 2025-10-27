@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Issue Items</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <!-- Inter for UI typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons (fallback if needed) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p6O8X1k6k3q1y8d6kz5q2+6V8e8b1qf6q1i9Yx1w2Z3v4Y5a6b7c8d9e0f1g2h3i4j5k6l7m8n9o0p==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        :root{
+            --bg:#f6f8fb; --card:#ffffff; --muted:#6b7280; --primary:#2563eb; --accent:#10b981;
+            --danger:#ef4444; --glass: rgba(255,255,255,0.6);
+        }
+        html,body{height:100%;}
+        body{font-family:Inter, 'Segoe UI', Roboto, Arial; background:var(--bg); margin:0; color:#0f172a;}
+        .logo{height:32px; margin-right:8px ; vertical-align:middle;padding:0;}
+        nav.navbar{display:flex; align-items:center; gap:14px; padding:12px 18px; background:linear-gradient(90deg,var(--primary),#3b82f6); color:white; box-shadow:0 6px 18px rgba(15,23,42,0.08);}
+        .navbar .brand{display:flex; align-items:center; gap:12px; font-weight:700; font-size:1.05rem;}
+        .navbar .brand img{height:36px; margin-right:8px; vertical-align:middle; padding:0; background-color: #e6eef8; border-radius: 4px;}
+        .navbar .navlinks{margin-left:auto; display:flex; gap:10px}
+        .navbar a{color:rgba(255,255,255,0.95); text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:600}
+        .navbar a:hover{background:rgba(255,255,255,0.12)}
+        .navbar a.active, .navbar a.active:hover{background:rgba(255,255,255,0.24); box-shadow:0 4px 12px rgba(0,0,0,0.1)}  
+        .container{max-width:1100px; margin:22px auto; padding:0 16px}
+    .card-grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:18px; margin-bottom:18px}
+        .card{background:var(--card); border-radius:12px; padding:18px; box-shadow:0 6px 18px rgba(15,23,42,0.06); display:flex; flex-direction:column; justify-content:space-between}
+        .card .card-icon{font-size:44px}
+        .card h3{margin:6px 0 8px 0}
+        .card p{color:var(--muted); margin:0 0 12px 0}
+        .card .card-actions{display:flex; gap:8px; align-items:center}
+        .card-btn{background:linear-gradient(180deg,var(--primary),#1d4ed8); color:white; border:none; padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer}
+        .card-btn.secondary{background:transparent; color:var(--primary); border:1px solid rgba(37,99,235,0.12)}
+
+        .table-wrap { background:var(--card); border-radius:12px; padding:14px; box-shadow:0 6px 18px rgba(15,23,42,0.04) }
+        
+        /* Scrollable table container styles */
+        .scrollable-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e6eef8;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+        
+        .scrollable-table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .scrollable-table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .scrollable-table-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        .scrollable-table-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        table { width:100%; border-collapse:collapse; font-size:14px }
+        thead th{background:#f1f5f9; padding:8px 10px; text-align:left; color:#334155; border-bottom:1px solid #e6eef8}
+        tbody td{padding:8px 10px; border-bottom:1px solid #f1f5f9; color:#0f172a}
+        .actions-cell{display:flex; gap:8px}
+        .delete-btn{background:transparent; border:1px solid rgba(239,68,68,0.08); color:var(--danger); padding:6px 8px; border-radius:8px; cursor:pointer}
+
+        .form-overlay{
+            width:680px;
+            max-width:96%;
+            border-radius:12px;
+            background:var(--card);
+            position:fixed;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%) scale(0.98);
+            box-shadow: 0 20px 60px rgba(2,6,23,0.25), inset 0 1px 0 rgba(255,255,255,0.6);
+            z-index:1001;
+            max-height:calc(100vh - 80px);
+            overflow:auto;
+            padding:18px;
+            transition: transform .28s cubic-bezier(.2,.9,.2,1), opacity .22s ease;
+            opacity:0;
+            visibility:hidden;
+        }
+        .form-overlay.show {
+            transform:translate(-50%,-50%) scale(1);
+            opacity:1;
+            visibility:visible;
+        }
+        #overlayBackdrop{
+            position: fixed;
+            inset: 0; /* top:0; right:0; bottom:0; left:0 */
+            background: rgba(2,6,23,0.45);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            transition: opacity .22s ease, visibility .22s ease;
+            opacity:0;
+            visibility:hidden;
+            z-index:1000;
+        }
+        #overlayBackdrop.show { opacity:1; visibility:visible; }
+
+        /* Mobile: make overlay act like full-screen drawer */
+        @media (max-width:720px){
+            .form-overlay{ width: 100%; left:50%; top:50%; transform: translate(-50%,-50%); border-radius:12px; max-height:90vh; padding:14px; }
+            .form-overlay .form-header { border-radius:8px 8px 0 0; }
+        }
+
+    .issue-form { display: grid; grid-template-columns: 1fr 1fr; gap:12px; align-items:stretch; }
+    .issue-form .form-group { display:flex; flex-direction:column; gap:6px; }
+    .issue-form .form-group.full { grid-column: 1 / -1; }
+    .issue-form label { font-weight:600; color:#334155; font-size:13px; }
+    .issue-form input[type="text"], .issue-form input[type="email"], .issue-form input[type="number"], .issue-form select { padding:10px 12px; border-radius:8px; border:1px solid #e6eef8; background:#fbfdff; font-size:14px }
+    .issue-form .small { font-size:12px; color:var(--muted); }
+    .issue-actions { display:flex; gap:8px; justify-content:flex-end; grid-column:1 / -1; }
+    .btn-primary { background: linear-gradient(180deg,var(--primary),#1d4ed8); color:white; padding:10px 14px; border-radius:10px; border:none; font-weight:700; cursor:pointer }
+    .btn-secondary { background:transparent; border:1px solid rgba(37,99,235,0.12); color:var(--primary); padding:8px 12px; border-radius:8px; cursor:pointer }
+    .form-header { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:8px }
+    .form-note { font-size:13px; color:var(--muted); }
+    @media (max-width:700px){ .issue-form{ grid-template-columns: 1fr; } .issue-actions{ justify-content:stretch } }
+
+        @media (max-width:980px){ .card-grid{grid-template-columns:repeat(2,1fr);} }
+        @media (max-width:660px){ .card-grid{grid-template-columns:1fr;} nav.navbar{padding:10px} .navbar .navlinks{display:none} thead th{font-size:12px} tbody td{font-size:13px} }
+
+        .card-btn, .btn-primary, .btn-secondary { transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease; }
+        .card-btn:hover, .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(37,99,235,0.12); }
+        .card-btn.secondary, .btn-secondary { background:transparent; opacity:0.95 }
+
+        .issue-form .form-group input, .issue-form .form-group select { width:100%; box-sizing:border-box; border-radius:8px; }
+        .issue-form .form-group input:focus, .issue-form .form-group select:focus { outline: none; box-shadow: 0 6px 18px rgba(37,99,235,0.08); border-color: rgba(37,99,235,0.18); }
+
+        .form-overlay { max-height: calc(100vh - 80px); overflow:auto; padding:20px; }
+
+        .table-wrap { overflow:auto; }
+        @media (max-width:800px) {
+            .table-wrap table, .table-wrap thead, .table-wrap tbody, .table-wrap th, .table-wrap td, .table-wrap tr { display:block; }
+            .table-wrap thead tr { position: absolute; top: -9999px; left: -9999px; }
+            .table-wrap tr { border:1px solid #eef2ff; margin-bottom:10px; border-radius:8px; padding:10px; background: #fff; }
+            .table-wrap td { border: none; position: relative; padding-left: 48%; white-space: normal; word-wrap: break-word; }
+            .table-wrap td:before { position: absolute; left:12px; width:42%; white-space:nowrap; font-weight:700; color:#334155; }
+            .table-wrap td:nth-of-type(1):before { content: 'Emp ID'; }
+            .table-wrap td:nth-of-type(2):before { content: 'Name'; }
+            .table-wrap td:nth-of-type(3):before { content: 'Email'; }
+            .table-wrap td:nth-of-type(4):before { content: 'Gender'; }
+            .table-wrap td:nth-of-type(5):before { content: 'Entity'; }
+            .table-wrap td:nth-of-type(6):before { content: 'Category'; }
+            .table-wrap td:nth-of-type(7):before { content: 'Sub Category'; }
+            .table-wrap td:nth-of-type(8):before { content: 'Size'; }
+            .table-wrap td:nth-of-type(9):before { content: 'Quantity'; }
+            .table-wrap td:nth-of-type(10):before { content: 'Date Issued'; }
+            .table-wrap td:nth-of-type(11):before { content: 'Next Issue'; }
+            .table-wrap td:nth-of-type(12):before { content: 'Buy'; }
+            .table-wrap td:nth-of-type(13):before { content: 'Buy Price'; }
+        }
+
+        @media (max-width:480px) { .card-grid { display:flex; overflow-x:auto; gap:12px; } .card { min-width:220px; flex:0 0 auto; } }
+
+        body { background: linear-gradient(180deg,#f8fafc,#f1f5f9); }
+        .card { border:1px solid #eef2ff; }
+        #shoesOverlay .form-header { background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(16,185,129,0.02)); padding:10px 12px; border-radius:8px; margin-bottom:12px }
+        #shoesOverlay .form-group { margin-bottom:8px }
+        #shoesOverlay .form-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap }
+        #shoesOverlay select, #shoesOverlay input[type="number"] { min-width:0 }
+        @media (max-width:700px) {
+            #shoesOverlay .form-row { flex-direction:column; align-items:stretch }
+            #shoesOverlay .form-group { width:100% }
+        }
+    </style>
+    </head>
+    <body>
+                    <nav class="navbar">
+                        <div class="brand"><img src="https://www.aequs.com/wp-content/uploads/2021/06/Aequs-Logo-new.png" alt="logo" onerror="this.style.display='none'"></div>
+                        <div class="navlinks">
+
+                            <!-- <a href="/inventory/home/">Home</a> -->
+                            <a href="/admin/dashboard/">Dashboard</a>
+                            <a href="/inventory/employee_issue_items/">Issue Item</a>
+                            <a href="/inventory/stock/">Stock</a>
+                        </div>
+                    </nav>
+                    <div class="container">
+                        <div id="toastContainer" aria-live="polite" aria-atomic="true" style="position:fixed; top:18px; right:18px; z-index:1100;"></div>
+
+                        {% if messages %}
+                        <div id="serverMessages" style="display:none;">
+                            {% for msg in messages %}
+                                <div class="server-msg {{ msg.tags|default:''|escape }}">{{ msg }}</div>
+                            {% endfor %}
+                        </div>
+                        <div id="serverMessagesFallback" style="margin-bottom:12px;">
+                            {% for msg in messages %}
+                                <div style="padding:10px 12px; border-radius:8px; margin-bottom:6px; font-weight:600;" class="server-msg-visible {{ msg.tags|default:''|escape }}">{{ msg }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <script>
+                        (function(){
+                            try {
+                                var container = document.getElementById('toastContainer');
+                                if (!container) return;
+                                var serverMsgs = document.querySelectorAll('#serverMessages .server-msg');
+                                if (!serverMsgs || serverMsgs.length === 0) return;
+                                serverMsgs.forEach(function(sm){
+                                    var txt = (sm.textContent || sm.innerText || '').trim();
+                                    if (!txt) return;
+                                    var cls = Array.prototype.slice.call(sm.classList || []).filter(function(c){ return c && c !== 'server-msg'; })[0] || 'info';
+                                    var el = document.createElement('div');
+                                    el.className = 'toast ' + cls;
+                                    el.textContent = txt;
+                                    el.style.background = cls.indexOf('error') !== -1 ? '#ef4444' : (cls.indexOf('success') !== -1 ? '#10b981' : (cls.indexOf('warning') !== -1 ? '#f59e0b' : '#111'));
+                                    el.style.color = (cls.indexOf('warning') !== -1) ? '#111' : '#fff';
+                                    el.style.padding = '10px 14px'; el.style.borderRadius = '8px'; el.style.marginTop = '8px'; el.style.opacity = '0'; el.style.transform = 'translateY(-8px)'; el.style.transition = 'all .22s ease'; el.style.boxShadow = '0 8px 28px rgba(2,6,23,0.16)'; el.style.maxWidth = '360px';
+                                    container.appendChild(el);
+                                    setTimeout(function(){ el.style.opacity = '1'; el.style.transform = 'translateY(0)'; }, 20);
+                                    setTimeout(function(){ el.style.opacity = '0'; el.style.transform = 'translateY(-8px)'; setTimeout(function(){ try{ container.removeChild(el); }catch(e){} }, 260); }, 5000);
+                                });
+                            } catch(e) { console && console.error && console.error(e); }
+                        })();
+                        </script>
+
+                        <div id="issueFormContainer" style="display:none;">
+                         </div>
+            <div class="table-section" id="tableSection">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; margin-top: 25px;">
+                    <h2 style="margin: 0;">EMPLOYEE ISSUE ITEMS</h2>
+                   
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button id="forecastBtn" class="card-btn secondary" style="padding:8px 10px;">6-Month Forecast</button>
+                    </div>
+                </div>
+                <div class="card-grid">
+                    <div class="card">
+                        <div>
+                            <div class="card-icon">👔</div>
+                            <h3>Uniforms</h3>
+                            <p>Issue uniforms:<br> T-shirts,Jeans and Formals</p>
+                        </div>
+                        <div class="card-actions">
+                            <button id="issueuniformBtn" class="card-btn">Issue</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div>
+                            <div class="card-icon">👟</div>
+                            <h3>Safety-Shoes</h3>
+                            <p>Issue Safety-Shoes</p>
+                        </div>
+                        <div class="card-actions">
+                            <button id="issueshoesBtn" class="card-btn">Issue</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div>
+                            <div class="card-icon" >🧑‍🚒</div>
+                            <h3>Accessories</h3>
+                            <p>Goggles and other accessories</p>
+                        </div>
+                        <div class="card-actions">
+                            <button id="issueaccessoryBtn" class="card-btn">Issue</button>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+                <div class="table-wrap">
+                </div>
+            <div id="overlayBackdrop"></div>
+                 <!-- Uniform Overlay Form -->
+                     <div id="uniformOverlay" class="form-overlay">
+                     <button type="button" class="card-btn" style="float:right; background:#d32f2f; padding:6px 10px;" id="closeUniform">Close</button>
+                <div class="form-header" style="background:linear-gradient(90deg, rgba(37,99,235,0.06), rgba(16,185,129,0.03)); padding:10px 12px; border-radius:8px; margin-bottom:12px; align-items:center;">
+                    <div style="display:flex; flex-direction:column;">
+                        <h2 style="margin:0; font-size:1.1rem;">Uniform Issue Form</h2>
+                        <div class="form-note" style="margin-top:4px;">On-Role, Trainee and Formals</div>
+                    </div>
+                </div>
+                <form id="uniformForm" class="issue-form" method="post" action="/inventory/save-issue/">
+                    {% csrf_token %}
+                    <input type="hidden" name="issue_id" class="issue-id" value="">
+                    <div class="form-group">
+                        <label>Employee ID</label>
+                        <select class="emp-select" name="empId" required>
+                            <option value="">Select Employee ID</option>
+                            {% for emp in employees %}
+                            <option value="{{ emp.emp_id }}">{{ emp.emp_id }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>                    
+                    <div class="form-group">
+                        <label>Employee Name</label>
+                        <input type="text" class="emp-name" name="employeeName" readonly required>
+                    </div>
+                        <style>
+                            .form-row {
+                            display: flex;
+                            gap: 20px;
+                            margin-bottom: 15px;
+                            }
+
+                            .form-group {
+                            display: flex;
+                            flex-direction: column;
+                            }
+
+                            .form-group label {
+                            font-weight: 600;
+                            margin-bottom: 5px;
+                            }
+
+                            .form-group input {
+                            padding: 8px;
+                            border: 1px solid #ccc;
+                            border-radius: 6px;
+                            background-color: #f9f9f9;
+                            }
+
+                            .form-group.email,
+                            .form-group.entity {
+                            flex: auto; 
+                            }
+
+                            .form-group.gender {
+                            flex: 20; 
+                            }
+                            </style>
+                            <div class="form-row">
+                            <div class="form-group email">
+                                <label>Email</label>
+                                <input type="email" class="emp-email" name="email" readonly required>
+                            </div>
+                            <div class="form-group gender">
+                                <label>Gender</label>
+                                <input type="text" class="emp-gender" name="gender" readonly required>
+                            </div>
+
+                            <div class="form-group entity">
+                                <label>Entity</label>
+                                <input type="text" class="emp-entity" name="entity" readonly required>
+                            </div>
+                            </div>
+                    <div class="form-group full">
+                        <label for="uniformType">Uniform Type / Category</label>
+                        <select id="uniformType" name="Category" required>
+                            <option value="">Select Type</option>
+                            <option value="tshirt">On-Role</option>
+                            <option value="trainee">Trainee</option>
+                            <option value="formals">Formals</option>
+                        </select>
+                    </div>
+
+                    <div id="traineeSection" class="form-group full uniform-section" style="display:none;">
+                        <label>Trainee Items</label>
+                        <div style="display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start; margin-top:8px;">
+                            <div style="min-width:220px;">
+                                <label class="small"><input type="checkbox" id="traineeTshirtChk" name="trainee_tshirt_chk" value="trainee_tshirt"> Trainee T-Shirt</label>
+                                <div style="margin-top:6px">
+                                    <label class="small">Size</label>
+                                    <select id="traineeTshirtSize" name="trainee_tshirt_size" disabled>
+                                        <option value="">Select Size</option>
+                                        {% for s in CATEGORY_SIZES.trainee %}
+                                            <option value="{{ s }}">{{ s }}</option>
+                                        {% empty %}
+                                            <option value="">No sizes configured</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label class="small" style="margin-left:8px">Qty</label>
+                                    <input type="number" id="traineeTshirtQty" name="trainee_tshirt_qty" min="1" max="2" value="0" disabled style="width:64px">
+                                </div>
+                            </div>
+                            <div style="min-width:220px;">
+                                <label class="small"><input type="checkbox" id="traineeJeansChk" name="trainee_jeans_chk" value="trainee_jeans"> Trainee Jeans</label>
+                                <div style="margin-top:6px">
+                                    <label class="small">Size</label>
+                                    <select id="traineeJeansSize" name="trainee_jeans_size" disabled>
+                                        <option value="">Select Size</option>
+                                        {% for s in CATEGORY_SIZES.jeans %}
+                                            <option value="{{ s }}">{{ s }}</option>
+                                        {% empty %}
+                                            <option value="">No sizes configured</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label class="small" style="margin-left:8px">Qty</label>
+                                    <input type="number" id="traineeJeansQty" name="trainee_jeans_qty" min="1" max="2" value="0" disabled style="width:64px">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="regularSection" class="form-group full uniform-section" style="display:none;">
+                        <label>On-Role Uniform</label>
+                        <div style="display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start; margin-top:8px;">
+                            <div style="min-width:180px;">
+                                <label class="small"><input type="checkbox" id="tshirtWhiteChk" name="tshirt_white_chk" value="white"> White T-Shirt</label>
+                                <div style="margin-top:6px">
+                                    <label class="small">Size</label>
+                                    <select id="tshirtWhiteSize" name="tshirt_white_size" disabled>
+                                        <option value="">Select Size</option>
+                                        {% for s in CATEGORY_SIZES.tshirt %}
+                                            <option value="{{ s }}">{{ s }}</option>
+                                        {% empty %}
+                                            <option value="">No sizes configured</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label class="small" style="margin-left:8px">Qty</label>
+                                    <input type="number" id="tshirtWhiteQty" name="tshirt_white_qty" min="0" max="1" value="0" disabled style="width:64px">
+                                    <label class="small" style="margin-left:8px"><input type="checkbox" id="tshirtWhiteBuy" name="tshirt_white_buy" disabled> Buy</label>
+                                    <div id="tshirtWhitePriceDiv" style="display:none; margin-top:4px;">
+                                        <label class="small">Price (₹)</label>
+                                        <input type="number" id="tshirtWhitePrice" name="tshirt_white_price" min="0" step="0.01" disabled style="width:80px" placeholder="0.00">
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="min-width:180px;">
+                                <label class="small"><input type="checkbox" id="tshirtBlackChk" name="tshirt_black_chk" value="black"> Black T-Shirt</label>
+                                <div style="margin-top:6px">
+                                    <label class="small">Size</label>
+                                    <select id="tshirtBlackSize" name="tshirt_black_size" disabled>
+                                        <option value="">Select Size</option>
+                                        {% for s in CATEGORY_SIZES.tshirt %}
+                                            <option value="{{ s }}">{{ s }}</option>
+                                        {% empty %}
+                                            <option value="">No sizes configured</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label class="small" style="margin-left:8px">Qty</label>
+                                    <input type="number" id="tshirtBlackQty" name="tshirt_black_qty" min="0" max="1" value="0" disabled style="width:64px">
+                                    <label class="small" style="margin-left:8px"><input type="checkbox" id="tshirtBlackBuy" name="tshirt_black_buy" disabled> Buy</label>
+                                    <div id="tshirtBlackPriceDiv" style="display:none; margin-top:4px;">
+                                        <label class="small">Price (₹)</label>
+                                        <input type="number" id="tshirtBlackPrice" name="tshirt_black_price" min="0" step="0.01" disabled style="width:80px" placeholder="0.00">
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="min-width:220px;">
+                                <label class="small">Jeans</label>
+                                <input type="checkbox" id="jeansRegularChk" name="jeans_regular_chk" value="jeans"> Jeans</label>
+                                <div style="margin-top:6px">
+                                    <label class="small">Size</label>
+                                    <select id="jeansSizeRegular" name="jeansSize">
+                                        <option value="">Select Size</option>
+                                        {% for s in CATEGORY_SIZES.jeans %}
+                                            <option value="{{ s }}">{{ s }}</option>
+                                        {% empty %}
+                                            <option value="">No sizes configured</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label class="small" style="margin-left:8px">Qty</label>
+                                    <input type="number" id="jeansQtyRegular" name="jeansQuantity" min="0" max="2" value="0" style="width:64px">
+                                    <label class="small" style="margin-left:8px"><input type="checkbox" id="jeansRegularBuy" name="jeans_regular_buy"> Buy</label>
+                                    <div id="jeansRegularPriceDiv" style="display:none; margin-top:4px;">
+                                        <label class="small">Price (₹)</label>
+                                        <input type="number" id="jeansRegularPrice" name="jeans_regular_price" min="0" step="0.01" style="width:80px" placeholder="0.00">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="formalsSection" class="form-group full uniform-section" style="display:none;">
+                        <label>Formals</label>
+                        <div style="display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start; margin-top:8px;">
+                            <div style="min-width:200px;">
+                                <label class="small"><input type="checkbox" id="formalGreyChk" name="formal_grey_chk" value="Grey_Shirt"> Grey Shirt</label>
+                                <div style="margin-top:6px">
+                                    <label class="small">Size</label>
+                                    <select id="formalGreySize" name="formal_grey_size" disabled>
+                                        <option value="">Select Size</option>
+                                        {% for s in CATEGORY_SIZES.formals %}
+                                            <option value="{{ s }}">{{ s }}</option>
+                                        {% empty %}
+                                            <option value="">No sizes configured</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label class="small" style="margin-left:8px">Qty</label>
+                                    <input type="number" id="formalGreyQty" name="formal_grey_qty" min="0" max="2" disabled style="width:64px">
+                                </div>
+                            </div>
+                            <div style="min-width:200px;">
+                                <label class="small"><input type="checkbox" id="formalWhiteChk" name="formal_white_chk" value="White_Shirt"> White Shirt</label>
+                                <div style="margin-top:6px">
+                                    <label class="small">Size</label>
+                                    <select id="formalWhiteSize" name="formal_white_size" disabled>
+                                        <option value="">Select Size</option>
+                                        {% for s in CATEGORY_SIZES.formals %}
+                                            <option value="{{ s }}">{{ s }}</option>
+                                        {% empty %}
+                                            <option value="">No sizes configured</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label class="small" style="margin-left:8px">Qty</label>
+                                    <input type="number" id="formalWhiteQty" name="formal_white_qty" min="0" max="2" value="0" disabled style="width:64px">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="issue-actions">
+                        <button type="button" class="btn-secondary" id="closeUniformBottom">Cancel</button>
+                        <button type="submit" class="btn-primary">Issue Item</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Safety Shoes Overlay -->
+                <div id="shoesOverlay" class="form-overlay">
+                <button type="button" class="card-btn" style="float:right; background:#d32f2f; padding:6px 10px;" id="closeShoes">Close</button>
+                <div class="form-header">
+                    <h3>Safety Shoes Issue</h3>
+                    <div class="form-note">Select safety_shoes </div>
+                </div>
+                <form id="shoesForm" class="issue-form" method="post" action="/inventory/save-issue/">
+                    {% csrf_token %}
+                    <input type="hidden" name="issue_id" class="issue-id" value="">
+                    <div class="form-group">
+                        <label>Employee ID</label>
+                        <select class="emp-select" name="empId" required>
+                            <option value="">Select Employee ID</option>
+                            {% for emp in employees %}
+                            <option value="{{ emp.emp_id }}">{{ emp.emp_id }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Employee Name</label>
+                        <input type="text" class="emp-name" name="employeeName" readonly required>
+                    </div>
+                        <style>
+                            .form-row {
+                            display: flex;
+                            gap: 20px;
+                            margin-bottom: 15px;
+                            }
+                            .form-group {
+                            display: flex;
+                            flex-direction: column;
+                            }
+
+                            .form-group label {
+                            font-weight: 600;
+                            margin-bottom: 5px;
+                            }
+
+                            .form-group input {
+                            padding: 8px;
+                            border: 1px solid #ccc;
+                            border-radius: 6px;
+                            background-color: #f9f9f9;
+                            }
+
+                            .form-group.email,
+                            .form-group.entity {
+                            flex: 2; 
+                            }
+
+                            .form-group.gender {
+                            flex: 1; 
+                            }
+                            </style>
+                            <div class="form-row">
+                            <div class="form-group email">
+                                <label>Email</label>
+                                <input type="email" class="emp-email" name="email" readonly required>
+                            </div>
+
+                            <div class="form-group gender">
+                                <label>Gender</label>
+                                <input type="text" class="emp-gender" name="gender" readonly required>
+                            </div>
+
+                            <div class="form-group entity">
+                                <label>Entity</label>
+                                <input type="text" class="emp-entity" name="entity" readonly required>
+                            </div>
+                            </div>
+                        <div class="form-group full">
+                            <label for="safetyCategory">Category</label>
+                                    <select id="safetyCategory" name="Category" required>
+                                        <option value="">Select Category</option>
+                                        {% for cat in categories %}
+                                        <option value="{{ cat.value }}">{{ cat.label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label for="safetySubcategory">Subcategory</label>
+                                    <select id="safetySubcategory" name="Subcategory" required>
+                                        <option value="">Select Subcategory</option>
+                                        {% for sub in subcategories %}
+                                        <option value="{{ sub.value }}">{{ sub.label }}</option>
+                                        {% endfor %}
+                                    </select>
+                    </div>
+                    <div class="form-row" style="align-items:center; gap:8px; flex-wrap:wrap;">
+                    <div class="form-group">
+                        <label for="safety_shoesSize"> Safety_Shoe Size</label>
+                        <select id="safety_shoesSize" name="safety-shoesSize" style="display:inline-block;">
+                            <option value="">Select Size</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="Safety-Shoes">Quantity</label>
+                        <input type="number" id="Safety-Shoes" name="Safety-Shoes" min="1" max="1" value="1" style="display:inline-block; width:80px;">
+                    </div>
+                    </div>
+                    <div id="shoesError" style="display:none;color:#b91c1c;font-weight:700;margin-top:6px"></div>
+                    <div class="small" style="margin-top:6px;">
+                        <label><input type="checkbox" id="shoesBuyCheckbox" name="Buy" value="yes"> Buy</label>
+                        <div id="shoesPriceDiv" style="display:none; margin-top:6px;">
+                            <label class="small">Price (₹)</label>
+                            <input type="number" id="shoesPrice" name="buy_price" min="0" step="0.01" style="width:100px" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="issue-actions">
+                        <button type="button" class="btn-secondary" id="closeShoesBottom">Cancel</button>
+                        <button type="submit" class="btn-primary">Issue Safety-Shoes</button>
+                    </div>
+                </form>
+            </div>
+            <!-- Accessory Overlay -->
+            <div id="accessoryOverlay" class="form-overlay">
+                <button type="button" class="card-btn" style="float:right; background:#d32f2f; padding:6px 10px;" id="closeAccessory">Close</button>
+                <div class="form-header">
+                    <h3>Accessory Issue</h3>
+                    <div class="form-note">Select  accessories</div>
+
+                </div>
+                <form id="accessoryForm" class="issue-form" method="post" action="/inventory/save-issue/">
+                    {% csrf_token %}
+                    <input type="hidden" name="issue_id" class="issue-id" value="">
+                    <div class="form-group">
+                        <label>Employee ID</label>
+                        <select class="emp-select" name="empId" required>
+                            <option value="">Select Employee ID</option>
+                            {% for emp in employees %}
+                            <option value="{{ emp.emp_id }}">{{ emp.emp_id }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Employee Name</label>
+                        <input type="text" class="emp-name" name="employeeName" readonly required>
+                    </div>
+                    <style>
+                    .form-row {
+                    display: flex;
+                    gap: 20px;
+                    margin-bottom: 15px;
+                    }
+
+                    .form-group {
+                    display: flex;
+                    flex-direction: column;
+                    }
+
+                    .form-group label {
+                    font-weight: 600;
+                    margin-bottom: 5px;
+                    }
+
+                    .form-group input {
+                    padding: 8px;
+                    border: 1px solid #ccc;
+                    border-radius: 6px;
+                    background-color: #f9f9f9;
+                    }
+                    .form-group.email,
+                    .form-group.entity {
+                    flex: 2; 
+                    }
+
+                    .form-group.gender {
+                    flex: 1; 
+                    }
+                    </style>
+
+                    <div class="form-row">
+                    <div class="form-group email">
+                        <label>Email</label>
+                        <input type="email" class="emp-email" name="email" readonly required>
+                    </div>
+                    <div class="form-group gender">
+                        <label>Gender</label>
+                        <input type="text" class="emp-gender" name="gender" readonly required>
+                    </div>
+
+                    <div class="form-group entity">
+                        <label>Entity</label>
+                        <input type="text" class="emp-entity" name="entity" readonly required>
+                    </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="accessoryType">Accessory Category</label>
+                        <select id="accessoryCategory" name="Category" required>
+                            <option value="">Select Category</option>
+                            <option value="goggles">Goggles</option>
+                        </select>
+                        <label for="accessorySub">Subcategory</label>
+                        <select id="accessorySub" name="Subcategory" required disabled style="display:none;">
+                            <option value="">Select Subcategory</option>
+                        </select>
+                       <div class="form-row" style="display:flex; align-items:center; gap:20px;">
+                        <div class="form-group">
+                            <label for="accessoryType">Size</label><br>
+                            <select id="accessoryType" name="accessoryType">
+                                <option value="">Select Size</option>
+                            </select>
+                            <input type="hidden" id="accessorySize" name="size" value="">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="accessoryQty">Quantity</label><br>
+                            <input type="number" id="accessoryQty" name="accessoryQty" min="1" max="1" value="1" style="width:80px;">
+                        </div>
+                    </div>
+                    </div>
+                    <div class="small" style="margin-top:6px;">
+                        <label><input type="checkbox" id="accessoryBuyCheckbox" name="Buy" value="yes"> Buy</label>
+                        <div id="accessoryPriceDiv" style="display:none; margin-top:6px;">
+                            <label class="small">Price (₹)</label>
+                            <input type="number" id="accessoryPrice" name="buy_price" min="0" step="0.01" style="width:100px" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="issue-actions">
+                        <button type="button" class="btn-secondary" id="closeAccessoryBottom">Cancel</button>
+                        <button type="submit" class="btn-primary">Issue Accessory</button>
+                    </div>
+                </form>
+            </div>
+            <!-- Search and Filter Section -->
+            <div style="overflow-x:auto; margin-top:12px;" form="row">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; font-size:0.9rem; color:var(--muted);">
+                    <span>Showing all issued employees (scroll to view more).</span>
+                    <div style="display:flex; align-items:center; gap:12px;font-weight: 700;">
+            <input type="text" id="searchInput" placeholder="Search employees..." 
+                style="padding:8px 12px; width:220px; border-radius:8px; border:1px solid #e6eef8; background:#fbfdff">
+        </div>
+    </div>
+</div>
+     <!-- Issues Table with Scrollable Container -->
+            <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e6eef8; border-radius: 8px; margin-top: 12px;">
+            <table id="issueTable" style="width:100%; border-collapse: collapse; margin-top: 0;">
+            <thead style="position: sticky; top: 0; background: #f0f2f5; z-index: 10;">
+                <tr style="background: #f0f2f5; text-align: left;">
+                    <th style="padding: 8px 10px; border-bottom: 1px solid #ddd;">Emp ID</th>
+                    <th style="padding: 8px 10px; border-bottom: 1px solid #ddd;">Name</th>
+                    <th style="padding: 8px 10px; border-bottom: 1px solid #ddd;">Email</th>
+                    <th style="padding: 8px 10px; border-bottom: 1px solid #ddd;">Gender</th>
+                    <th style="padding: 8px 10px; border-bottom: 1px solid #ddd;">Entity</th>
+                    <th style="padding: 8px 10px; border-bottom: 1px solid #ddd;">Category</th>
+                    <th style="padding: 8px 10px; border-bottom: 1px solid #ddd;">Sub Category</th>
+                    <th style="padding: 8px 10px; border-bottom: 1px solid #ddd;">Size</th>
+                    <th style="padding: 8px 10px; border-bottom: 1px solid #ddd;">Quantity</th>
+                    <th style="padding: 8px 10px; border-bottom: 1px solid #ddd;">Date Issued</th>
+                    <th style="padding: 8px 10px; border-bottom: 1px solid #ddd;">Next Issue Date</th>
+                    <th style="padding: 8px 10px; border-bottom: 1px solid #ddd;">Buy</th>
+                    <th style="padding: 8px 10px; border-bottom: 1px solid #ddd;">Buy Price (₹)</th>
+                </tr>
+            </thead>
+                <tbody>
+                    {% if issues %}
+                        {% for issue in issues %}
+                        <tr>
+                            <td style="padding: 8px 10px; border-bottom: 1px solid #eee;">{{ issue.emp_id }}</td>
+                            <td style="padding: 8px 10px; border-bottom: 1px solid #eee;">{{ issue.name }}</td>
+                            <td style="padding: 8px 10px; border-bottom: 1px solid #eee;"><small style="color:var(--muted)">{{ issue.email }}</small></td>
+                            <td style="padding: 8px 10px; border-bottom: 1px solid #eee;">{{ issue.gender}}</td>
+                            <td style="padding: 8px 10px; border-bottom: 1px solid #eee;">{{ issue.entity }}</td>
+                            <td style="padding: 8px 10px; border-bottom: 1px solid #eee;">{{ issue.Category }}</td>
+                            <td style="padding: 8px 10px; border-bottom: 1px solid #eee;">{{ issue.Subcategory }}</td>
+                            <td style="padding: 8px 10px; border-bottom: 1px solid #eee;">{{ issue.size }}</td>
+                            <td style="padding: 8px 10px; border-bottom: 1px solid #eee; font-weight:600;">{{ issue.Issued_quantity }}</td>
+                            <td style="padding: 8px 10px; border-bottom: 1px solid #eee;">{{ issue.issued_date }}</td>
+                            <td style="padding: 8px 10px; border-bottom: 1px solid #eee;">{{ issue.next_issue_date }}</td>
+                            <td style="padding: 8px 10px; border-bottom: 1px solid #eee;">{{ issue.Buy }}</td>
+                            <td style="padding: 8px 10px; border-bottom: 1px solid #eee;">
+                                {% if issue.buy_price %}₹{{ issue.buy_price }}{% else %}-{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="13" style="padding:8px 10px; color:var(--muted)">No issued items found.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            </div>
+            </div> 
+        </div> 
+    <script>
+        (function(){
+            var style = document.createElement('style');
+            style.innerHTML = '\n.form-overlay { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #fff; padding: 22px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 1000; width: 640px; max-width: 95%; }\n@media (max-width:700px){ .form-overlay{ width: 92%; padding:12px; } }\n';
+            document.head.appendChild(style);
+        })();
+    </script>
+    <!-- Forecast Modal -->
+    <div id="forecastBackdrop"></div>
+    <div id="forecastModal" class="form-overlay">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0;">6-Month Next-Issue Forecast</h3>
+            <button id="closeForecast" class="card-btn" style="background:#d32f2f; padding:6px 8px;">Close</button>
+        </div>
+        <div id="forecastContent">
+            <p style="color:var(--muted)">Loading forecast...</p>
+        </div>
+    </div>
+
+    <script>
+        (function(){
+            var fb = document.getElementById('forecastBtn');
+            var modal = document.getElementById('forecastModal');
+            var back = document.getElementById('forecastBackdrop');
+            var close = document.getElementById('closeForecast');
+            var content = document.getElementById('forecastContent');
+            function showModal(){ if(back) back.classList.add('show'); if(modal) modal.classList.add('show'); try{ document.body.style.overflow='hidden'; }catch(e){} fetchForecast(); }
+            function hideModal(){ if(back) back.classList.remove('show'); if(modal) modal.classList.remove('show'); try{ document.body.style.overflow=''; }catch(e){} }
+            if (fb) fb.addEventListener('click', showModal);
+            if (close) close.addEventListener('click', hideModal);
+            if (back) back.addEventListener('click', hideModal);
+
+            function fetchForecast(){
+                content.innerHTML = '<p style="color:var(--muted)">Loading forecast...</p>';
+                fetch('/inventory/forecast-next-issues/')
+                    .then(function(r){ if(!r.ok) throw new Error('Network'); return r.json(); })
+                    .then(function(data){ renderForecast(data); })
+                    .catch(function(){ content.innerHTML = '<p style="color:#b91c1c">Failed to load forecast.</p>'; });
+            }
+
+            function renderForecast(data){
+                if (!data || !Array.isArray(data.months)) { content.innerHTML = '<p style="color:var(--muted)">No data</p>'; return; }
+                var html = '';
+                data.months.forEach(function(m){
+                    // make month block clickable and carry start date for details fetch
+                    html+= '<div class="forecast-month" data-start="'+(m.start||'')+'" style="cursor:pointer;margin-bottom:10px;padding:8px;border-bottom:1px solid #f1f5f9">';
+                    html+= '<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700">'+(m.label||'')+'</div><div style="font-weight:800">'+(m.total||0)+'</div></div>';
+                    if (m.by_category) {
+                        html+= '<div style="margin-top:8px; color:var(--muted); font-size:13px">';
+                        var parts = [];
+                        Object.keys(m.by_category).forEach(function(cat){ var val = m.by_category[cat]||0; if (val>0) parts.push(cat+': '+val); });
+                        html+= parts.length ? parts.join(' · ') : '<em></em>';
+                        html+= '</div>';
+                    }
+                    html+= '</div>';
+                });
+                // details container 
+                html+= '<div id="forecastMonthDetails" style="margin-top:12px; display:none; background:#fff; border-radius:8px; padding:8px; box-shadow:0 6px 18px rgba(2,6,23,0.04)"></div>';
+                content.innerHTML = html;
+
+                // wire click handlers for months
+                Array.prototype.slice.call(document.querySelectorAll('.forecast-month')).forEach(function(el){
+                    el.addEventListener('click', function(){
+                        var start = el.getAttribute('data-start');
+                        if (!start) return;
+                        var detailsEl = document.getElementById('forecastMonthDetails');
+                        if (!detailsEl) return;
+                        detailsEl.style.display = 'block';
+                        detailsEl.innerHTML = '<div style="color:var(--muted)">Loading details for '+(el.textContent||start)+'</div>';
+                        fetch(('/inventory/forecast-month-details/' + encodeURIComponent(start) + '/'))
+                            .then(function(r){ if (!r.ok) throw new Error('Network'); return r.json(); })
+                            .then(function(d){ renderMonthDetails(d, el); })
+                            .catch(function(){ detailsEl.innerHTML = '<div style="color:#b91c1c">Failed to load details.</div>'; });
+                    });
+                });
+            }
+
+            function renderMonthDetails(data, monthEl) {
+                var detailsEl = document.getElementById('forecastMonthDetails');
+                if (!detailsEl) return;
+                if (!data || !Array.isArray(data.items) || data.items.length === 0) {
+                    detailsEl.innerHTML = '<div style="color:var(--muted)">No dues in this month.</div>';
+                    return;
+                }
+                var html = '<div style="font-weight:700; margin-bottom:8px">Details for '+(monthEl && monthEl.textContent ? monthEl.textContent.trim().split('\n')[0] : '')+'</div>';
+                html+= '<table style="width:100%; border-collapse:collapse; font-size:13px"><thead><tr><th style="text-align:left;padding:6px">Emp ID</th><th style="text-align:left;padding:6px">Name</th><th style="text-align:left;padding:6px">Category</th><th style="text-align:left;padding:6px">Sub</th><th style="text-align:left;padding:6px">Size</th><th style="text-align:right;padding:6px">Qty</th><th style="text-align:left;padding:6px">Next Issue</th></tr></thead><tbody>';
+                data.items.forEach(function(it){
+                    html+= '<tr style="border-top:1px solid #f1f5f9"><td style="padding:6px">'+(it.emp_id||'')+'</td><td style="padding:6px">'+(it.name||'')+'</td><td style="padding:6px">'+(it.Category||'')+'</td><td style="padding:6px">'+(it.Subcategory||'')+'</td><td style="padding:6px">'+(it.size||'')+'</td><td style="padding:6px;text-align:right">'+(it.Issued_quantity||0)+'</td><td style="padding:6px">'+(it.Next_issue_date||'')+'</td></tr>';
+                });
+                html+= '</tbody></table>';
+                detailsEl.innerHTML = html;
+                // scroll modal to details
+                try { detailsEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e){}
+            }
+        })();
+    </script>
+  
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var searchInput = document.getElementById('searchInput');
+        var table = document.getElementById('issueTable');
+        var tbody = table && table.querySelector('tbody');
+
+        function renderItems(items) {
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if (!items || items.length === 0) {
+                var tr = document.createElement('tr');
+                var td = document.createElement('td'); td.colSpan = 13; td.style.padding = '8px 10px'; td.style.color = 'var(--muted)'; td.textContent = 'No issued items found.'; tr.appendChild(td); tbody.appendChild(tr); return;
+            }
+            items.forEach(function(it){
+                var tr = document.createElement('tr');
+                function tdText(v){ var td = document.createElement('td'); td.style.padding='8px 10px'; td.style.borderBottom='1px solid #eee'; td.textContent = v || ''; return td; }
+                tr.appendChild(tdText(it.emp_id));
+                tr.appendChild(tdText(it.name));
+                tr.appendChild(tdText(it.email));
+                tr.appendChild(tdText(it.gender));
+                tr.appendChild(tdText(it.entity));
+                tr.appendChild(tdText(it.Category));
+                tr.appendChild(tdText(it.Subcategory));
+                tr.appendChild(tdText(it.size));
+                tr.appendChild(tdText(it.Issued_quantity));
+                tr.appendChild(tdText(it.issued_date));
+                tr.appendChild(tdText(it.Next_issue_date));
+                tr.appendChild(tdText(it.Buy));
+                var priceTd = document.createElement('td'); 
+                priceTd.style.padding='8px 10px'; 
+                priceTd.style.borderBottom='1px solid #eee'; 
+                priceTd.textContent = it.buy_price ? '₹' + it.buy_price : '-'; 
+                tr.appendChild(priceTd);
+                tbody.appendChild(tr);
+            });
+        }
+
+        var debounceTimer = null;
+        searchInput.addEventListener('input', function() {
+            var q = (searchInput.value || '').trim();
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function(){
+                    if (!q) {
+                        // reload the page to restore the original server-rendered all-records list
+                        try { window.location.reload(); } catch (e) { renderItems([]); }
+                        return;
+                    }
+                fetch('/inventory/search-issues/?q=' + encodeURIComponent(q)).then(function(r){ if(!r.ok) throw new Error('Network'); return r.json(); }).then(function(data){ renderItems(data.items || []); }).catch(function(){ /* ignore errors silently */ renderItems([]); });
+            }, 250);
+        });
+    });
+</script>
+    <!-- Overlay Backdrop -->
+    <script>
+        function openOverlay(overlayId) {
+            var backdrop = document.getElementById('overlayBackdrop');
+            var overlay = document.getElementById(overlayId);
+            if (backdrop) backdrop.classList.add('show');
+            if (overlay) overlay.classList.add('show');
+            // prevent body scroll while modal open
+            try { document.body.style.overflow = 'hidden'; } catch(e){}
+        }
+        function closeOverlay(overlayId) {
+            var backdrop = document.getElementById('overlayBackdrop');
+            var overlay = document.getElementById(overlayId);
+            if (backdrop) backdrop.classList.remove('show');
+            if (overlay) overlay.classList.remove('show');
+            try { document.body.style.overflow = ''; } catch(e){}
+        }
+
+        var issueUniformBtn = document.getElementById('issueuniformBtn');
+        if (issueUniformBtn) {
+            issueUniformBtn.addEventListener('click', function(){
+                var ov = document.getElementById('uniformOverlay'); if (ov) { var hid = ov.querySelector('.issue-id'); if (hid) hid.value = ''; }
+                // reset uniform form sections
+                var uf = document.getElementById('uniformForm'); if (uf) {
+                    try { uf.reset(); } catch(e) {}
+                    var t = document.getElementById('traineeSection'); if (t) t.style.display = 'none';
+                    var r = document.getElementById('regularSection'); if (r) r.style.display = 'none';
+                    var f = document.getElementById('formalsSection'); if (f) f.style.display = 'none';
+                }
+                openOverlay('uniformOverlay');
+            });
+        }
+        var issueShoesBtn = document.getElementById('issueshoesBtn');
+        if (issueShoesBtn) {
+            issueShoesBtn.addEventListener('click', function(){
+                var ov = document.getElementById('shoesOverlay'); if (ov) { var hid = ov.querySelector('.issue-id'); if (hid) hid.value = ''; }
+                // set category to safety_shoes by default
+                try { var sc = document.getElementById('safetyCategory'); if (sc) { sc.value = 'safety_shoes'; sc.dispatchEvent(new Event('change')); } } catch(e){}
+                try { var sf = document.getElementById('shoesForm'); if (sf) sf.reset(); }catch(e){}
+                openOverlay('shoesOverlay');
+            });
+        }
+        var issueAccessoryBtn = document.getElementById('issueaccessoryBtn');
+        if (issueAccessoryBtn) {
+            issueAccessoryBtn.addEventListener('click', function(){
+                var ov = document.getElementById('accessoryOverlay'); if (ov) { var hid = ov.querySelector('.issue-id'); if (hid) hid.value = ''; }
+                openOverlay('accessoryOverlay');
+            });
+        }
+    var closeUniform = document.getElementById('closeUniform'); if (closeUniform) closeUniform.addEventListener('click', function(){ closeOverlay('uniformOverlay'); });
+    var closeShoes = document.getElementById('closeShoes'); if (closeShoes) closeShoes.addEventListener('click', function(){ closeOverlay('shoesOverlay'); });
+    var closeAccessory = document.getElementById('closeAccessory'); if (closeAccessory) closeAccessory.addEventListener('click', function(){ closeOverlay('accessoryOverlay'); });
+    var closeUniformBottom = document.getElementById('closeUniformBottom'); if (closeUniformBottom) closeUniformBottom.addEventListener('click', function(){ closeOverlay('uniformOverlay'); });
+    var closeShoesBottom = document.getElementById('closeShoesBottom'); if (closeShoesBottom) closeShoesBottom.addEventListener('click', function(){ closeOverlay('shoesOverlay'); });
+    var closeAccessoryBottom = document.getElementById('closeAccessoryBottom'); if (closeAccessoryBottom) closeAccessoryBottom.addEventListener('click', function(){ closeOverlay('accessoryOverlay'); });
+
+        document.getElementById('overlayBackdrop').addEventListener('click', function(){
+            ['uniformOverlay','shoesOverlay','accessoryOverlay'].forEach(function(id){ closeOverlay(id); });
+        });
+
+        function wireAllEmpSelects() {
+            document.querySelectorAll('.form-overlay').forEach(function(overlay){
+                var sel = overlay.querySelector('.emp-select');
+                if (!sel) return;
+                sel.addEventListener('change', function(){
+                    var empId = sel.value;
+                    var nameField = overlay.querySelector('.emp-name');
+                    var emailField = overlay.querySelector('.emp-email');
+                    var genderField = overlay.querySelector('.emp-gender');
+                    var entityField = overlay.querySelector('.emp-entity');
+                    if (!empId) {
+                        if (nameField) nameField.value = '';
+                        if (emailField) emailField.value = '';
+                        if (genderField) genderField.value = '';
+                        if (entityField) entityField.value = '';
+                        return;
+                    }
+                    fetch(('/inventory/get-employeedetails/' + encodeURIComponent(empId) + '/'))
+                        .then(function(resp){ if (!resp.ok) throw new Error('Employee not found'); return resp.json(); })
+                        .then(function(data){ if (nameField) nameField.value = data.emp_name || ''; if (emailField) emailField.value = data.emp_email || ''; if (genderField) genderField.value =data.emp_gender||''; if (entityField) entityField.value = data.emp_entity || '';})
+                        .catch(function(){ if (nameField) nameField.value = ''; if (emailField) emailField.value = ''; if (genderField) genderField.value = ''; if (entityField) entityField.value = '';    });
+                });
+            });
+        }
+        wireAllEmpSelects();
+        
+        // Stock validation functionality
+        (function(){
+            // Function to check stock availability via AJAX
+            function checkStockAvailability(entity, category, subcategory, size, quantity, callback) {
+                var params = new URLSearchParams({
+                    entity: entity || '',
+                    category: category || '',
+                    subcategory: subcategory || '',
+                    size: size || '',
+                    quantity: quantity || 0
+                });
+                
+                fetch('/inventory/check-stock-availability/?' + params.toString())
+                    .then(function(response) {
+                        if (!response.ok) throw new Error('Network error');
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        callback(null, data);
+                    })
+                    .catch(function(error) {
+                        callback(error, null);
+                    });
+            }
+
+            // Add stock validation to forms before submission
+            function validateStockBeforeSubmit(formElement, entity, category, subcategory, size, quantity) {
+                if (quantity <= 0) return true;
+                
+                checkStockAvailability(entity, category, subcategory, size, quantity, function(error, data) {
+                    if (error || !data || !data.available) {
+                        var available = data ? data.stock_count : 0;
+                        var entityInfo = entity ? ' in ' + entity : '';
+                        var container = document.getElementById('toastContainer');
+                        if (container) {
+                            var el = document.createElement('div');
+                            el.className = 'toast error';
+                            el.textContent = 'Not enough stock for ' + category + ' ' + subcategory + ' size ' + size + entityInfo + '. Required: ' + quantity + ', Available: ' + available;
+                            el.style.background = '#ef4444';
+                            el.style.color = '#fff';
+                            el.style.padding = '10px 14px';
+                            el.style.borderRadius = '8px';
+                            el.style.marginTop = '8px';
+                            el.style.maxWidth = '400px';
+                            container.appendChild(el);
+                            setTimeout(function(){ try{ container.removeChild(el); }catch(e){} }, 8000);
+                        }
+                        return false;
+                    } else {
+                        // Stock available, submit the form
+                        formElement.submit();
+                        return true;
+                    }
+                });
+                return false; // Prevent immediate submission while checking
+            }
+        })();
+            // Shoes gender mapping
+            (function(){
+                var shoesForm = document.getElementById('shoesForm');
+                if (!shoesForm) return;
+                var genderRadios = Array.prototype.slice.call(shoesForm.querySelectorAll('input[name="shoes_gender"]'));
+                var shoesSub = document.getElementById('safetySubcategory');
+                var shoesSizeSelect = document.getElementById('safety_shoesSize');
+                var shoesSizeDropdown = document.getElementById('safetySize');
+                var shoesQty = document.getElementById('Safety-Shoes');
+                function applyGender(g){
+                    if (!shoesSub) return;
+                    if (g === 'male') {
+                        shoesSub.value = 'gents';
+                        if (shoesSizeSelect) { shoesSizeSelect.style.display = ''; shoesSizeSelect.disabled = false; }
+                        if (shoesSizeDropdown) { shoesSizeDropdown.style.display = 'none'; shoesSizeDropdown.disabled = true; }
+                        if (shoesQty) { shoesQty.value = 1; shoesQty.disabled = false; }
+                    } else if (g === 'female') {
+                        shoesSub.value = 'ladies';
+                        if (shoesSizeSelect) { shoesSizeSelect.style.display = ''; shoesSizeSelect.disabled = false; }
+                        if (shoesSizeDropdown) { shoesSizeDropdown.style.display = 'none'; shoesSizeDropdown.disabled = true; }
+                        if (shoesQty) { shoesQty.value = 1; shoesQty.disabled = false; }
+                    } else {
+                        shoesSub.value = '';
+                        if (shoesSizeSelect) { shoesSizeSelect.style.display = ''; shoesSizeSelect.disabled = false; }
+                        if (shoesSizeDropdown) { shoesSizeDropdown.style.display = ''; shoesSizeDropdown.disabled = false; }
+                        if (shoesQty) { shoesQty.disabled = false; }
+                    }
+                    try{ shoesSub.dispatchEvent(new Event('change')); }catch(e){}
+                }
+                genderRadios.forEach(function(r){ r.addEventListener('change', function(){ applyGender(this.value); }); });
+                var init = genderRadios.find(function(r){ return r.checked; });
+                applyGender(init ? init.value : null);
+
+                // client-side validation for shoes form
+                var shoesError = document.getElementById('shoesError');
+                if (shoesForm) {
+                    shoesForm.addEventListener('submit', function(e){
+                        try {
+                            if (shoesError) { shoesError.style.display = 'none'; shoesError.innerText = ''; }
+                            var genderEl = shoesForm.querySelector('input[name="shoes_gender"]:checked') || shoesForm.querySelector('input[name="gender"]:checked');
+                            if (!genderEl) {
+                                e.preventDefault();
+                                if (shoesError) { shoesError.style.display = 'block'; shoesError.innerText = 'Please select gender for safety shoes.'; shoesError.scrollIntoView && shoesError.scrollIntoView({behavior:'smooth', block:'center'}); }
+                                return;
+                            }
+                            // determine size value based on visible/enabled size inputs
+                            var sizeVal = '';
+                            if (shoesSizeSelect && !shoesSizeSelect.disabled && shoesSizeSelect.offsetParent !== null) {
+                                sizeVal = shoesSizeSelect.value;
+                            } else if (shoesSizeDropdown && !shoesSizeDropdown.disabled && shoesSizeDropdown.offsetParent !== null) {
+                                sizeVal = shoesSizeDropdown.value;
+                            } else {
+                                sizeVal = (shoesSizeSelect && shoesSizeSelect.value) || (shoesSizeDropdown && shoesSizeDropdown.value) || '';
+                            }
+                            // ensure form posts `size` field: create/assign hidden input named 'size'
+                            try {
+                                var hiddenSize = shoesForm.querySelector('input[name="size"]');
+                                if (!hiddenSize) {
+                                    hiddenSize = document.createElement('input'); hiddenSize.type = 'hidden'; hiddenSize.name = 'size'; hiddenSize.id = 'safetySizeHidden'; shoesForm.appendChild(hiddenSize);
+                                }
+                                hiddenSize.value = sizeVal || '';
+                            } catch(e) {}
+                            if (!sizeVal || String(sizeVal).trim() === '') {
+                                e.preventDefault();
+                                if (shoesError) { shoesError.style.display = 'block'; shoesError.innerText = 'Please select a shoe size.'; shoesError.scrollIntoView && shoesError.scrollIntoView({behavior:'smooth', block:'center'}); }
+                                return;
+                            }
+                            var qtyVal = shoesQty && shoesQty.value ? parseInt(shoesQty.value) : 0;
+                            if (!qtyVal || qtyVal < 1) {
+                                e.preventDefault();
+                                if (shoesError) { shoesError.style.display = 'block'; shoesError.innerText = 'Please enter a valid quantity (at least 1).'; shoesError.scrollIntoView && shoesError.scrollIntoView({behavior:'smooth', block:'center'}); }
+                                return;
+                            }
+                            // If user didn't check Buy, call server to check block and prevent submit if blocked
+                            var buyChecked = !!(shoesForm.querySelector('input[name="Buy"]')||{}).checked;
+                            if (!buyChecked) {
+                                var empId = (shoesForm.querySelector('select[name="empId"]')||{}).value || '';
+                                var cat = (shoesForm.querySelector('select[name="Category"]')||{}).value || '';
+                                var sub = (shoesForm.querySelector('select[name="Subcategory"]')||{}).value || '';
+                                var q = '?emp_id='+encodeURIComponent(empId)+'&Category='+encodeURIComponent(cat)+'&Subcategory='+encodeURIComponent(sub)+'&size='+encodeURIComponent(sizeVal||'');
+                                e.preventDefault();
+                                fetch('/inventory/check-issue-block/'+q).then(function(r){ if(!r.ok) throw new Error('Network'); return r.json(); }).then(function(data){
+                                    if (data && data.blocked) {
+                                        if (shoesError) { shoesError.style.display='block'; shoesError.innerText = 'Already issued. Next issue date: '+(data.next_issue_date||''); shoesError.scrollIntoView && shoesError.scrollIntoView({behavior:'smooth', block:'center'}); }
+                                        return;
+                                    }
+                                    shoesForm.submit();
+                                }).catch(function(){ shoesForm.submit(); });
+                                return;
+                            }
+                        } catch (ex) { /* swallow errors silently */ }
+                    });
+                }
+            })();
+
+        // Show/hide uniform sub-sections based on uniformType
+        var uniformType = document.getElementById('uniformType');
+        if (uniformType) {
+            uniformType.addEventListener('change', function(){
+                var v = (this.value || '').toLowerCase();
+                document.getElementById('traineeSection').style.display = v === 'trainee' ? 'block' : 'none';
+                document.getElementById('formalsSection').style.display = v === 'formals' ? 'block' : 'none';
+                var regularVisible = v === 'tshirt';
+                document.getElementById('regularSection').style.display = regularVisible ? 'block' : 'none';
+            });
+        }
+
+
+    </script>
+    <script>
+        (function(){
+            // handle regular color radios
+            var regularRadios = document.querySelectorAll('input[name="regular_color"]');
+            var regularControls = document.getElementById('regularControls');
+            var regularSubHidden = document.getElementById('regularSubHidden');
+            var regularSizeSelect = document.getElementById('regularSizeSelect');
+            var regularQty = document.getElementById('regularQty');
+            var uniformForm = document.getElementById('uniformForm');
+
+            function onRegularChange(){
+                var checked = Array.prototype.slice.call(regularRadios).find(function(r){ return r.checked; });
+                if (checked) {
+                    if (regularControls) regularControls.style.display = '';
+                    if (regularSubHidden) regularSubHidden.value = checked.value === 'white' ? 'white' : 'black';
+                } else {
+                    if (regularControls) regularControls.style.display = 'none';
+                    if (regularSubHidden) regularSubHidden.value = '';
+                }
+            }
+
+            regularRadios.forEach(function(r){ r.addEventListener('change', onRegularChange); });
+            onRegularChange();
+
+            if (uniformForm) {
+                uniformForm.addEventListener('submit', function(e){
+                    try {
+                        var cat = (document.getElementById('uniformType')||{}).value || '';
+                        if (cat === 'tshirt') {
+                            var sub = (document.getElementById('regularSubHidden')||{}).value || '';
+                            if (sub) {
+                                var hiddenSub = document.querySelector('input[name="Subcategory"][type="hidden"]');
+                            }
+                            var uniSizeEl = document.getElementById('uniformSize');
+                            var uniQtyEl = document.getElementById('Issued_quantity');
+                            var sz = (regularSizeSelect && regularSizeSelect.value) || (uniSizeEl && uniSizeEl.value) || '';
+                            var qty = (regularQty && regularQty.value) || (uniQtyEl && uniQtyEl.value) || '';
+                            // set main fields
+                            var mainSub = document.querySelector('input[name="Subcategory"][type="hidden"]') || document.getElementById('regularSubHidden');
+                            if (!mainSub) {
+                                // ensure a hidden input exists for Subcategory
+                                var inp = document.createElement('input'); inp.type='hidden'; inp.name='Subcategory'; inp.id='mainSubHidden'; inp.value = sub || '';
+                                uniformForm.appendChild(inp);
+                                mainSub = inp;
+                            }
+                            mainSub.value = sub || document.getElementById('traineeSub') && document.getElementById('traineeSub').value || document.getElementById('formalsSub') && document.getElementById('formalsSub').value || '';
+
+                            var mainSize = document.querySelector('select[name="size"]') || document.getElementById('uniformSize');
+                            if (mainSize) mainSize.value = sz;
+
+                            var mainQty = document.querySelector('input[name="Issued_quantity"]') || document.getElementById('Issued_quantity');
+                            if (mainQty) mainQty.value = qty;
+                        }
+                    } catch(ex) { /* swallow */ }
+                });
+            }
+            // accessory form: pre-check blocking when Buy not selected
+            try {
+                var accessoryFormEl = document.getElementById('accessoryForm');
+                if (accessoryFormEl) {
+                    accessoryFormEl.addEventListener('submit', function(e){
+                        try {
+                            var buyChecked = !!(accessoryFormEl.querySelector('input[name="Buy"]')||{}).checked;
+                            if (buyChecked) return; // allowed
+                            e.preventDefault();
+                            var empId = (accessoryFormEl.querySelector('select[name="empId"]')||{}).value || '';
+                            var cat = (accessoryFormEl.querySelector('select[name="Category"]')||{}).value || '';
+                            var sub = (accessoryFormEl.querySelector('select[name="Subcategory"]')||{}).value || '';
+                            var sizeVal = (accessoryFormEl.querySelector('input[name="size"]')||{}).value || '';
+                            var q = '?emp_id='+encodeURIComponent(empId)+'&Category='+encodeURIComponent(cat)+'&Subcategory='+encodeURIComponent(sub)+'&size='+encodeURIComponent(sizeVal||'');
+                            fetch('/inventory/check-issue-block/'+q).then(function(r){ if(!r.ok) throw new Error('Network'); return r.json(); }).then(function(data){
+                                if (data && data.blocked) {
+                                    var container = document.getElementById('toastContainer'); if (container) { var el = document.createElement('div'); el.className='toast error'; el.textContent = 'Already issued. Next issue date: '+(data.next_issue_date||''); el.style.background='#ef4444'; el.style.color='#fff'; el.style.padding='10px 14px'; el.style.borderRadius='8px'; container.appendChild(el); setTimeout(function(){ try{ container.removeChild(el); }catch(e){} }, 5000); }
+                                    return;
+                                }
+                                accessoryFormEl.submit();
+                            }).catch(function(){ accessoryFormEl.submit(); });
+                        } catch(e) {}
+                    });
+                }
+            } catch(e) {}
+            // enable/disable white/black controls
+            var whiteChk = document.getElementById('tshirtWhiteChk');
+            var blackChk = document.getElementById('tshirtBlackChk');
+            var whiteSize = document.getElementById('tshirtWhiteSize');
+            var whiteQty = document.getElementById('tshirtWhiteQty');
+            var blackSize = document.getElementById('tshirtBlackSize');
+            var blackQty = document.getElementById('tshirtBlackQty');
+            
+            // Add buy price functionality for t-shirts
+            var whiteBuy = document.getElementById('tshirtWhiteBuy');
+            var blackBuy = document.getElementById('tshirtBlackBuy');
+            var whitePriceDiv = document.getElementById('tshirtWhitePriceDiv');
+            var blackPriceDiv = document.getElementById('tshirtBlackPriceDiv');
+            var whitePrice = document.getElementById('tshirtWhitePrice');
+            var blackPrice = document.getElementById('tshirtBlackPrice');
+            
+            function toggleTshirtControls() {
+                if (whiteChk && whiteSize && whiteQty) {
+                    whiteSize.disabled = !whiteChk.checked;
+                    whiteQty.disabled = !whiteChk.checked;
+                    if (whiteBuy) whiteBuy.disabled = !whiteChk.checked;
+                    if (!whiteChk.checked) { 
+                        whiteQty.value = 0; 
+                        whiteSize.value = ''; 
+                        if (whiteBuy) { 
+                            whiteBuy.checked = false; 
+                            if (whitePriceDiv) whitePriceDiv.style.display = 'none';
+                            if (whitePrice) whitePrice.disabled = true;
+                        } 
+                    } else { 
+                        if (!whiteQty.value || parseInt(whiteQty.value) <= 0) whiteQty.value = 1; 
+                    }
+                }
+                if (blackChk && blackSize && blackQty) {
+                    blackSize.disabled = !blackChk.checked;
+                    blackQty.disabled = !blackChk.checked;
+                    if (blackBuy) blackBuy.disabled = !blackChk.checked;
+                    if (!blackChk.checked) { 
+                        blackQty.value = 0; 
+                        blackSize.value = ''; 
+                        if (blackBuy) { 
+                            blackBuy.checked = false; 
+                            if (blackPriceDiv) blackPriceDiv.style.display = 'none';
+                            if (blackPrice) blackPrice.disabled = true;
+                        } 
+                    } else { 
+                        if (!blackQty.value || parseInt(blackQty.value) <= 0) blackQty.value = 1; 
+                    }
+                }
+            }
+            
+            // Buy checkbox handlers for t-shirts
+            if (whiteBuy && whitePriceDiv && whitePrice) {
+                whiteBuy.addEventListener('change', function() {
+                    if (this.checked) {
+                        whitePriceDiv.style.display = 'block';
+                        whitePrice.disabled = false;
+                        whitePrice.required = true;
+                    } else {
+                        whitePriceDiv.style.display = 'none';
+                        whitePrice.disabled = true;
+                        whitePrice.required = false;
+                        whitePrice.value = '';
+                    }
+                });
+            }
+            
+            if (blackBuy && blackPriceDiv && blackPrice) {
+                blackBuy.addEventListener('change', function() {
+                    if (this.checked) {
+                        blackPriceDiv.style.display = 'block';
+                        blackPrice.disabled = false;
+                        blackPrice.required = true;
+                    } else {
+                        blackPriceDiv.style.display = 'none';
+                        blackPrice.disabled = true;
+                        blackPrice.required = false;
+                        blackPrice.value = '';
+                    }
+                });
+            }
+            
+            // Jeans buy functionality
+            var jeansRegularBuy = document.getElementById('jeansRegularBuy');
+            var jeansRegularPriceDiv = document.getElementById('jeansRegularPriceDiv');
+            var jeansRegularPrice = document.getElementById('jeansRegularPrice');
+            
+            if (jeansRegularBuy && jeansRegularPriceDiv && jeansRegularPrice) {
+                jeansRegularBuy.addEventListener('change', function() {
+                    if (this.checked) {
+                        jeansRegularPriceDiv.style.display = 'block';
+                        jeansRegularPrice.disabled = false;
+                        jeansRegularPrice.required = true;
+                    } else {
+                        jeansRegularPriceDiv.style.display = 'none';
+                        jeansRegularPrice.disabled = true;
+                        jeansRegularPrice.required = false;
+                        jeansRegularPrice.value = '';
+                    }
+                });
+            }
+            
+            if (whiteChk) whiteChk.addEventListener('change', toggleTshirtControls);
+            if (blackChk) blackChk.addEventListener('change', toggleTshirtControls);
+            toggleTshirtControls();
+
+            // Safety shoes buy functionality
+            var shoesBuyCheckbox = document.getElementById('shoesBuyCheckbox');
+            var shoesPriceDiv = document.getElementById('shoesPriceDiv');
+            var shoesPrice = document.getElementById('shoesPrice');
+            
+            if (shoesBuyCheckbox && shoesPriceDiv && shoesPrice) {
+                shoesBuyCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        shoesPriceDiv.style.display = 'block';
+                        shoesPrice.disabled = false;
+                        shoesPrice.required = true;
+                    } else {
+                        shoesPriceDiv.style.display = 'none';
+                        shoesPrice.disabled = true;
+                        shoesPrice.required = false;
+                        shoesPrice.value = '';
+                    }
+                });
+            }
+            
+            // Accessory buy functionality
+            var accessoryBuyCheckbox = document.getElementById('accessoryBuyCheckbox');
+            var accessoryPriceDiv = document.getElementById('accessoryPriceDiv');
+            var accessoryPrice = document.getElementById('accessoryPrice');
+            
+            if (accessoryBuyCheckbox && accessoryPriceDiv && accessoryPrice) {
+                accessoryBuyCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        accessoryPriceDiv.style.display = 'block';
+                        accessoryPrice.disabled = false;
+                        accessoryPrice.required = true;
+                    } else {
+                        accessoryPriceDiv.style.display = 'none';
+                        accessoryPrice.disabled = true;
+                        accessoryPrice.required = false;
+                        accessoryPrice.value = '';
+                    }
+                });
+            }
+
+            // trainee controls
+            var traineeTshirtChk = document.getElementById('traineeTshirtChk');
+            var traineeTshirtSize = document.getElementById('traineeTshirtSize');
+            var traineeTshirtQty = document.getElementById('traineeTshirtQty');
+            var traineeJeansChk = document.getElementById('traineeJeansChk');
+            var traineeJeansSize = document.getElementById('traineeJeansSize');
+            var traineeJeansQty = document.getElementById('traineeJeansQty');
+            function toggleTraineeControls() {
+                if (traineeTshirtChk && traineeTshirtSize && traineeTshirtQty) {
+                    traineeTshirtSize.disabled = !traineeTshirtChk.checked;
+                    traineeTshirtQty.disabled = !traineeTshirtChk.checked;
+                    if (!traineeTshirtChk.checked) { traineeTshirtQty.value = 0; traineeTshirtSize.value = ''; } else { if (!traineeTshirtQty.value || parseInt(traineeTshirtQty.value) <= 0) traineeTshirtQty.value = 2; }
+                }
+                if (traineeJeansChk && traineeJeansSize && traineeJeansQty) {
+                    traineeJeansSize.disabled = !traineeJeansChk.checked;
+                    traineeJeansQty.disabled = !traineeJeansChk.checked;
+                    if (!traineeJeansChk.checked) { traineeJeansQty.value = 0; traineeJeansSize.value = ''; } else { if (!traineeJeansQty.value || parseInt(traineeJeansQty.value) <= 0) traineeJeansQty.value = 2; }
+                }
+            }
+            if (traineeTshirtChk) traineeTshirtChk.addEventListener('change', toggleTraineeControls);
+            if (traineeJeansChk) traineeJeansChk.addEventListener('change', toggleTraineeControls);
+            toggleTraineeControls();
+
+            // formals controls
+            var formalGreyChk = document.getElementById('formalGreyChk');
+            var formalGreySize = document.getElementById('formalGreySize');
+            var formalGreyQty = document.getElementById('formalGreyQty');
+            var formalWhiteChk = document.getElementById('formalWhiteChk');
+            var formalWhiteSize = document.getElementById('formalWhiteSize');
+            var formalWhiteQty = document.getElementById('formalWhiteQty');
+            function toggleFormalControls() {
+                if (formalGreyChk && formalGreySize && formalGreyQty) {
+                    formalGreySize.disabled = !formalGreyChk.checked;
+                    formalGreyQty.disabled = !formalGreyChk.checked;
+                    if (!formalGreyChk.checked) { formalGreyQty.value = 0; formalGreySize.value = ''; } else { if (!formalGreyQty.value || parseInt(formalGreyQty.value) <= 0) formalGreyQty.value = 1; }
+                }
+                if (formalWhiteChk && formalWhiteSize && formalWhiteQty) {
+                    formalWhiteSize.disabled = !formalWhiteChk.checked;
+                    formalWhiteQty.disabled = !formalWhiteChk.checked;
+                    if (!formalWhiteChk.checked) { formalWhiteQty.value = 0; formalWhiteSize.value = ''; } else { if (!formalWhiteQty.value || parseInt(formalWhiteQty.value) <= 0) formalWhiteQty.value = 1; }
+                }
+            }
+            if (formalGreyChk) formalGreyChk.addEventListener('change', toggleFormalControls);
+            if (formalWhiteChk) formalWhiteChk.addEventListener('change', toggleFormalControls);
+            toggleFormalControls();
+
+            // show gender only for formals
+            var genderSection = document.getElementById('genderSection');
+            var uniformTypeEl = document.getElementById('uniformType');
+            function updateGenderVisibility() {
+                var v = (uniformTypeEl && uniformTypeEl.value) || '';
+                if (genderSection) genderSection.style.display = v === 'formals' ? 'block' : 'none';
+            }
+            if (uniformTypeEl) { uniformTypeEl.addEventListener('change', updateGenderVisibility); updateGenderVisibility(); }
+
+            // before submit, collect all selected items (regular, trainee, formals) 
+            if (uniformForm) {
+                uniformForm.addEventListener('submit', function(e){
+                    try {
+                        var items = [];
+                        var cat = (uniformTypeEl && (uniformTypeEl.value || '').toString().toLowerCase()) || '';
+
+                        // helper to push an item only when qty > 0
+                        function pushItem(category, subcat, sizeVal, qtyVal, genderVal, buyFlag, priceVal) {
+                            var q = parseInt(qtyVal || 0) || 0;
+                            if (q > 0) {
+                                var item = { Category: category, Subcategory: subcat, size: sizeVal || '', Issued_quantity: q, gender: genderVal || '' };
+                                if (buyFlag) {
+                                    item.Buy = 'yes';
+                                    item.buy_price = parseFloat(priceVal || 0) || 0;
+                                }
+                                items.push(item);
+                            }
+                        }
+
+                        // Regular T-shirts (white/black) and regular jeans
+                        if (whiteChk && whiteChk.checked) {
+                            var whiteBuyChecked = (whiteBuy && whiteBuy.checked) || false;
+                            var whitePriceValue = (whitePrice && whitePrice.value) || 0;
+                            pushItem('tshirt', 'white', (whiteSize && whiteSize.value) || '', (whiteQty && whiteQty.value) || 0, '', whiteBuyChecked, whitePriceValue);
+                        }
+                        if (blackChk && blackChk.checked) {
+                            var blackBuyChecked = (blackBuy && blackBuy.checked) || false;
+                            var blackPriceValue = (blackPrice && blackPrice.value) || 0;
+                            pushItem('tshirt', 'black', (blackSize && blackSize.value) || '', (blackQty && blackQty.value) || 0, '', blackBuyChecked, blackPriceValue);
+                        }
+                        
+                        var jeansQtyEl = document.getElementById('jeansQtyRegular');
+                        var jeansSizeEl = document.getElementById('jeansSizeRegular');
+                        var jeansQtyValue = (jeansQtyEl && jeansQtyEl.value) || 0;
+                        if (parseInt(jeansQtyValue) > 0) {
+                            var jeansBuyChecked = (jeansRegularBuy && jeansRegularBuy.checked) || false;
+                            var jeansPriceValue = (jeansRegularPrice && jeansRegularPrice.value) || 0;
+                            pushItem('jeans', 'jeans', (jeansSizeEl && jeansSizeEl.value) || '', jeansQtyValue, '', jeansBuyChecked, jeansPriceValue);
+                        }
+
+                        // Trainee items
+                        if (traineeTshirtChk && traineeTshirtChk.checked) pushItem('trainee', 'trainee', (traineeTshirtSize && traineeTshirtSize.value) || '', (traineeTshirtQty && traineeTshirtQty.value) || 0);
+                        if (traineeJeansChk && traineeJeansChk.checked) pushItem('trainee', 'jeans', (traineeJeansSize && traineeJeansSize.value) || '', (traineeJeansQty && traineeJeansQty.value) || 0);
+
+                        // Formals (respect gender radio)
+                        var genderVal = ''; 
+                        var g = document.querySelector('input[name="gender"]:checked');
+                        if (g) genderVal = g.value || '';
+                        if (formalGreyChk && formalGreyChk.checked) pushItem('formals', 'Grey_Shirt', (formalGreySize && formalGreySize.value) || '', (formalGreyQty && formalGreyQty.value) || 0, genderVal);
+                        if (formalWhiteChk && formalWhiteChk.checked) pushItem('formals', 'White_Shirt', (formalWhiteSize && formalWhiteSize.value) || '', (formalWhiteQty && formalWhiteQty.value) || 0, genderVal);
+                        if (items.length > 0) {
+                            try {
+                                var existing = document.getElementById('multiIssuesJson');
+                                if (!existing) {
+                                    var h = document.createElement('input'); h.type = 'hidden'; h.name = 'multi_issues'; h.id = 'multiIssuesJson'; uniformForm.appendChild(h); existing = h;
+                                }
+                                existing.value = JSON.stringify(items);
+                            } catch (err) { /* ignore small failures creating hidden field */ }
+
+                            // For multi-item submissions, pre-check each non-Buy item with the server
+                            try {
+                                var nonBuy = items.filter(function(it){ return !it.Buy; });
+                                if (nonBuy.length > 0) {
+                                    e.preventDefault();
+                                    var empId = (uniformForm.querySelector('select[name="empId"]')||{}).value || '';
+                                    var checks = nonBuy.map(function(it){
+                                        var q = '?emp_id='+encodeURIComponent(empId)+'&Category='+encodeURIComponent(it.Category||'')+'&Subcategory='+encodeURIComponent(it.Subcategory||'')+'&size='+encodeURIComponent(it.size||'');
+                                        return fetch('/inventory/check-issue-block/'+q).then(function(r){ if(!r.ok) throw new Error('Network'); return r.json(); }).then(function(d){ return { item: it, blocked: !!(d && d.blocked), next: d && d.next_issue_date }; }).catch(function(){ return { item: it, blocked: false, next: null }; });
+                                    });
+                                    Promise.all(checks).then(function(results){
+                                        var blocked = results.find(function(r){ return r.blocked; });
+                                        if (blocked) {
+                                            var msg = 'Already issued: '+(blocked.item.Category||'')+' '+(blocked.item.Subcategory||'')+' size '+(blocked.item.size||'')+'. Next issue date: '+(blocked.next||'');
+                                            var container = document.getElementById('toastContainer'); if (container) { var el = document.createElement('div'); el.className='toast error'; el.textContent = msg; el.style.background='#ef4444'; el.style.color='#fff'; el.style.padding='10px 14px'; el.style.borderRadius='8px'; container.appendChild(el); setTimeout(function(){ try{ container.removeChild(el); }catch(e){} }, 5000); }
+                                            return;
+                                        }
+                                        // all clear -> submit
+                                        uniformForm.submit();
+                                    }).catch(function(){ uniformForm.submit(); });
+                                    return;
+                                }
+                            } catch (e) { /* ignore fetch errors and allow submit to proceed */ }
+                        }
+                    } catch (ex) {
+                        // swallow errors but allow form to submit; log for debugging
+                        try { console && console.error && console.error('uniformForm submit handler error', ex); } catch(_) {}
+                    }
+                });
+            }
+            (function(){
+                var accCat = document.getElementById('accessoryCategory');
+                var accSub = document.getElementById('accessorySub');
+                var accSizeHidden = document.getElementById('accessorySize');
+                if (!accCat || !accSub || !accSizeHidden) return;
+
+                function populateGoggles() {
+                    accSub.innerHTML = '<option value="">Select Subcategory</option>' +
+                                       '<option value="normal">Normal</option>' +
+                                       '<option value="overhead">Overhead</option>';
+                    accSub.disabled = false;
+                    accSub.style.display = '';
+                    // also offer visible size choices matching subcategories
+                    var accType = document.getElementById('accessoryType');
+                    if (accType) {
+                        accType.innerHTML = '<option value="">Select Size</option>' +
+                                            '<option value="normal">Normal</option>' +
+                                            '<option value="overhead">Overhead</option>';
+                        accType.disabled = false;
+                        accType.style.display = '';
+                    }
+                }
+                function hideSub() {
+                    accSub.innerHTML = '<option value="">Select Subcategory</option>';
+                    accSub.disabled = true;
+                    accSub.style.display = 'none';
+                    accSizeHidden.value = '';
+                }
+
+                accCat.addEventListener('change', function(){
+                    var v = (this.value||'').toLowerCase();
+                    if (v === 'goggles') {
+                        populateGoggles();
+                    } else {
+                        hideSub();
+                    }
+                });
+
+                accSub.addEventListener('change', function(){
+                    accSizeHidden.value = this.value || '';
+                    var accType = document.getElementById('accessoryType');
+                    if (accType) {
+                        var v = this.value || '';
+                        var opt = Array.prototype.slice.call(accType.options).find(function(o){ return o.value === v; });
+                        if (opt) {
+                            accType.value = v;
+                        } else if (v) {
+                            try { var o = document.createElement('option'); o.value = v; o.text = v.charAt(0).toUpperCase() + v.slice(1); accType.appendChild(o); accType.value = v; } catch(e){}
+                        }
+                    }
+                });
+
+                // initialize state based on current selection
+                (function(){
+                    var v = (accCat.value||'').toLowerCase();
+                    if (v === 'goggles') populateGoggles(); else hideSub();
+                    if (accSub.value) accSizeHidden.value = accSub.value;
+                })();
+            })();
+        })();
+    </script>
+   
+</body>
+</html>

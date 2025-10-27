@@ -1,0 +1,2222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory Dashboard</title>
+  <style>
+    :root{
+      --bg: linear-gradient(180deg,#f7fbff 0%, #f4f6f9 100%);
+      --page-bg: #f4f6f9;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --accent: #0f172a; 
+      --accent-2: #2563eb; 
+      --accent-3: #06b6d4; 
+      --success: #10b981;
+      --sidebar: #0b5a56; 
+    --sidebar-accent: linear-gradient(135deg,#4f46e5 0%, #06b6d4 100%); 
+      --text: #0f172a;
+      --muted-2: #94a3b8;
+      --max-width: 1200px;
+      --gap: 18px;
+      --radius: 12px;
+    }
+
+    *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{font-family:"Segoe UI",Roboto,Arial,sans-serif;background:#ffffff;color:var(--text);-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+
+  /* Fixed left sidebar (compact) */
+  .sidebar{position:fixed;left:12px;top:72px;bottom:18px;width:160px;padding:14px;background:var(--sidebar-accent);border-radius:12px;box-shadow:0 12px 34px rgba(15,23,42,0.12);overflow:auto;z-index:2100}
+  .sidebar .logo{display:none}
+  .sidebar ul{list-style:none;padding:6px 0;margin:0}
+  .sidebar li{color:#e8faf7;padding:10px 12px;border-radius:10px;margin:6px 0;font-weight:700;text-align:left;cursor:pointer;transition:background 0.12s,transform 0.06s}
+  .sidebar li:hover{background:rgba(255,255,255,0.04);transform:translateX(2px)}
+  .sidebar li.active{background:rgba(255,255,255,0.06);box-shadow: inset 0 1px 0 rgba(255,255,255,0.02)}
+
+  /* Page container moved right of compact sidebar */
+  .page-wrap{margin-left:200px;padding-top:84px;padding-left:28px;padding-right:28px;max-width:calc(var(--max-width) + 200px);position:relative;z-index:2000}
+
+    /* Top navbar inside page content */
+  .navbar{position:fixed;left:0;right:0;top:0;height:64px;background:var(--accent-2);padding:12px 24px;margin:0;color:#fff;display:flex;align-items:center;z-index:2200}
+  .navbar-list{display:flex;align-items:center;gap:8px;margin:0;padding:0;list-style:none}
+  .nav-logo{width:80px;height:36px;background-color:#fff;border-radius:6px;padding:6px 8px;background-image:url('https://www.aequs.com/wp-content/uploads/2025/05/Aequs-logo_FC-1-2048x1024.png');background-repeat:no-repeat;background-position:left center;background-size:contain;box-shadow:0 6px 18px rgba(2,6,23,0.08)}
+  .navbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .navbar-right a{color:#fff;text-decoration:none;font-weight:700;padding:8px 12px;border-radius:8px;transition:transform 0.12s ease, box-shadow 0.12s ease, background 0.12s}
+  .navbar-right a:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(37,99,235,0.18);background:rgba(255,255,255,0.06)}
+
+  h1{font-size:1.25rem;margin:0 0 8px;color:var(--text);font-weight:800}
+
+    /* Controls bar */
+    .controls{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .controls .left{display:flex;gap:12px;align-items:center}
+    .controls .right{display:flex;gap:8px;align-items:center}
+    input[type=text], select{padding:8px 10px;border-radius:8px;border:1px solid #e6eef9;background:transparent}
+    .btn{background:var(--accent-2);color:#fff;border:none;padding:8px 12px;border-radius:8px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(37,99,235,0.12)}
+    .btn.secondary{background:#0ea5a4}
+
+    /* KPI cards */
+    .cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:5px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.95),var(--card));border-radius:12px;padding:5px;box-shadow:0 10px 20px rgba(2,6,23,0.06);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:62px}
+    .card h2{margin: 0;margin-left:50px;color:#243b55;font-size:0.92rem}
+    .card .number{margin-top:5px;margin-left:40%;font-size:1.45rem;font-weight:900;color:var(--accent-2);letter-spacing:0.5px}
+    .card .muted{font-size:0.82rem;color:var(--muted)}
+
+    /* Charts grid */
+    .charts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;align-items:start}
+    .chart-card{background:var(--card);border-radius:18px;padding:8px;box-shadow:0 8px 10px rgba(2,6,23,0.06);display:flex;flex-direction:column;align-items:stretch}
+    .chart-card .chart-title{font-weight:800;color:#123;margin-bottom:5px}
+  .chart-canvas{width:100% !important;height:auto !important;aspect-ratio:1/1;max-width:400px;max-height:400px;border-radius:8px;margin-left:100px;display:block;object-fit:contain}
+
+    /* Smaller, attractive forecast chart */
+    .decor-waves{position:fixed;left:0;right:0;top:24px;height:160px;pointer-events:none;z-index:0;opacity: 0.58}
+    .decor-waves svg{width:140%;height:160px;display:block;margin-left:-10%}
+    .wave-1{animation:waveMove 36s linear infinite}
+    .wave-2{animation:waveMove 48s linear infinite reverse}
+    @keyframes waveMove{0%{transform:translateX(0)}100%{transform:translateX(-15%)}}
+
+  /* modal */
+  .chart-modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center;z-index:3000}
+  .chart-modal{width:min(640px,92%);background:var(--card);border-radius:12px;padding:12px}
+
+    /* tables and entity content */
+    table{width:100%;border-collapse:collapse;background:transparent}
+    table thead th{background:#f8fafc;padding:10px;text-align:left;border-bottom:1px solid #e6eef9}
+    table tbody td{padding:10px;border-bottom:1px solid #f1f5f9}
+
+    /* Responsive behavior */
+    @media (max-width: 1100px){
+      .sidebar{left:12px;width:200px}
+      .page-wrap{margin-left:230px;padding:18px}
+      .charts-grid{grid-template-columns:1fr}
+      
+      /* Forecast responsive adjustments */
+      .forecast-charts-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    
+    @media (max-width: 760px){
+      .sidebar{position:relative;width:100%;height:auto;left:0;top:0;margin:0 0 12px;border-radius:10px}
+      .page-wrap{margin-left:0;padding:14px}
+      .charts-grid{grid-template-columns:1fr}
+      /* keep charts square on narrower screens - slightly smaller */
+      .chart-canvas{aspect-ratio:1/1;max-width:320px;max-height:320px}
+      
+      /* Forecast mobile styles */
+      .forecast-controls {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px;
+      }
+      
+      .control-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      }
+      
+      .control-group select {
+        flex: 1;
+        margin-left: 10px;
+        min-width: 0;
+      }
+      
+      .forecast-summary {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px;
+      }
+      
+      .summary-card {
+        padding: 15px !important;
+      }
+      
+      .summary-card div {
+        font-size: 20px !important;
+      }
+      
+      .forecast-table-container {
+        padding: 15px !important;
+      }
+      
+      #forecastTableSearch {
+        width: 100% !important;
+        margin-bottom: 10px;
+      }
+      
+      .forecast-table-container > div:first-of-type {
+        flex-direction: column !important;
+        gap: 10px;
+      }
+      
+      .forecast-table-container > div:first-of-type > div:last-child {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+      }
+      
+      /* Make table horizontally scrollable on mobile */
+      .forecast-table-container > div:last-of-type {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      #forecastTable {
+        min-width: 700px;
+      }
+      
+      #forecastTable th,
+      #forecastTable td {
+        padding: 8px !important;
+        font-size: 12px !important;
+        white-space: nowrap;
+      }
+      
+      /* Stock analysis mobile */
+      .stock-analysis {
+        padding: 15px !important;
+      }
+      
+      #stockAnalysisContent > div {
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+      }
+    }
+    
+    @media (max-width: 480px){
+      .cards-row{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+      .card{min-height:76px;padding:10px}
+      .chart-canvas{aspect-ratio:1/1}
+      
+      /* Forecast very small screens */
+      .forecast-summary {
+        grid-template-columns: 1fr !important;
+      }
+      
+      .summary-card {
+        text-align: center;
+        padding: 12px !important;
+      }
+      
+      .summary-card div {
+        font-size: 18px !important;
+      }
+      
+      .summary-card h4 {
+        font-size: 12px !important;
+      }
+      
+      .control-group {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 5px;
+      }
+      
+      .control-group label {
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+      
+      .control-group select {
+        margin-left: 0 !important;
+      }
+      
+      #updateForecast {
+        padding: 10px 16px !important;
+        font-size: 14px;
+      }
+      
+      .forecast-table-container h3 {
+        font-size: 14px !important;
+      }
+      
+      .stock-analysis h3 {
+        font-size: 14px !important;
+      }
+      
+      #stockAnalysisContent h4 {
+        font-size: 12px !important;
+      }
+      
+      #stockAnalysisContent p {
+        font-size: 16px !important;
+      }
+      
+      #stockAnalysisContent p:last-child {
+        font-size: 10px !important;
+      }
+    }
+    
+    /* Touch-friendly buttons on mobile */
+    @media (hover: none) and (pointer: coarse) {
+      .btn {
+        min-height: 44px;
+        padding: 12px 16px;
+      }
+      
+      #forecastTable .btn {
+        min-height: 36px;
+        padding: 8px 12px;
+      }
+    }
+    
+    /* High DPI screen adjustments */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      .chart-canvas {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+      }
+    }
+    
+    /* Dark mode support (if needed in future) */
+    @media (prefers-color-scheme: dark) {
+      /* Can add dark mode styles here if needed */
+    }
+    
+    /* Reduced motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      .loading-spinner {
+        animation: none;
+      }
+      
+      .chart-canvas {
+        transition: none;
+      }
+    }
+    
+    /* Print styles for forecast reports */
+    @media print {
+      .forecast-controls,
+      .sidebar,
+      .navbar {
+        display: none !important;
+      }
+      
+      .page-wrap {
+        margin-left: 0 !important;
+        padding: 0 !important;
+      }
+      
+      .forecast-summary {
+        grid-template-columns: repeat(4, 1fr) !important;
+        page-break-inside: avoid;
+      }
+      
+      .forecast-charts-grid {
+        page-break-inside: avoid;
+      }
+      
+      .forecast-table-container {
+        page-break-inside: avoid;
+      }
+      
+      #forecastTable {
+        font-size: 10px !important;
+      }
+      
+      .stock-analysis {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo"></div>
+    <ul id="sidebarTabs">
+      <li class="active" data-tab="tab-dashboard">Dashboard</li>
+      <li data-tab="tab-overview">Overview</li>
+      <li data-tab="tab-forecast">Forecast</li>
+      <li data-tab="tab-entity">Entity Stock</li>
+    </ul>
+  </aside>
+
+  <!-- Decorative waves background -->
+  <div class="decor-waves" aria-hidden="true">
+    <svg viewBox="0 0 1600 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(0,10)">
+        <!-- soft white waves -->
+        <path class="wave-1" fill="#ffffff" d="M0,60 C200,100 400,20 800,60 C1200,100 1400,40 1600,60 L1600,200 L0,200 Z" opacity="0.14"></path>
+        <path class="wave-2" fill="#ffffff" d="M0,80 C250,40 450,140 850,80 C1250,20 1450,120 1600,80 L1600,200 L0,200 Z" opacity="0.08"></path>
+      </g>
+    </svg>
+  </div>
+
+  <div class="page-wrap">
+  <nav class="navbar">
+    <div style="display:flex;align-items:center;width:100%;gap:12px">
+  <div class="nav-logo" role="img" aria-label="Company logo"></div>
+      <div class="navbar-right" style="display:flex;gap:8px;align-items:center">
+        <a href="/stationary/stationary/">Stationary</a>
+        <a href="/inventory/employee_issue_items/">Issue</a>
+        <a href="/inventory/stock/">Stocks</a>
+        <!-- <a href="/admin/custom_admin/">Admin</a> -->
+        <a href="/inventory/logout/">Logout</a>
+      </div>
+    </div>
+  </nav>
+  <h1 style="text-align:center;margin-top:8px">📊Dashboard</h1>
+  {% if messages %}
+    <div id="messagePopover" style="display:none;position:absolute;top:20px;right:20px;padding:12px 18px;border-radius:8px;z-index:9999;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,0.12);">
+    {% for message in messages %}
+      <div class="msg {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+    </div>
+  
+  {% endif %}
+
+<div class="form-row" style="display: flex; align-items: center; justify-content: space-between; padding: 2px 12px; background: whitesmoke; border-radius: 8px; width: 100%; box-sizing: border-box; box-shadow: #36a2eb;">
+  <!-- Location on the left -->
+  <div class="location-banner" style="display: flex; align-items: center; gap: 6px;">
+    <span>📍</span>
+    <label for="locationSelect" style="white-space: nowrap;">Location:</label>
+    <select id="locationSelect" style="padding:4px 6px; border:1px solid #ccc; border-radius:6px;">
+      <option value="Belagavi" selected>Belagavi</option>
+      <option value="Hubli">Hubli</option>
+      <option value="Koppal">Koppal</option>
+    </select>
+  </div>
+
+  <!-- Search and Add on the right -->
+  <div class="right-group" style="display: flex; align-items: center; gap: 8px;">   
+ <button onclick="window.location.href='/inventory/add_stock/'" class="btn" style="padding:6px 10px; border:none; border-radius:6px; background-color:#10b981; color:white; cursor:pointer;">
+  + Add Stock
+</button>
+
+  </div>
+</div>
+
+<div class="main-content">
+  <div id="kpiRow" class="cards-row">
+    <div class="card">
+      <h2>Opening Stock</h2>
+        <div class="number" data-target-url="/inventory/stock/?filter=all">{{ kpi_opening_stock }}</div>
+    </div>
+    <div class="card">
+      <h2>Total Allotted</h2>
+        <div class="number" data-target-url="/inventory/employee_issue_items/?filter=all">{{ kpi_total_allotted }}</div>
+    </div>
+    <div class="card">
+      <h2>Remaining Stock</h2>
+        <div class="number" data-target-url="/inventory/stock/?filter=available">{{ kpi_remaining_stock }}</div>
+    </div>
+    <div class="card">
+      <h2>Stock Alert</h2>
+        <div class="number" style="font-size:1.15rem;" data-target-url="/inventory/stock/?filter=low">{{ kpi_stock_alert_text }}</div>
+    </div>
+    <div class="card">
+      <h2>Next Month Allotment Qty</h2>
+        <div class="number" data-target-url="/inventory/employee_issue_items/?filter=next_month">{{ kpi_next_month_allot }}</div>
+    </div>
+    <div class="card">
+      <h2>Next To Next Month Qty</h2>
+        <div class="number" data-target-url="/inventory/employee_issue_items/?filter=next2_month">{{ kpi_next_to_next_allot }}</div>
+    </div>
+  </div>
+
+  <!-- charts -->
+  <div id="tab-dashboard" class="tab-pane">
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Low Quantity Items (<= 50)</div>
+        <canvas id="lowStockDonut" class="chart-canvas" aria-label="Low stock donut chart"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Issued (6-month)</div>
+        <canvas id="issuedChart" class="chart-canvas" aria-label="Issued this month chart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div id="tab-overview" class="tab-pane" style="display:none; padding:30px; background:#f6f8fb;">
+  <h2 style="text-align:center; color:#1e3a8a; margin-bottom:25px;">📋 Reports Overview</h2>
+  <div class="reports-row">
+ 
+    <div class="report-card">
+      <h3 class="report-title">Employee Next Due Report</h3>
+      <div class="filters">
+        <label>From:</label>
+        <input type="date" id="dueFrom">
+        <label>To:</label>
+        <input type="date" id="dueTo">
+      </div>
+      <div class="actions">
+        <button onclick="toggleView('due')" class="btn btn-blue">👁 View</button>
+      </div>
+      <div id="dueReportView" class="report-view"></div>
+    </div>
+
+     <!-- Issued Report -->
+    <div class="report-card">
+      <h3 class="report-title">Employee Issued Report</h3>
+      <div class="filters">
+        <label>From:</label>
+        <input type="date" id="issueFrom">
+        <label>To:</label>
+        <input type="date" id="issueTo">
+      </div>
+      <div class="actions">
+        <button onclick="toggleView('issue')" class="btn btn-blue">👁 View</button>
+      </div>
+      <div id="issueReportView" class="report-view"></div>
+    </div>
+
+    <!-- Extra / Buy Report -->
+    <div class="report-card">
+      <h3 class="report-title">Employee Extra / Buy Report</h3>
+      <div class="filters">
+        <label>From:</label>
+        <input type="date" id="extraFrom">
+        <label>To:</label>
+        <input type="date" id="extraTo">
+      </div>
+      <div class="actions">
+        <button onclick="toggleView('extra')" class="btn btn-blue">👁 View</button>
+      </div>
+      <div id="extraReportView" class="report-view"></div>
+    </div>
+  </div>
+
+  <style>
+    .reports-row {
+      display: flex;
+      gap: 25px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      scroll-snap-type: x mandatory;
+    }
+    .reports-row::-webkit-scrollbar { height: 8px; }
+    .reports-row::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 8px; }
+    .report-card { flex: 0 0 350px; background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; scroll-snap-align: start; }
+    .report-card:hover { transform: translateY(-4px); box-shadow: 0 6px 14px rgba(0,0,0,0.15); }
+    .report-title { color: #1e40af; font-size: 1.1rem; font-weight: 600; border-bottom: 2px solid #1e40af; margin-bottom: 10px; padding-bottom: 4px; }
+    .filters { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: nowrap; margin-bottom: 10px; }
+    .filters label { font-size: 13px; color: #333; }
+    .filters input[type="date"] { flex: 1; padding: 4px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
+    .actions { display: flex; justify-content: center; margin-bottom: 10px; }
+    .btn { border: none; padding: 6px 12px; border-radius: 5px; color: white; cursor: pointer; font-size: 13px; font-weight: 500; transition: 0.2s; white-space: nowrap; }
+    .btn-small { padding: 4px 8px; font-size: 12px; }
+    .btn-blue { background: #3b82f6; } .btn-blue:hover { background: #2563eb; }
+    .btn-red { background: #ef4444; } .btn-red:hover { background: #dc2626; }
+    .btn-green { background: #22c55e; } .btn-green:hover { background: #16a34a; }
+    .report-view { display: none; margin-top: 10px; padding: 8px; background: #f9fafb; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; overflow-x: auto; }
+    table.report-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+    table.report-table th, table.report-table td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+    table.report-table th { background: #1e3a8a; color: white; }
+
+    table.report-table th, table.report-table td {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+      max-width: 240px; 
+    }
+
+    table.report-table tbody tr { height: 40px; }
+    table.report-table tbody td { height: 40px; line-height: 40px; vertical-align: middle; }
+
+    table.report-table tbody td.actions { display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .report-view .actions .btn, .report-view .actions .btn-small {
+      height: 36px; 
+      line-height: 36px;
+      min-width: 64px; 
+      padding: 0 12px;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(2,6,23,0.08);
+      cursor: pointer;
+    }
+    .report-view .actions .btn-large {
+      height: 40px;
+      line-height: 40px;
+      padding: 0 14px;
+      min-width: 74px;
+    }
+
+    table.report-table td[contenteditable="true"] { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    table.report-table td[title] { cursor: default; }
+    .download-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+    .search-box { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+    .search-box input { padding: 5px; width: 60%; border: 1px solid #aaa; border-radius: 5px; font-size: 13px; }
+    .record-count { text-align: right; font-size: 12px; margin-bottom: 6px; color: #333; }
+    @media (max-width: 800px) { .report-card { flex: 0 0 85%; } .filters { flex-wrap: wrap; } }
+  </style>
+  <script>
+    function formatDateInput(input) { const date = new Date(input); return date.toLocaleDateString('en-GB'); }
+    function toggleView(type) {
+      let fromDate, toDate, viewDiv, reportName, dateColumn;
+      if (type === 'due') { fromDate = document.getElementById('dueFrom').value; toDate = document.getElementById('dueTo').value; viewDiv = document.getElementById('dueReportView'); reportName = 'Employee Next Due Report'; dateColumn='Due Date'; }
+      else if (type==='issue'){ fromDate=document.getElementById('issueFrom').value; toDate=document.getElementById('issueTo').value; viewDiv=document.getElementById('issueReportView'); reportName='Employee Issued Report'; dateColumn='Issued Date'; }
+      else { fromDate=document.getElementById('extraFrom').value; toDate=document.getElementById('extraTo').value; viewDiv=document.getElementById('extraReportView'); reportName='Employee Extra / Buy Report'; dateColumn='Issued Date'; }
+
+      if(viewDiv.style.display==='block'){ viewDiv.style.display='none'; return; }
+      if(!fromDate||!toDate){ alert(' Please select both From and To dates!'); return; }
+      const fromFormatted=formatDateInput(fromDate), toFormatted=formatDateInput(toDate);
+      const tableHTML = `
+        <h4>${reportName}</h4>
+        <p><strong>From:</strong> ${fromFormatted} &nbsp; <strong>To:</strong> ${toFormatted}</p>
+        <div class="search-box">
+          <input type="text" id="${type}Search" placeholder="🔍 Search in all columns..." onkeyup="filterTable('${type}')">
+        </div>
+        <div class="record-count" id="${type}Count">Total Records: 0</div>
+        <table class="report-table" id="${type}Table">
+          <thead>
+            <tr>
+              <th>Emp ID</th><th>Emp Name</th><th>Emp Email</th><th>Entity</th>
+              <th>Category</th><th>Subcategory</th><th>Quantity</th><th>${dateColumn}</th>${type !== 'due' ? '<th>' + (type === 'extra' ? 'Buy Price (₹)' : 'Price') + '</th>' : ''}<th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Empty initially; rows can be added dynamically -->
+          </tbody>
+        </table>
+        <div class="download-actions">
+          <button onclick="downloadSample('${type}','pdf')" class="btn btn-red">⤓ PDF</button>
+          <button onclick="downloadSample('${type}','excel')" class="btn btn-green">⤓ Excel</button>
+        </div>
+      `;
+
+      viewDiv.innerHTML = tableHTML;
+      viewDiv.style.display = 'block';
+
+      // After rendering table, fetch rows from server
+      const startInputId = (type === 'due') ? 'dueFrom' : (type === 'issue' ? 'issueFrom' : 'extraFrom');
+      const endInputId = (type === 'due') ? 'dueTo' : (type === 'issue' ? 'issueTo' : 'extraTo');
+      const start = document.getElementById(startInputId).value;
+      const end = document.getElementById(endInputId).value;
+      if (!start || !end) {
+        // leave table empty until dates filled
+        return;
+      }
+
+      const endpoint = (type === 'due') ? '/inventory/api/reports/due/' : (type === 'issue' ? '/inventory/api/reports/issue/' : '/inventory/api/reports/extra/');
+      fetch(`${endpoint}?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`)
+        .then(r => r.json())
+        .then(data => {
+          console.log(`${type} report response:`, data); // Debug logging
+          const items = data.items || [];
+          const tbody = document.querySelector(`#${type}Table tbody`);
+          tbody.innerHTML = '';
+          
+          if (items.length === 0) {
+            // Show a helpful message when no data is found
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td colspan="${type === 'due' ? '9' : '10'}" style="text-align: center; color: #666; font-style: italic; padding: 20px;">
+                No ${type} records found for the selected date range. 
+                ${data.debug ? `Debug: ${data.debug}` : ''}
+                <br><small>Try selecting a different date range or check if there are any ${type} records in the system.</small>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          } else {
+            items.forEach(it => {
+              const tr = document.createElement('tr');
+              
+              // Debug logging for date fields
+              console.log(`Item ${it.emp_id}:`, {
+                issued_date: it.issued_date,
+                Next_issue_date: it.Next_issue_date,
+                type: type
+              });
+              
+              // Format dates properly
+              let displayDate = '';
+              if (type === 'due') {
+                displayDate = it.Next_issue_date || it.next_issue_date || it.next_Issue_date || '';
+              } else {
+                displayDate = it.issued_date || it.Issued_date || '';
+              }
+              
+              // Format date if it exists and is not empty
+              if (displayDate && displayDate !== '' && displayDate !== null) {
+                try {
+                  const dateObj = new Date(displayDate);
+                  if (!isNaN(dateObj.getTime())) {
+                    displayDate = dateObj.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+                  } else {
+                    console.warn('Invalid date:', displayDate);
+                    displayDate = displayDate; // Keep original if can't parse
+                  }
+                } catch (e) {
+                  console.warn('Date formatting error:', e, 'for date:', displayDate);
+                  displayDate = displayDate; // Keep original if error
+                }
+              } else {
+                displayDate = type === 'due' ? 'No due date' : 'No issue date';
+              }
+              
+              tr.innerHTML = `
+                <td class="emp_id">${it.emp_id || ''}</td>
+                <td class="name">${it.name || ''}</td>
+                <td class="email">${it.email || ''}</td>
+                <td class="entity">${it.entity || ''}</td>
+                <td class="cat">${it.Category || ''}</td>
+                <td class="sub">${it.Subcategory || ''}</td>
+                <td class="qty">${it.Issued_quantity || 0}</td>
+                <td class="date">${displayDate}</td>
+                ${type !== 'due' ? '<td class="price">' + (it.buy_price !== null && it.buy_price !== undefined && it.buy_price !== '' ? '₹' + parseFloat(it.buy_price).toFixed(2) : '₹0.00') + '</td>' : ''}
+                <td class="actions">
+                  <button class="btn btn-small btn-blue" onclick="editRow(this)">Edit</button>
+                  <button class="btn btn-small btn-green" style="display:none;" onclick="saveRowAjax(this, ${it.id})">Save</button>
+                </td>
+              `;
+              tbody.appendChild(tr);
+            });
+          }
+          document.getElementById(`${type}Count`).innerText = `Total Records: ${items.length}`;
+        })
+        .catch(err => {
+          console.error('Report fetch error', err);
+          const tbody = document.querySelector(`#${type}Table tbody`);
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="${type === 'due' ? '9' : '10'}" style="text-align: center; color: #d32f2f; padding: 20px;">
+                Error loading ${type} report: ${err.message}
+                <br><small>Please check the console for more details or try again.</small>
+              </td>
+            </tr>
+          `;
+        });
+    }
+
+    function filterTable(type){
+      const input=document.getElementById(`${type}Search`).value.toUpperCase();
+      const table=document.getElementById(`${type}Table`);
+      const tr=table.getElementsByTagName("tr");
+      let visibleCount=0;
+      for(let i=1;i<tr.length;i++){
+        const tds=tr[i].getElementsByTagName("td");
+        let rowText="";
+        for(let j=0;j<tds.length-1;j++) rowText+=tds[j].textContent.toUpperCase()+" ";
+        tr[i].style.display=rowText.indexOf(input)>-1?"":"none";
+        if(tr[i].style.display!=="none") visibleCount++;
+      }
+      document.getElementById(`${type}Count`).innerText=`Total Records: ${visibleCount}`;
+    }
+
+    function editRow(btn){
+      const row = btn.closest("tr");
+      const tds = row.querySelectorAll("td");
+      for(let i=0;i<tds.length-1;i++){ tds[i].setAttribute("contenteditable","true"); tds[i].style.background="#fff8dc"; }
+      btn.style.display="none";
+      row.querySelector("button[onclick*='saveRow']").style.display="inline-block";
+    }
+
+    function saveRow(btn){
+      // Local-only save (no server). Reverts editable state.
+      const row = btn.closest("tr");
+      const tds = row.querySelectorAll("td");
+      for(let i=0;i<tds.length-1;i++){ tds[i].removeAttribute("contenteditable"); tds[i].style.background=""; }
+      btn.style.display="none";
+      row.querySelector("button[onclick*='editRow']").style.display="inline-block";
+    }
+
+    // Helper to get CSRF token from cookies (Django default)
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    function saveRowAjax(btn, issueId){
+      const row = btn.closest('tr');
+      // clear contenteditable and set title attributes
+      const setTitles = () => {
+        const tds = row.querySelectorAll('td');
+        tds.forEach(td => {
+          if(td && td.textContent) td.setAttribute('title', td.textContent.trim());
+        });
+      };
+      setTitles();
+      const get = (sel) => row.querySelector(sel)?.textContent.trim() || '';
+      const payload = new URLSearchParams();
+      payload.append('issue_id', issueId);
+      payload.append('emp_id', get('.emp_id'));
+      payload.append('name', get('.name'));
+      payload.append('email', get('.email'));
+      payload.append('entity', get('.entity'));
+      payload.append('Category', get('.cat'));
+      payload.append('Subcategory', get('.sub'));
+      payload.append('Issued_quantity', get('.qty'));
+      payload.append('issued_date', get('.date'));
+      
+      // Only include price for non-due reports (since due reports don't have price column)
+      const priceCell = row.querySelector('.price');
+      if (priceCell) {
+        // Extract price value (remove ₹ symbol if present)
+        const priceText = priceCell.textContent.trim();
+        let priceValue = priceText.replace('₹', '').replace('-', '').trim();
+        
+        // Handle the new ₹0.00 format
+        if (priceValue === '0.00' || priceValue === '' || priceValue === '0') {
+          priceValue = '0';
+        }
+        
+        if (priceValue && priceValue !== '' && priceValue !== '0') {
+          payload.append('buy_price', priceValue);
+        }
+      }
+
+      const csrftoken = getCookie('csrftoken');
+      fetch('/inventory/api/reports/update-issue/', {
+        method: 'POST',
+        body: payload,
+        headers: {
+          'X-CSRFToken': csrftoken || '',
+        },
+      }).then(r => r.json()).then(data => {
+        if (data && data.ok) {
+          // finalize row edit locally
+          saveRow(btn);
+          setTitles();
+        } else {
+          alert('Save failed');
+        }
+      }).catch(err => {
+        console.error('Save error', err);
+        alert('Save failed (network)');
+      });
+    }
+
+    // Prevent Enter/newline in contenteditable cells to keep rows single-line
+    document.addEventListener('keydown', function(e){
+      const el = document.activeElement;
+      if (el && el.getAttribute && el.getAttribute('contenteditable') === 'true'){
+        if (e.key === 'Enter'){
+          e.preventDefault();
+          // blur to finish editing if user presses Enter
+          el.blur();
+        }
+      }
+    });
+
+    // Test function to check PDF library availability
+    function testPDFLibrary() {
+      console.log('=== PDF Library Test ===');
+      console.log('typeof jsPDF:', typeof jsPDF);
+      console.log('typeof window.jsPDF:', typeof window.jsPDF);
+      console.log('window.jspdf:', window.jspdf);
+      console.log('window.jspdf?.jsPDF:', window.jspdf?.jsPDF);
+      
+      let jsPDFInstance = null;
+      let source = '';
+      
+      if (window.jspdf && window.jspdf.jsPDF) {
+        jsPDFInstance = window.jspdf.jsPDF;
+        source = 'window.jspdf.jsPDF';
+      } else if (typeof window.jsPDF !== 'undefined') {
+        jsPDFInstance = window.jsPDF;
+        source = 'window.jsPDF';
+      } else if (typeof jsPDF !== 'undefined') {
+        jsPDFInstance = jsPDF;
+        source = 'global jsPDF';
+      }
+      
+      if (jsPDFInstance) {
+        try {
+          const testDoc = new jsPDFInstance();
+          testDoc.text('Test PDF Creation', 20, 20);
+          console.log('✅ PDF library working! Source:', source);
+          console.log('✅ AutoTable available:', !!testDoc.autoTable);
+          alert(`PDF library is working!\nSource: ${source}\nAutoTable: ${testDoc.autoTable ? 'Available' : 'Not available'}`);
+          // Don't save the test document
+        } catch (error) {
+          console.error('❌ Error creating test PDF:', error);
+          alert(`PDF library found but error creating document:\n${error.message}`);
+        }
+      } else {
+        console.error('❌ jsPDF library not found');
+        alert('PDF library not found. Please check if the jsPDF scripts are loaded.');
+      }
+      
+      console.log('=== End PDF Library Test ===');
+    }
+
+    // Download function for PDF and Excel reports
+    function downloadSample(reportType, format) {
+      const tableId = `${reportType}Table`;
+      const table = document.getElementById(tableId);
+      
+      if (!table) {
+        alert('No data available to download');
+        return;
+      }
+
+      const rows = table.querySelectorAll('tbody tr');
+      if (rows.length === 0 || (rows.length === 1 && rows[0].cells.length === 1)) {
+        alert('No data available to download');
+        return;
+      }
+
+      // Get table data
+      const data = [];
+      const headers = [];
+      
+      // Get headers
+      const headerRow = table.querySelector('thead tr');
+      if (headerRow) {
+        headerRow.querySelectorAll('th').forEach((th, index) => {
+          if (index < headerRow.children.length - 1) { // Exclude Actions column
+            let headerText = th.textContent.trim();
+            
+            // Clean header text - remove extra symbols for better CSV/PDF format
+            if (headerText.includes('Buy Price (₹)')) {
+              headerText = 'Buy Price';
+            } else if (headerText.includes('Price')) {
+              headerText = 'Price';
+            }
+            
+            headers.push(headerText);
+          }
+        });
+      }
+      
+      // Get data rows
+      table.querySelectorAll('tbody tr').forEach(row => {
+        if (row.style.display !== 'none') { // Only visible rows
+          const rowData = [];
+          row.querySelectorAll('td').forEach((td, index) => {
+            if (index < row.children.length - 1) { // Exclude Actions column
+              let cellText = td.textContent.trim();
+              
+              // Clean price data - remove ₹ symbol and handle empty values
+              if (td.classList.contains('price')) {
+                const originalPrice = cellText;
+                if (cellText === '-' || cellText === '' || cellText === '₹0.00') {
+                  cellText = '0.00';
+                } else {
+                  // Remove ₹ symbol and any other currency symbols
+                  cellText = cellText.replace(/₹/g, '').replace(/[^\d.-]/g, '').trim();
+                  // If still empty after cleaning, set to 0
+                  if (cellText === '' || cellText === '-') {
+                    cellText = '0.00';
+                  } else {
+                    // Ensure proper decimal formatting
+                    const numValue = parseFloat(cellText);
+                    if (!isNaN(numValue)) {
+                      cellText = numValue.toFixed(2);
+                    } else {
+                      cellText = '0.00';
+                    }
+                  }
+                }
+                console.log(`Price cleaned: "${originalPrice}" → "${cellText}"`);
+              }
+              
+              rowData.push(cellText);
+            }
+          });
+          if (rowData.length > 0) {
+            data.push(rowData);
+          }
+        }
+      });
+
+      if (data.length === 0) {
+        alert('No data available to download');
+        return;
+      }
+
+      // Get report info
+      const reportNames = {
+        'due': 'Employee Next Due Report',
+        'issue': 'Employee Issued Report', 
+        'extra': 'Employee Extra Buy Report'
+      };
+      
+      const reportName = reportNames[reportType] || 'Report';
+      const fromDate = document.getElementById(`${reportType}From`)?.value || '';
+      const toDate = document.getElementById(`${reportType}To`)?.value || '';
+      
+      if (format === 'excel') {
+        downloadExcel(data, headers, reportName, fromDate, toDate);
+      } else if (format === 'pdf') {
+        downloadPDF(data, headers, reportName, fromDate, toDate);
+      }
+    }
+
+    // Excel download function
+    function downloadExcel(data, headers, reportName, fromDate, toDate) {
+      let csvContent = '';
+      
+      // Add report title and date range
+      csvContent += `${reportName}\n`;
+      if (fromDate && toDate) {
+        csvContent += `Date Range: ${formatDateInput(fromDate)} to ${formatDateInput(toDate)}\n`;
+      }
+      csvContent += `Generated: ${new Date().toLocaleDateString()}\n\n`;
+      
+      // Add headers
+      csvContent += headers.join(',') + '\n';
+      
+      // Add data
+      data.forEach(row => {
+        const cleanedRow = row.map(cell => {
+          // Clean cell data and handle commas
+          let cleanCell = cell.replace(/"/g, '""'); // Escape quotes
+          if (cleanCell.includes(',') || cleanCell.includes('\n') || cleanCell.includes('"')) {
+            cleanCell = `"${cleanCell}"`; // Wrap in quotes if contains special chars
+          }
+          return cleanCell;
+        });
+        csvContent += cleanedRow.join(',') + '\n';
+      });
+      
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${reportName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // PDF download function
+    function downloadPDF(data, headers, reportName, fromDate, toDate) {
+      // Check if jsPDF is available with multiple possible references
+      let jsPDFInstance = null;
+      
+      // Try different ways to access jsPDF
+      if (window.jspdf && window.jspdf.jsPDF) {
+        jsPDFInstance = window.jspdf.jsPDF;
+        console.log('Found jsPDF at window.jspdf.jsPDF');
+      } else if (typeof window.jsPDF !== 'undefined') {
+        jsPDFInstance = window.jsPDF;
+        console.log('Found jsPDF at window.jsPDF');
+      } else if (typeof jsPDF !== 'undefined') {
+        jsPDFInstance = jsPDF;
+        console.log('Found jsPDF as global jsPDF');
+      } else {
+        // Debug: log available window properties
+        console.error('jsPDF not available. Window properties containing "pdf":', 
+          Object.keys(window).filter(k => k.toLowerCase().includes('pdf')));
+        console.error('Available jspdf object:', window.jspdf);
+        
+        // Fallback: try to create a simple text-based download
+        console.error('jsPDF not available, falling back to text download');
+        downloadPDFAsText(data, headers, reportName, fromDate, toDate);
+        return;
+      }
+
+      try {
+        const doc = new jsPDFInstance();
+        console.log('Successfully created jsPDF instance');
+        
+        // Add title
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text(reportName, 20, 20);
+        
+        // Add date range
+        if (fromDate && toDate) {
+          doc.setFontSize(12);
+          doc.setFont(undefined, 'normal');
+          doc.text(`Date Range: ${formatDateInput(fromDate)} to ${formatDateInput(toDate)}`, 20, 30);
+        }
+        
+        // Add generated date
+        doc.setFontSize(10);
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 40);
+        
+        // Prepare table data
+        const tableData = data.map(row => row.map(cell => cell.substring(0, 50))); // Limit cell length
+        
+        // Add table using autoTable if available
+        if (doc.autoTable) {
+          console.log('Using autoTable for PDF generation');
+          doc.autoTable({
+            head: [headers],
+            body: tableData,
+            startY: 50,
+            styles: {
+              fontSize: 8,
+              cellPadding: 2,
+            },
+            headStyles: {
+              fillColor: [30, 58, 138], // Blue header
+              textColor: 255,
+              fontStyle: 'bold'
+            },
+            columnStyles: {
+              0: { cellWidth: 20 }, // Emp ID
+              1: { cellWidth: 30 }, // Name
+              2: { cellWidth: 35 }, // Email
+              3: { cellWidth: 25 }, // Entity (abbreviated)
+              4: { cellWidth: 20 }, // Category
+              5: { cellWidth: 20 }, // Subcategory
+              6: { cellWidth: 15 }, // Quantity
+              7: { cellWidth: 25 }, // Date
+              8: { cellWidth: 20 }, // Price
+            },
+            margin: { top: 50, left: 10, right: 10 },
+            didDrawPage: function (data) {
+              // Footer with page numbers
+              doc.setFontSize(8);
+              doc.text(`Page ${doc.internal.getNumberOfPages()}`, data.settings.margin.left, doc.internal.pageSize.height - 10);
+            }
+          });
+        } else {
+          console.log('autoTable not available, using manual table creation');
+          // Manual table creation if autoTable is not available
+          let yPosition = 60;
+          
+          // Headers
+          doc.setFontSize(10);
+          doc.setFont(undefined, 'bold');
+          headers.forEach((header, index) => {
+            doc.text(header, 20 + (index * 25), yPosition);
+          });
+          yPosition += 10;
+          
+          // Data rows
+          doc.setFont(undefined, 'normal');
+          doc.setFontSize(8);
+          tableData.forEach(row => {
+            if (yPosition > 280) { // New page if needed
+              doc.addPage();
+              yPosition = 20;
+            }
+            row.forEach((cell, index) => {
+              doc.text(String(cell).substring(0, 20), 20 + (index * 25), yPosition);
+            });
+            yPosition += 8;
+          });
+        }
+        
+        // Save the PDF
+        const fileName = `${reportName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(fileName);
+        console.log('PDF saved successfully:', fileName);
+        
+      } catch (error) {
+        console.error('PDF generation error:', error);
+        alert('Error generating PDF: ' + error.message + '. Please try Excel download instead or check browser console for details.');
+      }
+    }
+
+    // Fallback function for PDF when jsPDF is not available
+    function downloadPDFAsText(data, headers, reportName, fromDate, toDate) {
+      let textContent = '';
+      
+      // Add report title and date range
+      textContent += `${reportName}\n`;
+      textContent += '='.repeat(reportName.length) + '\n\n';
+      
+      if (fromDate && toDate) {
+        textContent += `Date Range: ${formatDateInput(fromDate)} to ${formatDateInput(toDate)}\n`;
+      }
+      textContent += `Generated: ${new Date().toLocaleDateString()}\n\n`;
+      
+      // Add headers
+      textContent += headers.join('\t') + '\n';
+      textContent += '-'.repeat(headers.join('\t').length) + '\n';
+      
+      // Add data
+      data.forEach(row => {
+        textContent += row.join('\t') + '\n';
+      });
+      
+      // Create and download file
+      const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${reportName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      alert('PDF library not available. Downloaded as text file instead.');
+    }
+  </script>
+</div>
+
+
+  <div id="tab-forecast" class="tab-pane" style="display:none;">
+    <div style="padding:20px; background: #f8f9fa; min-height: 100vh;">
+      <h2 style="text-align:center; color:#1e3a8a; margin-bottom:25px; font-weight: 700;">📈 Advanced Forecast Analysis</h2>
+    
+    <!-- Forecast Controls -->
+    <div class="forecast-controls" style="display: flex; gap: 15px; align-items: center; margin-bottom: 25px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); flex-wrap: wrap;">
+      <div class="control-group">
+        <label for="forecastFilter" style="font-weight: 600; margin-right: 8px;">Filter By:</label>
+        <select id="forecastFilter" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; background: white;">
+          <option value="overall">Overall Forecast</option>
+          <option value="category">By Category</option>
+          <option value="entity">By Entity</option>
+          <option value="size">By Size</option>
+        </select>
+      </div>
+      
+      <div class="control-group" id="filterValueGroup" style="display: none;">
+        <label for="filterValue" style="font-weight: 600; margin-right: 8px;">Select:</label>
+        <select id="filterValue" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; background: white;">
+          <option value="">-- Select --</option>
+        </select>
+      </div>
+      
+      <div class="control-group">
+        <label for="forecastMonths" style="font-weight: 600; margin-right: 8px;">Months:</label>
+        <select id="forecastMonths" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; background: white;">
+          <option value="3">3 Months</option>
+          <option value="6" selected>6 Months</option>
+          <option value="12">12 Months</option>
+        </select>
+      </div>
+      
+      <button id="updateForecast" class="btn" style="background: #059669; padding: 8px 16px;">🔄 Update Forecast</button>
+    </div>
+
+    <!-- Forecast Summary Cards -->
+    <div class="forecast-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;">
+      <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <h4 style="margin: 0 0 10px 0; font-size: 14px; opacity: 0.9;">Total Forecast Quantity</h4>
+        <div style="font-size: 28px; font-weight: 800;" id="totalForecastQty">0</div>
+      </div>
+      
+      <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <h4 style="margin: 0 0 10px 0; font-size: 14px; opacity: 0.9;">Employee Required</h4>
+        <div style="font-size: 28px; font-weight: 800;" id="totalForecastEmployees">0</div>
+      </div>
+      
+      <div class="summary-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <h4 style="margin: 0 0 10px 0; font-size: 14px; opacity: 0.9;">Peak Month</h4>
+        <div style="font-size: 18px; font-weight: 800;" id="peakMonth">-</div>
+      </div>
+      
+      <div class="summary-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <h4 style="margin: 0 0 10px 0; font-size: 14px; opacity: 0.9;">Avg Monthly</h4>
+        <div style="font-size: 28px; font-weight: 800;" id="avgMonthly">0</div>
+      </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="forecast-charts-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+      <!-- Monthly Forecast Chart -->
+      <div class="chart-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <h3 style="margin: 0 0 15px 0; color: #1e40af; font-size: 16px;">📊 Monthly Forecast Trend</h3>
+        <canvas id="monthlyForecastChart" style="width: 100% !important; height: 300px !important;"></canvas>
+      </div>
+      
+      <!-- Category/Entity/Size Breakdown Chart -->
+      <div class="chart-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <h3 style="margin: 0 0 15px 0; color: #1e40af; font-size: 16px;" id="breakdownChartTitle">📈 Category Breakdown</h3>
+        <canvas id="breakdownChart" style="width: 100% !important; height: 300px !important;"></canvas>
+      </div>
+    </div>
+
+    <!-- Detailed Forecast Table -->
+    <div class="forecast-table-container" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+      <h3 style="margin: 0 0 15px 0; color: #1e40af; font-size: 16px;">📋 Detailed Forecast Breakdown</h3>
+      
+      <!-- Table Controls -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <input type="text" id="forecastTableSearch" placeholder="🔍 Search forecast data..." 
+                 style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; width: 250px;">
+        </div>
+        <div>
+          <button onclick="exportForecastData('excel')" class="btn" style="background: #059669; margin-right: 8px;">📊 Export Excel</button>
+          <button onclick="exportForecastData('pdf')" class="btn" style="background: #dc2626;">📄 Export PDF</button>
+        </div>
+      </div>
+      
+      <!-- Responsive Table Container -->
+      <div style="overflow-x: auto; border-radius: 8px; border: 1px solid #e5e7eb;">
+        <table id="forecastTable" style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <thead style="background: #f3f4f6;">
+            <tr>
+              <th style="padding: 12px; border-bottom: 1px solid #d1d5db; text-align: left; font-weight: 600;">Month</th>
+              <th style="padding: 12px; border-bottom: 1px solid #d1d5db; text-align: center; font-weight: 600;">Total Quantity</th>
+              <th style="padding: 12px; border-bottom: 1px solid #d1d5db; text-align: center; font-weight: 600;">Employee Required</th>
+              <th style="padding: 12px; border-bottom: 1px solid #d1d5db; text-align: left; font-weight: 600;">Top Category</th>
+              <th style="padding: 12px; border-bottom: 1px solid #d1d5db; text-align: left; font-weight: 600;">Top Entity</th>
+              <th style="padding: 12px; border-bottom: 1px solid #d1d5db; text-align: left; font-weight: 600;">Top Size</th>
+              <th style="padding: 12px; border-bottom: 1px solid #d1d5db; text-align: center; font-weight: 600;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="forecastTableBody">
+            <!-- Data will be populated via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+      
+      <div id="forecastTableEmpty" style="display: none; text-align: center; padding: 40px; color: #6b7280;">
+        📈 No forecast data available for the selected criteria.
+      </div>
+    </div>
+
+    <!-- Stock Requirement Analysis -->
+    <div class="stock-analysis" style="margin-top: 25px; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+      <h3 style="margin: 0 0 15px 0; color: #1e40af; font-size: 16px;">🎯 Stock Requirement Analysis</h3>
+      <div id="stockAnalysisContent">
+        <p style="color: #6b7280; text-align: center;">Select a forecast filter to view stock requirement analysis.</p>
+      </div>
+    </div>
+
+    <style>
+      /* Responsive Design for Forecast Tab */
+      @media (max-width: 1200px) {
+        .forecast-charts-grid {
+          grid-template-columns: 1fr !important;
+        }
+      }
+      
+      @media (max-width: 768px) {
+        .forecast-controls {
+          flex-direction: column !important;
+          align-items: stretch !important;
+        }
+        
+        .control-group {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+        }
+        
+        .control-group select {
+          flex: 1;
+          margin-left: 10px;
+        }
+        
+        .forecast-summary {
+          grid-template-columns: repeat(2, 1fr) !important;
+        }
+        
+        #forecastTableSearch {
+          width: 100% !important;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .forecast-summary {
+          grid-template-columns: 1fr !important;
+        }
+        
+        .summary-card {
+          text-align: center;
+        }
+      }
+      
+      /* Loading Animation */
+      .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Enhanced table styles */
+      #forecastTable tbody tr:hover {
+        background-color: #f9fafb;
+      }
+      
+      #forecastTable tbody tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+    </style>
+  </div>
+  <script>
+    (function(){
+      Array.prototype.slice.call(document.querySelectorAll('.card .number')).forEach(function(el){
+        var url = el.getAttribute('data-target-url');
+        if (!url) return;
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', function(){
+          window.location.href = url;
+        });
+      });
+    window.low = {};
+    try { window.low = JSON.parse('{{ low_stock_chart|escapejs }}'); } catch(e){ window.low = {labels:[], data:[]}; }
+    window.issued = {};
+    try { window.issued = JSON.parse('{{ issued_6m_chart|escapejs }}'); } catch(e){ window.issued = {labels:[], data:[]}; }
+    window.forecast = {};
+    try { window.forecast = JSON.parse('{{ forecast_6m_chart|escapejs }}'); } catch(e){ window.forecast = {labels:[], data:[]}; }
+    window.forecast_baseline = {};
+    try { window.forecast_baseline = JSON.parse('{{ forecast_from_current_chart|escapejs }}'); } catch(e){ window.forecast_baseline = {labels:[], data:[]}; }
+      // Low stock 
+      try {
+        var ctxL = document.getElementById('lowStockDonut').getContext('2d');
+        new Chart(ctxL, {
+          type: 'doughnut',
+          data: { labels: low.labels || [], datasets: [{ data: low.data || [], backgroundColor: [ '#f97316','#f59e0b','#ef4444','#10b981','#60a5fa' ] }] },
+          options: { responsive:true, plugins: { legend: { position: 'bottom' } } }
+        });
+      } catch(e) { console && console.error && console.error('low chart', e); }
+      // Issued  items 6-month 
+      try {
+        var ctxI = document.getElementById('issuedChart').getContext('2d');
+        new Chart(ctxI, {
+          type: 'bar',
+          data: { labels: issued.labels || [], datasets: [{ label: 'Issued', data: issued.data || [], backgroundColor: '#3b82f6' }] },
+          options: { responsive:true, scales: { y: { beginAtZero:true } }, plugins:{ legend:{ display:false } } }
+        });
+      } catch(e) { console && console.error && console.error('issued chart', e); }
+    })();
+  </script>
+
+  <!-- display-each-tabs -->
+  <script>
+    (function(){
+      var tabs = Array.prototype.slice.call(document.querySelectorAll('#sidebarTabs li'));
+      function showTab(name){
+        document.querySelectorAll('.tab-pane').forEach(function(p){ p.style.display = 'none'; });
+        var el = document.getElementById(name);
+        if (el) el.style.display = 'block';
+      }
+      tabs.forEach(function(t){
+        t.addEventListener('click', function(){
+          tabs.forEach(function(x){ x.classList.remove('active'); });
+          t.classList.add('active');
+          var tab = t.getAttribute('data-tab');
+          // if the clicked li doesn't have a data-tab (like Stationary link now) skip showing panes
+          if (!tab) return;
+          showTab(tab);
+          // if forecast tab, initialize the enhanced forecast functionality
+          if (tab === 'tab-forecast'){
+            try{
+              // Initialize forecast if not already done
+              if (!window.forecastData.initialized) {
+                initializeForecast();
+                window.forecastData.initialized = true;
+              }
+            }catch(e){ console && console.error && console.error('initialize forecast tab', e); }
+          }
+        });
+      });
+      // ensure default tab visible
+      showTab('tab-dashboard');
+    })();
+  </script>
+
+  <!-- Expanded chart modal -->
+  <div id="chartModalBackdrop" class="chart-modal-backdrop">
+    <div class="chart-modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div class="modal-title" id="chartModalTitle">Chart</div>
+        <button id="chartModalClose" class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <canvas id="chartModalCanvas" aria-label="Expanded chart"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <div id="tab-entity" class="tab-pane" style="display:none; padding:20px; border:2px solid #ccc; border-radius:6px;">
+      <div class="chart-card" style="padding:14px;">
+        <label style="margin-top:12px; display:block; font-weight:700;">Entity Stock Details</label>
+        
+        <!-- Entity Filter Section -->
+        <div style="margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+          <label for ="entity_choices">Select Entity:</label>
+          <select id="entity_choices" name="entity_choices" style="padding:8px 12px; border:1px solid #ccc; border-radius:6px; width:200px; max-width:100%;">
+            <option value="">-- All Entities --</option>
+            {% for ent in ENTITY_CHOICES %}
+              <option value="{{ ent.value }}">{{ ent.label }}</option>
+            {% empty %}
+              <option disabled>No entities configured</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Summary Section -->
+        <div id="entitySummary" style="margin: 15px 0; padding: 10px; background: #e8f4fd; border-radius: 8px;">
+          <h4 style="margin: 0 0 10px 0; color: #1e40af;">Stock Summary</h4>
+          <div id="summaryContent">
+            <span>Total Items: <strong id="totalItems">{{ entity_stock|length }}</strong></span> |
+            <span>Total Quantity: <strong id="totalQuantity">0</strong></span> |
+            <span style="color: #dc2626;">Low Stock Items: <strong id="lowStockItems">0</strong></span>
+          </div>
+        </div>
+        
+        <!-- Stock Table -->
+  <script>
+    (function(){
+      var modalBackdrop = document.getElementById('chartModalBackdrop');
+      var modalClose = document.getElementById('chartModalClose');
+      var modalTitle = document.getElementById('chartModalTitle');
+      var modalCanvas = document.getElementById('chartModalCanvas');
+      var modalChart = null;
+      function openChartModal(title, chartConfigFactory){
+        modalTitle.textContent = title || 'Chart';
+        modalBackdrop.style.display = 'flex';
+        // ensure canvas is cleared
+        var ctx = modalCanvas.getContext('2d');
+        if (modalChart){ modalChart.destroy(); modalChart = null; }
+        // build chart (returns config)
+        try {
+          var cfg = chartConfigFactory();
+          modalChart = new Chart(ctx, cfg);
+        } catch(err){ console && console.error && console.error('openChartModal', err); }
+      }
+      function closeChartModal(){
+        modalBackdrop.style.display = 'none';
+        if (modalChart){ try { modalChart.destroy(); } catch(e){} modalChart = null; }
+      }
+      
+  
+      modalClose.addEventListener('click', closeChartModal);
+      modalBackdrop.addEventListener('click', function(e){ if (e.target === modalBackdrop) closeChartModal(); });
+
+      // attach click handlers to small charts to expand
+      try {
+        var lowEl = document.getElementById('lowStockDonut');
+        if (lowEl) lowEl.addEventListener('click', function(){
+          openChartModal('Low Quantity Items (Expanded)', function(){
+            return { type: 'doughnut', data: { labels: low.labels || [], datasets:[{ data: low.data || [], backgroundColor:[ '#f97316','#f59e0b','#ef4444','#10b981','#60a5fa' ] }] }, options: { responsive:true, plugins:{ legend:{ position:'bottom' } } } };
+          });
+        });
+      } catch(e){ }
+      try {
+        var issuedEl = document.getElementById('issuedChart');
+        if (issuedEl) issuedEl.addEventListener('click', function(){
+          openChartModal('Issued (6-month) (Expanded)', function(){
+            return { type: 'bar', data: { labels: issued.labels || [], datasets:[{ label:'Issued', data: issued.data || [], backgroundColor:'#3b82f6' }] }, options:{ responsive:true, scales:{ y:{ beginAtZero:true } }, plugins:{ legend:{ display:false } } } };
+          });
+        });
+      } catch(e){ }
+      
+      document.addEventListener('click', function(ev){
+        try {
+          var t = ev.target;
+          if (!t || t.tagName !== 'CANVAS') return;
+          if (t.dataset && t.dataset.forecast){
+            openChartModal('Forecast (Next 6 months) (Expanded)', function(){
+              var f = window.forecast || { labels: [], data: [] };
+              return { type: 'line', data: { labels: f.labels || [], datasets:[{ label:'Required Qty', data: f.data || [], borderColor:'#f97316', backgroundColor:'rgba(249,115,22,0.08)', fill:true }] }, options:{ responsive:true, scales:{ y:{ beginAtZero:true } }, plugins:{ legend:{ display:false } } } };
+            });
+          }
+        } catch(err){}
+      }, false);
+    
+  })();
+  </script>
+  <script>
+    window.forecastData = {
+      categories: [],
+      entities: [],
+      sizes:[
+        '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+        '11', '12', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL',
+        '28', '30', '32', '34', '36', '38', '40', '42', '44', '46', '48',
+        'Overhead', 'Normal'
+      ],
+      currentData: null,
+      charts: {
+        monthly: null,
+        breakdown: null
+      }
+    };
+
+    try {
+      window.forecastData.categories = JSON.parse('{{ categories_list|escapejs }}') || ['tshirt', 'formals', 'jeans', 'safety_shoes', 'goggles'];
+      window.forecastData.entities = JSON.parse('{{ entities_list|escapejs }}') || [];
+      
+      // Debug logging
+      console.log('Forecast data initialized:', {
+        categories: window.forecastData.categories,
+        entities: window.forecastData.entities
+      });
+    } catch(e) {
+      console.error('Error parsing forecast data:', e);
+      // Fallback data
+      window.forecastData.categories = ['tshirt', 'formals', 'jeans', 'safety_shoes', 'goggles'];
+      window.forecastData.entities = ['AEQUS SEZ PRIVATE LIMITED', 'AEQUS ENGINEERED PLASTICS PRIVATE LIMITED'];
+    }
+
+    // Forecast functionality
+    function initializeForecast() {
+      // Check if required elements exist
+      const requiredElements = [
+        'forecastFilter',
+        'updateForecast', 
+        'forecastTableSearch',
+        'monthlyForecastChart',
+        'breakdownChart'
+      ];
+      
+      const missingElements = requiredElements.filter(id => !document.getElementById(id));
+      if (missingElements.length > 0) {
+        console.error('Missing forecast elements:', missingElements);
+        return;
+      }
+      
+      // Set up event listeners
+      document.getElementById('forecastFilter').addEventListener('change', updateFilterOptions);
+      document.getElementById('updateForecast').addEventListener('click', loadForecastData);
+      document.getElementById('forecastTableSearch').addEventListener('keyup', filterForecastTable);
+      
+      // Initialize filter options
+      updateFilterOptions();
+      
+      // Load initial data
+      loadForecastData();
+    }
+
+    function updateFilterOptions() {
+      const filterType = document.getElementById('forecastFilter').value;
+      const filterValueGroup = document.getElementById('filterValueGroup');
+      const filterValue = document.getElementById('filterValue');
+      
+      filterValue.innerHTML = '<option value="">-- Select --</option>';
+      
+      if (filterType === 'overall') {
+        filterValueGroup.style.display = 'none';
+      } else {
+        filterValueGroup.style.display = 'block';
+        
+        let options = [];
+        if (filterType === 'category') {
+          options = window.forecastData.categories;
+        } else if (filterType === 'entity') {
+          options = window.forecastData.entities;
+        } else if (filterType === 'size') {
+          options = window.forecastData.sizes;
+        }
+        
+        options.forEach(option => {
+          filterValue.innerHTML += `<option value="${option}">${option}</option>`;
+        });
+      }
+    }
+
+    function loadForecastData() {
+      const filterType = document.getElementById('forecastFilter').value;
+      const filterValue = document.getElementById('filterValue').value;
+      const months = document.getElementById('forecastMonths').value;
+      
+      // Show loading state
+      showForecastLoading(true);
+      
+      // Build API URL
+      let apiUrl = '/inventory/api/forecast/details/';
+      const params = new URLSearchParams({
+        type: filterType === 'overall' ? '' : filterType,
+        value: filterValue || '',
+        months: months
+      });
+      
+      fetch(`${apiUrl}?${params}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            window.forecastData.currentData = data;
+            updateForecastDisplay(data);
+          } else {
+            console.error('Forecast API error:', data.error);
+            showForecastError('Failed to load forecast data');
+          }
+        })
+        .catch(error => {
+          console.error('Forecast fetch error:', error);
+          showForecastError('Network error loading forecast data');
+        })
+        .finally(() => {
+          showForecastLoading(false);
+        });
+    }
+
+    function updateForecastDisplay(data) {
+      updateForecastSummary(data);
+      updateForecastCharts(data);
+      updateForecastTable(data);
+      updateStockAnalysis(data);
+    }
+
+    function updateForecastSummary(data) {
+      const forecastData = data.forecast_data || [];
+      
+      const totalQty = forecastData.reduce((sum, month) => sum + month.total_quantity, 0);
+      const totalEmployees = forecastData.reduce((sum, month) => sum + month.total_employees, 0);
+      const avgMonthly = forecastData.length > 0 ? Math.round(totalQty / forecastData.length) : 0;
+      
+      // Find peak month
+      const peakMonth = forecastData.reduce((peak, month) => 
+        month.total_quantity > (peak.total_quantity || 0) ? month : peak, 
+        { month: '-', total_quantity: 0 }
+      );
+      
+      document.getElementById('totalForecastQty').textContent = totalQty.toLocaleString();
+      document.getElementById('totalForecastEmployees').textContent = totalEmployees.toLocaleString();
+      document.getElementById('peakMonth').textContent = peakMonth.month || '-';
+      document.getElementById('avgMonthly').textContent = avgMonthly.toLocaleString();
+    }
+
+    function updateForecastCharts(data) {
+      const forecastData = data.forecast_data || [];
+      
+      // Update monthly forecast chart
+      updateMonthlyForecastChart(forecastData);
+      
+      // Update breakdown chart based on filter type
+      updateBreakdownChart(data, forecastData);
+    }
+
+    function updateMonthlyForecastChart(forecastData) {
+      const ctx = document.getElementById('monthlyForecastChart').getContext('2d');
+      
+      if (window.forecastData.charts.monthly) {
+        window.forecastData.charts.monthly.destroy();
+      }
+      
+      const labels = forecastData.map(d => d.month);
+      const quantities = forecastData.map(d => d.total_quantity);
+      const employees = forecastData.map(d => d.total_employees);
+      
+      window.forecastData.charts.monthly = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Quantity Required',
+            data: quantities,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            fill: true,
+            tension: 0.4
+          }, {
+            label: 'Employee Required',
+            data: employees,
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            fill: false,
+            yAxisID: 'y1'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Quantity'
+              }
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Employee Required'
+              },
+              grid: {
+                drawOnChartArea: false,
+              },
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'top'
+            }
+          }
+        }
+      });
+    }
+
+    function updateBreakdownChart(data, forecastData) {
+      const ctx = document.getElementById('breakdownChart').getContext('2d');
+      const filterType = data.filter_type || 'category';
+      
+      if (window.forecastData.charts.breakdown) {
+        window.forecastData.charts.breakdown.destroy();
+      }
+      
+      // Aggregate data across all months for breakdown
+      const breakdown = {};
+      forecastData.forEach(month => {
+        const monthBreakdown = month[`by_${filterType}`] || [];
+        monthBreakdown.forEach(item => {
+          const key = item[filterType] || 'Unknown';
+          breakdown[key] = (breakdown[key] || 0) + (item.qty || 0);
+        });
+      });
+      
+      const labels = Object.keys(breakdown).slice(0, 10); // Top 10
+      const dataValues = labels.map(label => breakdown[label]);
+      
+      // Update chart title
+      const titleMap = {
+        category: 'Category Breakdown',
+        entity: 'Entity Breakdown', 
+        size: 'Size Breakdown'
+      };
+      document.getElementById('breakdownChartTitle').textContent = `📈 ${titleMap[filterType] || 'Breakdown'}`;
+      
+      window.forecastData.charts.breakdown = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: dataValues,
+            backgroundColor: [
+              '#3b82f6', '#f59e0b', '#ef4444', '#10b981', '#8b5cf6',
+              '#f97316', '#06b6d4', '#84cc16', '#ec4899', '#6366f1'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    function updateForecastTable(data) {
+      const tbody = document.getElementById('forecastTableBody');
+      const emptyDiv = document.getElementById('forecastTableEmpty');
+      const forecastData = data.forecast_data || [];
+      
+      tbody.innerHTML = '';
+      
+      if (forecastData.length === 0) {
+        emptyDiv.style.display = 'block';
+        return;
+      }
+      
+      emptyDiv.style.display = 'none';
+      
+      forecastData.forEach(month => {
+        const topCategory = month.by_category.length > 0 ? 
+          `${month.by_category[0].Category || 'Unknown'} (${month.by_category[0].qty || 0})` : '-';
+        const topEntity = month.by_entity.length > 0 ? 
+          `${month.by_entity[0].entity || 'Unknown'} (${month.by_entity[0].qty || 0})` : '-';
+        const topSize = month.by_size.length > 0 ? 
+          `${month.by_size[0].size || 'Unknown'} (${month.by_size[0].qty || 0})` : '-';
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${month.month}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center; font-weight: 600;">${month.total_quantity.toLocaleString()}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">${month.total_employees}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${topCategory}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${topEntity}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${topSize}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">
+            <button onclick="viewMonthDetails('${month.start_date}')" class="btn" style="background: #059669; padding: 4px 8px; font-size: 12px;">View Details</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function updateStockAnalysis(data) {
+      const content = document.getElementById('stockAnalysisContent');
+      const forecastData = data.forecast_data || [];
+      
+      if (forecastData.length === 0) {
+        content.innerHTML = '<p style="color: #6b7280; text-align: center;">No forecast data available for analysis.</p>';
+        return;
+      }
+      
+      // Calculate stock requirements
+      const totalRequired = forecastData.reduce((sum, month) => sum + month.total_quantity, 0);
+      const peakMonth = forecastData.reduce((peak, month) => 
+        month.total_quantity > peak.total_quantity ? month : peak, forecastData[0]);
+      
+      content.innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+          <div style="padding: 15px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
+            <h4 style="margin: 0 0 8px 0; color: #1e40af;">Total Stock Required</h4>
+            <p style="margin: 0; font-size: 24px; font-weight: 600; color: #1e40af;">${totalRequired.toLocaleString()} units</p>
+            <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">For ${data.months} months period</p>
+          </div>
+          
+          <div style="padding: 15px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+            <h4 style="margin: 0 0 8px 0; color: #d97706;">Peak Month Requirement</h4>
+            <p style="margin: 0; font-size: 24px; font-weight: 600; color: #d97706;">${peakMonth.total_quantity.toLocaleString()} units</p>
+            <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">In ${peakMonth.month}</p>
+          </div>
+          
+          <div style="padding: 15px; background: #f0fdf4; border-radius: 8px; border-left: 4px solid #10b981;">
+            <h4 style="margin: 0 0 8px 0; color: #059669;">Safety Stock Recommended</h4>
+            <p style="margin: 0; font-size: 24px; font-weight: 600; color: #059669;">${Math.round(peakMonth.total_quantity * 1.2).toLocaleString()} units</p>
+            <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">20% buffer above peak</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function filterForecastTable() {
+      const searchTerm = document.getElementById('forecastTableSearch').value.toLowerCase();
+      const rows = document.querySelectorAll('#forecastTableBody tr');
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+      });
+    }
+
+    function viewMonthDetails(startDate) {
+      // This would open a detailed modal or navigate to a detailed view
+      alert(`Detailed view for ${startDate} - To be implemented`);
+    }
+
+    function exportForecastData(format) {
+      const data = window.forecastData.currentData;
+      if (!data) {
+        alert('No forecast data to export');
+        return;
+      }
+      
+      if (format === 'excel') {
+        exportToExcel(data);
+      } else if (format === 'pdf') {
+        exportToPDF(data);
+      }
+    }
+
+    function exportToExcel(data) {
+      // Simple CSV export for now
+      const forecastData = data.forecast_data || [];
+      const headers = ['Month', 'Total Quantity', 'Employee Required', 'Top Category', 'Top Entity', 'Top Size'];
+      
+      let csvContent = headers.join(',') + '\n';
+      
+      forecastData.forEach(month => {
+        const topCategory = month.by_category.length > 0 ? month.by_category[0].Category || 'Unknown' : '-';
+        const topEntity = month.by_entity.length > 0 ? month.by_entity[0].entity || 'Unknown' : '-';
+        const topSize = month.by_size.length > 0 ? month.by_size[0].size || 'Unknown' : '-';
+        
+        const row = [
+          month.month,
+          month.total_quantity,
+          month.total_employees,
+          topCategory,
+          topEntity,
+          topSize
+        ];
+        csvContent += row.join(',') + '\n';
+      });
+      
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `forecast_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+
+    function exportToPDF(data) {
+      alert('PDF export - To be implemented with jsPDF');
+    }
+
+    function showForecastLoading(show) {
+      const updateBtn = document.getElementById('updateForecast');
+      if (show) {
+        updateBtn.innerHTML = '<span class="loading-spinner"></span> Loading...';
+        updateBtn.disabled = true;
+      } else {
+        updateBtn.innerHTML = '🔄 Update Forecast';
+        updateBtn.disabled = false;
+      }
+    }
+
+    function showForecastError(message) {
+      // Show error message in summary cards
+      document.getElementById('totalForecastQty').textContent = 'Error';
+      document.getElementById('totalForecastEmployees').textContent = 'Error';
+      document.getElementById('peakMonth').textContent = 'Error';
+      document.getElementById('avgMonthly').textContent = 'Error';
+      
+      // Show error in table
+      const tbody = document.getElementById('forecastTableBody');
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 40px; color: #dc2626;">
+            ❌ ${message}
+          </td>
+        </tr>
+      `;
+    }
+
+    // Initialize forecast when the forecast tab is shown
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, setting up forecast tab listener');
+      
+      // Add forecast tab initialization to existing tab switching logic
+      const forecastTab = document.querySelector('#sidebarTabs li[data-tab="tab-forecast"]');
+      if (forecastTab) {
+        console.log('Forecast tab found, adding listener');
+        forecastTab.addEventListener('click', function() {
+          console.log('Forecast tab clicked');
+          setTimeout(function() {
+            if (!window.forecastData.initialized) {
+              console.log('Initializing forecast for first time');
+              initializeForecast();
+              window.forecastData.initialized = true;
+            } else {
+              console.log('Forecast already initialized');
+            }
+          }, 100); // Small delay to ensure tab is shown
+        });
+      } else {
+        console.error('Forecast tab not found');
+      }
+      
+      // Also add a global function to manually initialize
+      window.initForecastManually = function() {
+        console.log('Manual forecast initialization');
+        initializeForecast();
+        window.forecastData.initialized = true;
+      };
+    });
+  </script>
+
+  
+      <div id="tab-entity" class="tab-pane" style="display:none; padding:20px; border:2px solid #ccc; border-radius:6px;">
+      <div class="chart-card" style="padding:14px;"> 
+      <label style="margin-top:12px; display:block; font-weight:700;">Entity Stock Details</label>
+        
+        <!-- Add CSS for table hover effects -->
+        <style>
+          .entity-table-row:hover {
+            background-color: #f8f9fa !important;
+          }
+          .entity-table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 12px;
+          }
+          .entity-table-container::-webkit-scrollbar {
+            width: 8px;
+          }
+          .entity-table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+          }
+          .entity-table-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+          }
+          .entity-table-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+          }
+        </style>
+        
+        <!-- Scrollable Stock Table Container -->
+        <div class="entity-table-container">
+          <table style="width:100%; border-collapse:collapse; margin:0;">
+            <thead style="position: sticky; top: 0; background: #f3f4f6; z-index: 10;">
+              <tr style="background:#f3f4f6;">
+                <th style="padding: 12px; border-bottom: 2px solid #ddd; text-align: left;">Entity Name</th>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd; text-align: left;">Category</th>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd; text-align: left;">Subcategory</th>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd; text-align: right;">Quantity</th>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd; text-align: left;">Updated Date</th>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd; text-align: left;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in entity_stock %}
+              <tr class="entity-table-row" style="border-bottom: 1px solid #eee;">
+                <td style="padding: 10px;">{{ record.entity_name }}</td>
+                <td style="padding: 10px;">{{ record.category }}</td>
+                <td style="padding: 10px;">{{ record.subcategory }}</td>
+                {% if record.total_quantity < 50 %}
+                <td style="padding: 10px; text-align: right; font-weight: bold; color: #dc2626; background-color: #fef2f2;">
+                  {{ record.total_quantity }}
+                  <span style="font-size: 12px; margin-left: 4px;"></span>
+                </td>
+                {% else %}
+                <td style="padding: 10px; text-align: right; font-weight: bold; color: #059669;">
+                  {{ record.total_quantity }}
+                </td>
+                {% endif %}
+                <td style="padding: 10px; color: #6b7280;">{{ record.updated_date }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" style="text-align: center; color: #666; font-style: italic; padding: 40px;">
+                  📦 No entity stock data available.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Table Info and Scroll Indicator -->
+        <div style="margin-top: 10px; padding: 8px; background: #f8f9fa; border-radius: 6px; font-size: 13px; color: #666; border-left: 3px solid #3b82f6;">
+          <span>📋(scroll to view all) • Use entity filter</span><br>
+          <span style="margin-top: 4px; display: inline-block;">
+            <span style="color: #dc2626; font-weight: bold;">🔴 </span> low stock (below 50) • 
+            <span style="color: #059669; font-weight: bold;">🟢 </span> good stock (50+)
+          </span>
+        </div>
+      </div>
+  </div>
+  <script>
+    // Make sure to define showTab function in the global scope first
+    function showTab(name){
+      document.querySelectorAll('.tab-pane').forEach(function(p){ p.style.display = 'none'; });
+      var el = document.getElementById(name);
+      if (el) el.style.display = 'block';
+    }
+
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('#sidebarTabs li'));
+    if (tabs && tabs.length){
+      var entitySelect = document.getElementById('entity_choices');
+      if (entitySelect){
+        
+        // Function to update summary
+        function updateSummary() {
+          var rows = document.querySelectorAll('#tab-entity tbody tr');
+          var visibleRows = 0;
+          var totalQuantity = 0;
+          var lowStockCount = 0;
+          
+          rows.forEach(function(r){
+            if (r.style.display !== 'none' && r.cells.length >= 4) {
+              var quantityCell = r.cells[3];
+              var quantity = parseInt(quantityCell.textContent) || 0;
+              totalQuantity += quantity;
+              visibleRows++;
+              
+              // Count low stock items (below 50)
+              if (quantity < 50) {
+                lowStockCount++;
+              }
+            }
+          });
+          
+          // Update summary display
+          var totalItemsEl = document.getElementById('totalItems');
+          var totalQuantityEl = document.getElementById('totalQuantity');
+          var lowStockItemsEl = document.getElementById('lowStockItems');
+          
+          if (totalItemsEl) totalItemsEl.textContent = visibleRows;
+          if (totalQuantityEl) totalQuantityEl.textContent = totalQuantity;
+          if (lowStockItemsEl) {
+            lowStockItemsEl.textContent = lowStockCount;
+            // Add visual warning if there are low stock items
+            lowStockItemsEl.style.color = lowStockCount > 0 ? '#dc2626' : '#059669';
+          }
+        }
+        
+        entitySelect.addEventListener('change', function(){
+          var val = entitySelect.value;
+          var rows = document.querySelectorAll('#tab-entity tbody tr');
+          
+          rows.forEach(function(r){
+            if (!val || val === '') {
+              // Show all rows if no entity selected
+              r.style.display = '';
+            } else {
+              var entityName = r.cells[0].textContent || r.cells[0].innerText || '';
+              // Clean and compare entity names
+              var cleanEntityName = entityName.trim();
+              var cleanSelectedValue = val.trim();
+              
+              if (cleanEntityName === cleanSelectedValue || cleanEntityName.includes(cleanSelectedValue)) {
+                r.style.display = '';
+              } else {
+                r.style.display = 'none';
+              }
+            }
+          });
+          
+          // Update summary after filtering
+          updateSummary();
+          
+          // Switch to entity tab and make it active
+          document.querySelectorAll('#sidebarTabs li').forEach(function(x){ x.classList.remove('active'); });
+          var entityTab = document.querySelector('#sidebarTabs li[data-tab="tab-entity"]');
+          if (entityTab) entityTab.classList.add('active');
+          showTab('tab-entity');
+        });
+        
+        // Initialize summary on page load
+        setTimeout(updateSummary, 100);
+      }
+    }
+  </script>
+  
+  <!-- Additional Forecast Styles -->
+  <style>
+    /* Forecast specific styles for better display */
+    .forecast-charts-grid .chart-card {
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .forecast-charts-grid .chart-card canvas {
+      flex: 1;
+      min-height: 300px !important;
+      max-height: 350px !important;
+    }
+    
+    /* Fix chart container sizing */
+    #monthlyForecastChart, #breakdownChart {
+      width: 100% !important;
+      height: 300px !important;
+      max-height: 350px !important;
+    }
+    
+    /* Ensure forecast tab content is visible */
+    #tab-forecast {
+      min-height: 100vh;
+      background: #f8f9fa;
+    }
+    
+    /* Fix summary cards spacing */
+    .forecast-summary .summary-card {
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    /* Better table display */
+    .forecast-table-container table {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+  </style>     
+    </div> 
+    
+  </div>  
+
+</body>
+</html>
