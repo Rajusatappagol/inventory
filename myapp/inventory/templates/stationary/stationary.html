@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -713,7 +714,7 @@
   <nav class="navbar">
     <div class="brand">
       <button id="mobileNavToggle" class="dashboard-btn" style="display: none; margin-right: 10px;">☰ Menu</button>
-      <img src="https://www.aequs.com/wp-content/uploads/2021/06/Aequs-Logo-new.png" alt="logo">
+      <img src="{% static 'AEQUS_logo.jpg' %}" alt="Aequs Logo" style="height: 40px; width: 100px; object-fit: contain;">
     </div>
     <a href="/admin/dashboard/" class="dashboard-btn">🏠 Dashboard</a>
   </nav>
@@ -873,6 +874,7 @@
       <small style="color: var(--muted); margin-top:5px; display:block;">Number of units to add to inventory</small>
     </div>
   </div>
+  
   <div style="text-align:center; margin-top:20px;">
     <button type="submit" class="toggle-btn">
       <span id="submitText">📥 Add New Item</span>

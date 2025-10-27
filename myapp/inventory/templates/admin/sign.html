@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,9 +11,10 @@
   <style>
     body {
       font-family: 'Roboto', sans-serif;
-      background-image: url('https://www.aequs.com/wp-content/uploads/2025/10/Aequs-SEZ-Gate-2048x1366.jpg');
+      background-image: url("{% static 'Aequs-SEZ-Gate-2048x1366.jpg' %}");
       background-size: cover;
       background-position: center;
+      background-attachment: fixed;
       margin: 0;
       padding: 0;
       display: flex;

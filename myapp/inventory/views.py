@@ -20,7 +20,17 @@ from django.shortcuts import render, redirect
 from .models import Profile
 from .decorators import role_required
 
+@login_required
 def stock_view(request):
+	# Only admin can access stock view
+	try:
+		if request.user.profile.role != 'admin':
+			messages.error(request, 'You do not have permission to access this page.')
+			return redirect('employee_issue_items')
+	except:
+		messages.error(request, 'You do not have permission to access this page.')
+		return redirect('employee_issue_items')
+	
 	# Context for template rendering
 	from .models import Category_Choices, Subcategory_Choices, entity_choices
 	
@@ -85,7 +95,15 @@ def stock_view(request):
 	}
 	return render(request, 'inventory/stock.html', context)
 
+@login_required
 def add_stock(request):
+	# Admin-only access for adding stock
+	try:
+		if hasattr(request.user, 'profile') and request.user.profile.role != 'admin':
+			return redirect('employee_issue_items')
+	except Exception:
+		return redirect('sign_view')
+	
 	return render(request, 'inventory/add_stock.html')
 
 def home_view(request):
@@ -107,15 +125,39 @@ def sign_view(request):
 			if user is not None:
 				login(request,user)
 				messages.success(request, 'Sign in successful.')
-				return redirect('admin_dashboard')
+				
+				# Check user role and redirect accordingly
+				try:
+					user_role = user.profile.role
+					if user_role == 'staff':
+						# Staff users go directly to employee issue page
+						return redirect('employee_issue_items')
+					elif user_role == 'admin':
+						# Admin users go to dashboard
+						return redirect('admin_dashboard')
+					else:
+						# Default fallback to dashboard
+						return redirect('admin_dashboard')
+				except:
+					# If no profile exists, redirect to dashboard
+					return redirect('admin_dashboard')
 			else:
 				error_message = 'Invalid username or passwords.'
 
 	return render(request, 'admin/sign.html', {'error_message': error_message, 'next': next_url})
 
 
-from django.shortcuts import render
+@login_required
 def stationary(request):
+	# Only admin can access stationary view
+	try:
+		if request.user.profile.role != 'admin':
+			messages.error(request, 'You do not have permission to access this page.')
+			return redirect('employee_issue_items')
+	except:
+		messages.error(request, 'You do not have permission to access this page.')
+		return redirect('employee_issue_items')
+	
 	return render(request, 'stationary/stationary.html',)
 
 def logout_view(request):
@@ -124,7 +166,18 @@ def logout_view(request):
 	return redirect('/admin/home/')
 @login_required
 def dashboard(request):
-	role = request.user.profile.role
+	# Check user role
+	try:
+		role = request.user.profile.role
+	except:
+		# If no profile, treat as staff
+		role = 'staff'
+	
+	# Staff users should only access employee issue page
+	if role == 'staff':
+		return redirect('employee_issue_items')
+	
+	# Admin users can access full dashboard
 	if role == 'admin':
 		from django.db.models import Sum, Count
 		import datetime, json
@@ -351,7 +404,9 @@ def dashboard(request):
 	return render(request, 'admin/dashboard.html', fallback_context)
 
 
+@login_required
 def employee_issue_items_view(request):
+	# Both admin and staff can access this page
 	from .models import EmployeeDetails, EmployeeIssue, Category_Choices, Subcategory_Choices, size_Choices
 
 	employees = EmployeeDetails.objects.all()
@@ -450,7 +505,9 @@ def employee_issue_items_view(request):
 	})
 
 
+@login_required
 def save_issue(request):
+	# Both admin and staff can save issues
 	if request.method != 'POST':
 		return HttpResponseNotAllowed(['POST'])
 
@@ -1012,11 +1069,13 @@ def save_issue(request):
 	return redirect('employee_issue_items')
 
 
+@login_required
 def check_stock_availability(request):
 	"""
 	AJAX endpoint: /inventory/check-stock-availability/
 	Query params: entity, category, subcategory, size, quantity
 	Returns JSON: { available: bool, stock_count: int }
+	Both admin and staff can check stock availability
 	"""
 	try:
 		entity = request.GET.get('entity') or ''
@@ -1073,10 +1132,13 @@ def issue_items_view(request, category):
 	EmployeeIssues = models.EmployeeIssue.objects.all()
 	return render(request, 'inventory/issue_items.html', {'category': category, 'EmployeeIssues': EmployeeIssues})
 
+@login_required
 def forecast_next_issues(request):
+	# Both admin and staff can view forecast data
 	try:
 		from django.utils import timezone
 		import datetime
+		from .models import Category_Choices
 
 		now = timezone.now().date()
 		months = []
@@ -1087,7 +1149,7 @@ def forecast_next_issues(request):
 			months.append((first, last))
 
 		data = []
-		categories = [c[0] for c in getattr(models, 'Category_Choices', [])]
+		categories = [c[0] for c in Category_Choices]
 		for start, end in months:
 			qs = models.EmployeeIssue.objects.filter(Next_issue_date__gte=start, Next_issue_date__lte=end)
 			total = qs.count()
@@ -1103,10 +1165,12 @@ def forecast_next_issues(request):
 			data.append({ 'label': start.strftime('%b %Y'), 'start': str(start), 'end': str(end), 'total': int(total), 'by_category': by_cat })
 
 		return JsonResponse({'months': data})
-	except Exception:
-		return JsonResponse({'months': []})
+	except Exception as e:
+		return JsonResponse({'months': [], 'error': str(e)}, status=500)
 
+@login_required
 def forecast_month_details(request, start):
+	# Both admin and staff can view forecast month details
 	try:
 		import datetime
 
@@ -1305,7 +1369,14 @@ from .models import EmployeeIssue
 
 
 
+@login_required
 def download_employee_issue_report(request):
+	# Admin-only access for downloading reports
+	try:
+		if hasattr(request.user, 'profile') and request.user.profile.role != 'admin':
+			return HttpResponse('Permission denied', status=403)
+	except Exception:
+		return HttpResponse('Permission denied', status=403)
 	
 	# Get date range from query parameters
 	start_date_str = request.GET.get('start')
@@ -1346,7 +1417,15 @@ def download_employee_issue_report(request):
 
 	return response
 
+@login_required
 def download_employee_due_report(request):
+	# Admin-only access for downloading due reports
+	try:
+		if hasattr(request.user, 'profile') and request.user.profile.role != 'admin':
+			return HttpResponse('Permission denied', status=403)
+	except Exception:
+		return HttpResponse('Permission denied', status=403)
+	
 	# field names: Next_issue_date and issued_date
 	today = datetime.today().date()
 	issues = EmployeeIssue.objects.filter(Next_issue_date__lte=today).order_by('Next_issue_date')
@@ -1379,8 +1458,16 @@ def download_employee_due_report(request):
 	return response
 
 
+@login_required
 def forecast_details_api(request):
-	"""API endpoint for detailed forecast data with filtering"""
+	"""API endpoint for detailed forecast data with filtering - Admin only"""
+	# Admin-only access
+	try:
+		if hasattr(request.user, 'profile') and request.user.profile.role != 'admin':
+			return JsonResponse({'error': 'Permission denied'}, status=403)
+	except Exception:
+		return JsonResponse({'error': 'Permission denied'}, status=403)
+	
 	try:
 		import datetime
 		from django.db.models import Sum, Count

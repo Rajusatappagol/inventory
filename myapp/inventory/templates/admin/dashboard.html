@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,7 +42,7 @@
     /* Top navbar inside page content */
   .navbar{position:fixed;left:0;right:0;top:0;height:64px;background:var(--accent-2);padding:12px 24px;margin:0;color:#fff;display:flex;align-items:center;z-index:2200}
   .navbar-list{display:flex;align-items:center;gap:8px;margin:0;padding:0;list-style:none}
-  .nav-logo{width:80px;height:36px;background-color:#fff;border-radius:6px;padding:6px 8px;background-image:url('https://www.aequs.com/wp-content/uploads/2025/05/Aequs-logo_FC-1-2048x1024.png');background-repeat:no-repeat;background-position:left center;background-size:contain;box-shadow:0 6px 18px rgba(2,6,23,0.08)}
+  .nav-logo{width:100px;height:40px;background-color:transparent;border-radius:0;padding:0;background-image:url("{% static 'AEQUS_logo.jpg' %}");background-repeat:no-repeat;background-position:center center;background-size:contain;box-shadow:none}
   .navbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
   .navbar-right a{color:#fff;text-decoration:none;font-weight:700;padding:8px 12px;border-radius:8px;transition:transform 0.12s ease, box-shadow 0.12s ease, background 0.12s}
   .navbar-right a:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(37,99,235,0.18);background:rgba(255,255,255,0.06)}

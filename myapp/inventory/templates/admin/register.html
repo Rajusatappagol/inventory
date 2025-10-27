@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,14 +14,15 @@
     }
 
     body {
-       background-image: url('https://www.aequs.com/wp-content/uploads/2025/10/Aequs-SEZ-Gate-2048x1366.jpg');
+      background-image: url("{% static 'Aequs-SEZ-Gate-2048x1366.jpg' %}");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       color: #333;
-      background-size: cover;
-      background-position: center;
     }
 
     .register-card {
