@@ -335,7 +335,7 @@
       <li class="active" data-tab="tab-dashboard">Dashboard</li>
       <li data-tab="tab-overview">Overview</li>
       <li data-tab="tab-forecast">Forecast</li>
-      <li data-tab="tab-entity">Entity Stock</li>
+      <!-- <li data-tab="tab-entity">Entity Stock</li> -->
     </ul>
   </aside>
 
@@ -375,20 +375,20 @@
 
 <div class="form-row" style="display: flex; align-items: center; justify-content: space-between; padding: 2px 12px; background: whitesmoke; border-radius: 8px; width: 100%; box-sizing: border-box; box-shadow: #36a2eb;">
   <!-- Location on the left -->
-  <div class="location-banner" style="display: flex; align-items: center; gap: 6px;">
-    <span>📍</span>
-    <label for="locationSelect" style="white-space: nowrap;">Location:</label>
-    <select id="locationSelect" style="padding:4px 6px; border:1px solid #ccc; border-radius:6px;">
+  <!-- <div class="location-banner" style="display: flex; align-items: center; gap: 6px;"> -->
+    <!-- <span>📍</span> -->
+    <!-- <label for="locationSelect" style="white-space: nowrap;">Location:</label> -->
+    <!-- <select id="locationSelect" style="padding:4px 6px; border:1px solid #ccc; border-radius:6px;">
       <option value="Belagavi" selected>Belagavi</option>
       <option value="Hubli">Hubli</option>
       <option value="Koppal">Koppal</option>
     </select>
-  </div>
+  </div> -->
 
   <!-- Search and Add on the right -->
   <div class="right-group" style="display: flex; align-items: center; gap: 8px;">   
- <button onclick="window.location.href='/inventory/add_stock/'" class="btn" style="padding:6px 10px; border:none; border-radius:6px; background-color:#10b981; color:white; cursor:pointer;">
-  + Add Stock
+ <!-- <button onclick="window.location.href='/inventory/add_stock/'" class="btn" style="padding:6px 10px; border:none; border-radius:6px; background-color:#10b981; color:white; cursor:pointer;"> -->
+  <!-- + Add Stock -->
 </button>
 
   </div>
@@ -396,10 +396,10 @@
 
 <div class="main-content">
   <div id="kpiRow" class="cards-row">
-    <div class="card">
+    <!-- <div class="card">
       <h2>Opening Stock</h2>
         <div class="number" data-target-url="/inventory/stock/?filter=all">{{ kpi_opening_stock }}</div>
-    </div>
+    </div> -->
     <div class="card">
       <h2>Total Allotted</h2>
         <div class="number" data-target-url="/inventory/employee_issue_items/?filter=all">{{ kpi_total_allotted }}</div>
