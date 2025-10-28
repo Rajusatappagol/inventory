@@ -132,11 +132,9 @@ class EmployeeIssue(models.Model):
         """
         try:
             if (not getattr(self, 'employee', None)) and self.emp_id:
-                # try to find an EmployeeDetails record matching emp_id
                 emp = EmployeeDetails.objects.filter(emp_id__iexact=str(self.emp_id).strip()).first()
                 if emp:
                     self.employee = emp
-                    # keep name/email/gender/entity in sync when available
                     try:
                         if not self.name:
                             self.name = emp.emp_name
@@ -149,7 +147,6 @@ class EmployeeIssue(models.Model):
                     except Exception:
                         pass
         except Exception:
-            # never fail save because of linking
             pass
         super(EmployeeIssue, self).save(*args, **kwargs)
     
@@ -194,7 +191,6 @@ class Stationary(models.Model):
 
 
 class StationaryIssue(models.Model):
-    # store employee basic details directly on the issue for denormalized history
     emp_id = models.CharField(max_length=20, blank=True, default='')
     emp_name = models.CharField(max_length=100, blank=True, default='')
     emp_email = models.EmailField(blank=True, null=True, default='')

@@ -31,10 +31,8 @@ def stock_view(request):
 		messages.error(request, 'You do not have permission to access this page.')
 		return redirect('employee_issue_items')
 	
-	# Context for template rendering
 	from .models import Category_Choices, Subcategory_Choices, entity_choices
 	
-	# Category sizes mapping
 	category_sizes = {
 		'tshirt': ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'],
 		'formals': ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'],
@@ -130,16 +128,12 @@ def sign_view(request):
 				try:
 					user_role = user.profile.role
 					if user_role == 'staff':
-						# Staff users go directly to employee issue page
 						return redirect('employee_issue_items')
 					elif user_role == 'admin':
-						# Admin users go to dashboard
 						return redirect('admin_dashboard')
 					else:
-						# Default fallback to dashboard
 						return redirect('admin_dashboard')
 				except:
-					# If no profile exists, redirect to dashboard
 					return redirect('admin_dashboard')
 			else:
 				error_message = 'Invalid username or passwords.'
@@ -170,14 +164,11 @@ def dashboard(request):
 	try:
 		role = request.user.profile.role
 	except:
-		# If no profile, treat as staff
 		role = 'staff'
 	
-	# Staff users should only access employee issue page
 	if role == 'staff':
 		return redirect('employee_issue_items')
 	
-	# Admin users can access full dashboard
 	if role == 'admin':
 		from django.db.models import Sum, Count
 		import datetime, json
@@ -227,7 +218,6 @@ def dashboard(request):
 			past_qs = models.EmployeeIssue.objects.filter(issued_date__gte=past_start, issued_date__lt=today)
 			past_total = int(past_qs.aggregate(s=Sum('Issued_quantity'))['s'] or 0)
 			avg_monthly = int(past_total / 6) if past_total else 0
-			# Enhanced forecast calculation for next 6 months - categorywise, entity-wise, size-wise
 			forecast_months = []
 			forecast_by_category = {}
 			forecast_by_entity = {}
@@ -254,7 +244,6 @@ def dashboard(request):
 					cat_qs = qs_f.filter(Category__iexact=cat)
 					cat_qty = int(cat_qs.aggregate(s=Sum('Issued_quantity'))['s'] or 0)
 					if cat_qty == 0:
-						# Use historical average for this category
 						hist_cat_qs = models.EmployeeIssue.objects.filter(
 							issued_date__gte=past_start, 
 							issued_date__lt=today, 
@@ -270,7 +259,6 @@ def dashboard(request):
 					ent_qs = qs_f.filter(entity__iexact=entity)
 					ent_qty = int(ent_qs.aggregate(s=Sum('Issued_quantity'))['s'] or 0)
 					if ent_qty == 0:
-						# Use historical average for this entity
 						hist_ent_qs = models.EmployeeIssue.objects.filter(
 							issued_date__gte=past_start, 
 							issued_date__lt=today, 
@@ -280,14 +268,12 @@ def dashboard(request):
 						ent_qty = int(hist_ent_total / 6) if hist_ent_total else 0
 					forecast_by_entity[month_label][entity] = ent_qty
 				
-				# Size-wise forecast (top 10 most common sizes)
 				forecast_by_size[month_label] = {}
-				common_sizes = ['S', 'M', 'L', 'XL', '2XL', '32', '34', '36', '38', '40']
+				common_sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL','3XL','4XL','5XL','28','30', '32', '34', '36', '38', '40', '42', '44', '46', '48', 'normal', 'overhead','2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 				for size in common_sizes:
 					size_qs = qs_f.filter(size__iexact=size)
 					size_qty = int(size_qs.aggregate(s=Sum('Issued_quantity'))['s'] or 0)
 					if size_qty == 0:
-						# Use historical average for this size
 						hist_size_qs = models.EmployeeIssue.objects.filter(
 							issued_date__gte=past_start, 
 							issued_date__lt=today, 
@@ -305,7 +291,6 @@ def dashboard(request):
 			this_month_qs = models.EmployeeIssue.objects.filter(issued_date__gte=this_month_start, issued_date__lt=this_month_next)
 			this_month_total = int(this_month_qs.aggregate(s=Sum('Issued_quantity'))['s'] or 0)
 			forecast_from_current = [int(this_month_total) for _ in range(6)]
-			# Entity stock data
 			entity_stock = []
 			try:
 				entity_stock_qs = Inventory.objects.values('entity', 'item_type', 'color').annotate(
@@ -323,7 +308,6 @@ def dashboard(request):
 			except Exception as e:
 				print(f"DEBUG: Error getting entity stock: {e}")
 				entity_stock = []
-			# Entity choices for the dropdown
 
 			from .models import entity_choices
 			entity_choices_list = [{'value': choice[0], 'label': choice[1]} for choice in entity_choices]
@@ -371,8 +355,7 @@ def dashboard(request):
 				'ENTITY_CHOICES': [],
 			}
 		return render(request, 'admin/dashboard.html', context)
-	# fallback for non-admin or other roles: render a simple dashboard or redirect as needed
-	# Add basic entity data for non-admin users too
+	# Fallback for other roles or errors
 	try:
 		entity_stock = []
 		entity_stock_qs = Inventory.objects.values('entity', 'item_type', 'color').annotate(
@@ -410,7 +393,6 @@ def employee_issue_items_view(request):
 	from .models import EmployeeDetails, EmployeeIssue, Category_Choices, Subcategory_Choices, size_Choices
 
 	employees = EmployeeDetails.objects.all()
-	# show all issues ordered by most recent first
 	issues_qs = EmployeeIssue.objects.all().order_by('-issued_date', '-id')
 
 	issues = []
@@ -528,7 +510,6 @@ def save_issue(request):
 			from .models import EmployeeDetails
 			emp_q = EmployeeDetails.objects.filter(emp_id__iexact=str(emp_id).strip()).first()
 			if not emp_q:
-				# create with provided details (email may be empty string if not supplied)
 				try:
 					EmployeeDetails.objects.create(
 						emp_id=str(emp_id).strip(),
@@ -538,7 +519,6 @@ def save_issue(request):
 						entity=(entity or '').strip()
 					)
 				except Exception:
-					# ignore creation errors (e.g., validation); continue without failing the issue
 					pass
 	except Exception:
 		pass
@@ -564,7 +544,6 @@ def save_issue(request):
 			sz = (size_value or '').strip()
 			ent = (entity_value or '').strip()
 			
-			# Build exact filter criteria
 			filters = {}
 			if cat:
 				filters['item_type__iexact'] = cat
@@ -575,11 +554,9 @@ def save_issue(request):
 			if ent:
 				filters['entity__iexact'] = ent
 			
-			# Find exact matching inventory record
 			inv = Inventory.objects.filter(**filters).first()
 			
 			if not inv:
-				# If no exact match found, try without entity filter (fallback)
 				if ent:
 					fallback_filters = {k: v for k, v in filters.items() if k != 'entity__iexact'}
 					inv = Inventory.objects.filter(**fallback_filters).first()
@@ -588,10 +565,10 @@ def save_issue(request):
 					return False
 			
 			current = int(inv.quantity or 0)
-			
+
 			if d > 0:  # Issuing items (reducing stock)
 				if current < d:
-					return False  # Not enough stock
+					return False  
 				new = current - d
 			else:  # Returning items (increasing stock)
 				new = current + abs(d)
@@ -605,10 +582,7 @@ def save_issue(request):
 			return False
 
 	def check_inventory(category_value, subcategory_value, size_value, required_qty, entity_value=None):
-		"""
-		Check if there's enough stock available for the requested quantity.
-		Returns True if sufficient stock, False otherwise.
-		"""
+		
 		try:
 			if required_qty is None:
 				required_qty = 0
@@ -621,7 +595,6 @@ def save_issue(request):
 			sz = (size_value or '').strip()
 			ent = (entity_value or '').strip()
 			
-			# Build exact filter criteria
 			filters = {}
 			if cat:
 				filters['item_type__iexact'] = cat
@@ -632,11 +605,9 @@ def save_issue(request):
 			if ent:
 				filters['entity__iexact'] = ent
 			
-			# Find exact matching inventory record
 			inv = Inventory.objects.filter(**filters).first()
 			
 			if not inv:
-				# If no exact match found, try without entity filter (fallback)
 				if ent:
 					fallback_filters = {k: v for k, v in filters.items() if k != 'entity__iexact'}
 					inv = Inventory.objects.filter(**fallback_filters).first()
@@ -652,17 +623,13 @@ def save_issue(request):
 			return False
 
 	def get_available_quantity(category_value, subcategory_value, size_value, entity_value=None):
-		"""
-		Get the available quantity for specific entity, category, subcategory, and size.
-		Returns the available quantity as integer.
-		"""
+		
 		try:
 			cat = (category_value or '').strip()
 			sub = (subcategory_value or '').strip()
 			sz = (size_value or '').strip()
 			ent = (entity_value or '').strip()
 
-			# Special handling for 'formals' where color tokens may represent combined labels
 			if cat and cat.lower() == 'formals':
 				qs = Inventory.objects.filter(item_type__iexact=cat)
 				if ent:
@@ -684,7 +651,6 @@ def save_issue(request):
 				total = qs.aggregate(total=Sum('quantity'))['total'] or 0
 				return int(total)
 
-			# Try exact match first (including entity)
 			filters = {}
 			if cat:
 				filters['item_type__iexact'] = cat
@@ -703,7 +669,6 @@ def save_issue(request):
 			if inv:
 				return int(inv.quantity or 0)
 
-			# Broader aggregation fallback
 			qs = Inventory.objects.all()
 			if cat:
 				qs = qs.filter(item_type__iexact=cat)
@@ -786,7 +751,6 @@ def save_issue(request):
 			issue.issued_date = timezone.now()
 			is_buy_flag = bool(request.POST.get('Buy') or request.POST.get('buy'))
 			issue.Buy = ('extra' if is_buy_flag else '')
-			# Handle buy_price
 			if is_buy_flag:
 				buy_price = request.POST.get('buy_price') or request.POST.get('price') or 0
 				try:
@@ -805,9 +769,7 @@ def save_issue(request):
 				new_qty = int(issue.Issued_quantity or 0)
 				new_entity = entity or ''
 				
-				# Check if category/subcategory/size changed
 				if (old_cat or old_sub or old_size) and (old_cat != new_cat or old_sub != new_sub or old_size != new_size):
-					# Different item: roll back old stock and check/deduct new stock
 					old_entity = getattr(issue, 'entity', '') or ''
 					adjust_inventory(old_cat, old_sub, old_size, -old_qty, old_entity)
 					
@@ -819,25 +781,21 @@ def save_issue(request):
 						available = get_available_quantity(new_cat, new_sub, new_size, new_entity)
 						entity_info = f" in {new_entity}" if new_entity else ""
 						messages.error(request, f'Not enough stock to change issue to {new_cat} {new_sub} {new_size}{entity_info}. Required: {new_qty}, Available: {available}.')
-						# Revert the database changes
 						issue.Category = old_cat
 						issue.Subcategory = old_sub
 						issue.size = old_size
 						issue.Issued_quantity = old_qty
 						issue.save()
-						# Add back the old stock
 						adjust_inventory(old_cat, old_sub, old_size, old_qty, old_entity)
 						return redirect('employee_issue_items')
 				else:
-					# Same item: check quantity difference
 					delta = new_qty - old_qty
 					if delta != 0:
-						if delta > 0:  # Increasing quantity
+						if delta > 0:  
 							if not check_inventory(new_cat, new_sub, new_size, delta, new_entity):
 								available = get_available_quantity(new_cat, new_sub, new_size, new_entity)
 								entity_info = f" in {new_entity}" if new_entity else ""
 								messages.error(request, f'Not enough stock to increase quantity for {new_cat} {new_sub} {new_size}{entity_info}. Additional required: {delta}, Available: {available}.')
-								# Revert quantity change
 								issue.Issued_quantity = old_qty
 								issue.save()
 								return redirect('employee_issue_items')
@@ -845,7 +803,7 @@ def save_issue(request):
 								ok = adjust_inventory(new_cat, new_sub, new_size, delta, new_entity)
 								if not ok:
 									messages.warning(request, f'Stock adjustment failed for quantity increase: {new_cat} {new_sub} {new_size}')
-						else:  # Decreasing quantity (add back to stock)
+						else:  
 							ok = adjust_inventory(new_cat, new_sub, new_size, delta, new_entity)
 							if not ok:
 								messages.warning(request, f'Stock adjustment failed for quantity decrease: {new_cat} {new_sub} {new_size}')
@@ -867,9 +825,7 @@ def save_issue(request):
 					cat_it = it.get('Category') or ''
 					sub_it = it.get('Subcategory') or it.get('subcategory') or ''
 					size_it = it.get('size') or ''
-					# determine if this is a 'Buy' item (should bypass blocking and stock checks)
 					is_buy = bool(it.get('Buy') or it.get('buy'))
-					# If emp_id provided and a prior issue exists for this emp+item, skip and show message
 					try:
 						if emp_id and not is_buy:
 							prior = models.EmployeeIssue.objects.filter(emp_id=str(emp_id).strip())
@@ -878,7 +834,6 @@ def save_issue(request):
 							if sub_it:
 								prior = prior.filter(Subcategory__iexact=sub_it)
 							if prior.exists():
-								# try to fetch employee details for a clearer message
 								emp_rec = None
 								try:
 									emp_rec = models.EmployeeDetails.objects.filter(emp_id=str(emp_id).strip()).first()
@@ -894,16 +849,13 @@ def save_issue(request):
 										emp_info = f"{emp_id} - {name}"
 									elif gender:
 										emp_info += f" - {gender}"
-										# If entity is also present, include it
 										if entity:
 											emp_info += f" - {entity}"
 								messages.error(request, f'Employee {emp_info} already has an issue for {cat_it} {sub_it}. Not issued')
 								continue
 					except Exception:
-						# if any error checking prior issues, continue with normal flow
 						pass
 					next_dt = latest_next_issue_datetime(emp_id or '', cat_it, sub_it, size_it)
-					# only enforce next-issue blocking for non-buy items
 					if not is_buy:
 						try:
 							blocked = bool(next_dt and timezone.now() < next_dt)
@@ -918,14 +870,12 @@ def save_issue(request):
 							next_str = str(next_dt)
 						messages.error(request, f'Already issued: {cat_it} {sub_it} size {size_it}. Next issue date: {next_str}. ')
 						continue
-					# For buy items, skip stock check
 					if not is_buy:
 						if not check_inventory(cat_it, sub_it, size_it, req_qty, entity or ''):
 							available = get_available_quantity(cat_it, sub_it, size_it, entity or '')
 							entity_info = f" in {entity}" if entity else ""
 							messages.error(request, f'Not enough stock for {cat_it} {sub_it} size {size_it}{entity_info}. Required: {req_qty}, Available: {available}. Issue not created.')
 							continue
-					# Get buy price if this is a buy item
 					buy_price_value = None
 					if is_buy:
 						price = it.get('buy_price') or it.get('price') or 0
@@ -952,7 +902,6 @@ def save_issue(request):
 					)
 					created += 1
 					try:
-						# don't adjust inventory for buy items
 						if not is_buy:
 							ok = adjust_inventory(cat_it, sub_it, size_it, req_qty, entity or '')
 							if not ok:
@@ -965,7 +914,6 @@ def save_issue(request):
 			messages.success(request, f'Created {created} issue(s).')
 		else:
 			next_dt_single = latest_next_issue_datetime(emp_id or '', category or '', subcategory or '', size or '')
-			# check if this single issue is marked as Buy; if so, skip the blocking logic and do not set Next_issue_date
 			is_single_buy = bool(request.POST.get('Buy') or request.POST.get('buy'))
 			if not is_single_buy:
 				try:
@@ -980,10 +928,8 @@ def save_issue(request):
 				except Exception:
 					next_str = str(next_dt_single)
 				messages.error(request, f'Already issued: {category} {subcategory} size {size}. Next issue date: {next_str}.')
-				# Don't create the issue when blocked
 				return redirect('employee_issue_items')
 			else:
-				# Before proceeding: if emp_id provided and a prior issue exists for this emp+item, block creation (unless Buy is selected)
 				try:
 					if emp_id and not is_single_buy:
 						prior_qs = models.EmployeeIssue.objects.filter(emp_id=str(emp_id).strip())
@@ -992,7 +938,6 @@ def save_issue(request):
 						if subcategory:
 							prior_qs = prior_qs.filter(Subcategory__iexact=subcategory)
 						if prior_qs.exists():
-							# include employee details if available
 							emp_rec = None
 							try:
 								emp_rec = models.EmployeeDetails.objects.filter(emp_id=str(emp_id).strip()).first()
@@ -1012,10 +957,8 @@ def save_issue(request):
 							messages.error(request, f'Employee {emp_info} already has an issue for {category} {subcategory}. Not issued.')
 							return redirect('employee_issue_items')
 				except Exception:
-					# ignore exceptions from prior check and continue
 					pass
 
-				# Ensure a positive requested quantity
 				try:
 					req_qty = int(issued_quantity or 0)
 				except Exception:
@@ -1024,14 +967,12 @@ def save_issue(request):
 					messages.error(request, 'Requested quantity must be greater than zero. Not issued.')
 					return redirect('employee_issue_items')
 
-				# If not enough stock, do not create the issue and show a clear message
 				if not is_single_buy and not check_inventory(category or '', subcategory or '', size or '', req_qty, entity or ''):
 					available = get_available_quantity(category or '', subcategory or '', size or '', entity or '')
 					entity_info = f" in {entity}" if entity else ""
 					messages.error(request, f'Not enough stock for {category} {subcategory} size {size}{entity_info}. Required: {req_qty}, Available: {available}. Issue not created.')
 					return redirect('employee_issue_items')
 				else:
-					# Get buy price if this is a buy item
 					buy_price_single = None
 					if is_single_buy:
 						price = request.POST.get('buy_price') or request.POST.get('price') or 0
@@ -1056,7 +997,6 @@ def save_issue(request):
 						buy_price=buy_price_single,
 						employee=(EmployeeDetails.objects.filter(emp_id__iexact=str(emp_id).strip()).first() if emp_id else None)
 					)
-					# inventory adjust - only for non-buy items
 					if not is_single_buy:
 						try:
 							ok = adjust_inventory(category or '', subcategory or '', size or '', int(issued_quantity or 0), entity or '')
@@ -1071,12 +1011,7 @@ def save_issue(request):
 
 @login_required
 def check_stock_availability(request):
-	"""
-	AJAX endpoint: /inventory/check-stock-availability/
-	Query params: entity, category, subcategory, size, quantity
-	Returns JSON: { available: bool, stock_count: int }
-	Both admin and staff can check stock availability
-	"""
+	
 	try:
 		entity = request.GET.get('entity') or ''
 		category = request.GET.get('category') or ''
@@ -1088,7 +1023,6 @@ def check_stock_availability(request):
 		except Exception:
 			qty = 0
 
-		# Prefer exact entity/category/sub/size match first
 		filters = {}
 		if category:
 			filters['item_type__iexact'] = category
@@ -1104,7 +1038,6 @@ def check_stock_availability(request):
 			fallback_filters = {k: v for k, v in filters.items() if k != 'entity__iexact'}
 			inv = Inventory.objects.filter(**fallback_filters).first()
 
-		# If still not found, attempt to aggregate similar rows
 		if not inv:
 			qs = Inventory.objects.all()
 			if category:
@@ -1239,7 +1172,6 @@ def search_issues(request):
 	except Exception:
 		return JsonResponse({'items': []})
 
-# check issue block
 def check_issue_block(request):
 	try:
 		emp_id = (request.GET.get('emp_id') or request.GET.get('empId') or '').strip()
@@ -1274,7 +1206,6 @@ def check_issue_block(request):
 		return JsonResponse({'blocked': False, 'next_issue_date': None})
 
 
-# Employee Details
 from django.shortcuts import render
 from .models import EmployeeDetails
 
@@ -1298,7 +1229,6 @@ def get_employeedetails(request, emp_id):
 		'emp_entity': emp.entity,
 	})
 
-# Inventory API
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import csrf_exempt
@@ -1344,14 +1274,12 @@ class InventoryViewSet(viewsets.ModelViewSet):
 		existing = existing_qs.first()
 
 		if existing:
-			# update existing quantity and return its serialized data
 			existing.quantity = (existing.quantity or 0) + quantity
 			existing.save()
 			serializer = self.get_serializer(existing)
 			return Response(serializer.data, status=status.HTTP_200_OK)
 
 		# create new
-		# ensure entity is passed through to serializer data
 		payload = dict(request.data)
 		if entity:
 			payload['entity'] = entity
@@ -1378,21 +1306,18 @@ def download_employee_issue_report(request):
 	except Exception:
 		return HttpResponse('Permission denied', status=403)
 	
-	# Get date range from query parameters
 	start_date_str = request.GET.get('start')
 	end_date_str = request.GET.get('end')
 
 	if not start_date_str or not end_date_str:
 		return HttpResponse("Start date and end date are required.", status=400)
 
-	# Convert strings to date objects
 	try:
 		start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
 		end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
 	except ValueError:
 		return HttpResponse("Invalid date format.", status=400)
 
-	# EmployeeIssue model uses 'issued_date' field
 	issues = EmployeeIssue.objects.filter(issued_date__range=(start_date, end_date))
 
 	response = HttpResponse(content_type='text/csv')
@@ -1419,14 +1344,12 @@ def download_employee_issue_report(request):
 
 @login_required
 def download_employee_due_report(request):
-	# Admin-only access for downloading due reports
 	try:
 		if hasattr(request.user, 'profile') and request.user.profile.role != 'admin':
 			return HttpResponse('Permission denied', status=403)
 	except Exception:
 		return HttpResponse('Permission denied', status=403)
 	
-	# field names: Next_issue_date and issued_date
 	today = datetime.today().date()
 	issues = EmployeeIssue.objects.filter(Next_issue_date__lte=today).order_by('Next_issue_date')
 
@@ -1700,7 +1623,6 @@ def due_report_json(request):
 		count_in_range = qs.count()
 		print(f"DEBUG: Issues in date range {start_date} to {end_date}: {count_in_range}")
 		
-		# If no results in range, try a broader query to see what dates we do have
 		if count_in_range == 0:
 			sample_dates = models.EmployeeIssue.objects.filter(Next_issue_date__isnull=False).values_list('Next_issue_date', flat=True)[:10]
 			print(f"DEBUG: Sample Next_issue_dates in DB: {list(sample_dates)}")
@@ -1754,7 +1676,6 @@ def extra_report_json(request):
 			print(f"DEBUG: Date parsing error: {e}")
 			return JsonResponse({'items': [], 'debug': f'date_parse_error: {e}'})
 
-		# Return items that are explicitly marked as Buy ('extra') OR items whose Next_issue_date falls in the requested range.
 		from django.db.models import Q
 		qs = models.EmployeeIssue.objects.filter(
 			Q(Buy__iexact='extra') |
@@ -1764,7 +1685,6 @@ def extra_report_json(request):
 		count_in_range = qs.count()
 		print(f"DEBUG: Extra/Buy items in range: {count_in_range}")
 		
-		# Also check how many Buy='extra' items we have total
 		buy_extra_count = models.EmployeeIssue.objects.filter(Buy__iexact='extra').count()
 		print(f"DEBUG: Total Buy='extra' items: {buy_extra_count}")
 		
@@ -1809,7 +1729,6 @@ def update_issue_ajax(request):
 		if not issue:
 			return JsonResponse({'error': 'Issue not found'}, status=404)
 
-		# update simple fields if provided
 		for field in ('emp_id', 'name', 'email','entity', 'Category', 'Subcategory', 'size', 'Buy'):
 			v = request.POST.get(field)
 			if v is not None:
@@ -1858,14 +1777,12 @@ def update_issue_ajax(request):
 from django.shortcuts import render, redirect
 from .models import Stationary, StationaryType
 def stationary(request):
-	# Provide items, types, employees and issued_items for the template
 	from .models import Stationary, StationaryType, EmployeeDetails
 	items = Stationary.objects.all().order_by('-updated_at')
 	types = StationaryType.objects.all().order_by('name')
 	employees = EmployeeDetails.objects.all()
 	issued_items = []
 	try:
-		# if there is a StationaryIssue model, show recent issues
 		from .models import StationaryIssue
 		issued_items = StationaryIssue.objects.all().order_by('-id')[:50]
 	except Exception:
@@ -1873,7 +1790,7 @@ def stationary(request):
 	return render(request, 'stationary/stationary.html', {'items': items, 'types': types, 'employees': employees, 'issued_items': issued_items})
 def stationary_inventory(request):
     items = Stationary.objects.all().order_by('-updated_at')
-    types = StationaryType.objects.all()  # renamed variable for clarity
+    types = StationaryType.objects.all()  
     return render(request, 'stationary.html', {'items': items, 'types': types})
 
 from django.shortcuts import render, redirect
@@ -1895,7 +1812,6 @@ def add_stationary_type(request):
 					name = name.strip()
 					stationary_type, created = StationaryType.objects.get_or_create(name=name)
 					
-					# Create or update stationary item with quantity
 					try:
 						qty = int(quantity or 0)
 					except:
@@ -1910,7 +1826,6 @@ def add_stationary_type(request):
 							stationary_item.quantity += qty
 							stationary_item.save()
 					else:
-						# Just create the type without quantity
 						stationary_item, item_created = Stationary.objects.get_or_create(
 							category=stationary_type,
 							defaults={'quantity': 0}
@@ -1938,7 +1853,6 @@ def add_stationary_type(request):
 					'message': 'Item name is required'
 				})
 		
-		# Handle regular form submission
 		if name:
 			StationaryType.objects.get_or_create(name=name.strip())
 	
@@ -1962,7 +1876,6 @@ def add_stationary_item(request):
 			if category_id and q > 0:
 				try:
 					category = StationaryType.objects.get(id=category_id)
-					# if an existing Stationary row with same category exists, update it
 					s = Stationary.objects.filter(category=category).first()
 					if s:
 						s.quantity = (s.quantity or 0) + q
@@ -2002,7 +1915,6 @@ def add_stationary_item(request):
 					'message': 'Please select a category and enter a valid quantity'
 				})
 		
-		# Handle regular form submission
 		try:
 			q = int(quantity or 0)
 		except Exception:
@@ -2010,7 +1922,6 @@ def add_stationary_item(request):
 		if category_id and q > 0:
 			try:
 				category = StationaryType.objects.get(id=category_id)
-				# if an existing Stationary row with same category exists, update it
 				s = Stationary.objects.filter(category=category).first()
 				if s:
 					s.quantity = (s.quantity or 0) + q
@@ -2057,15 +1968,12 @@ def submit_stationary_issue(request):
 				messages.error(request, '❌ Please fill all required fields')
 				return redirect('stationary')
 			
-			# Get the stationary item
 			stationary_item = Stationary.objects.get(id=stationary_id)
 			
-			# Check if enough quantity is available
 			if stationary_item.quantity < quantity_issued:
 				messages.error(request, f'❌ Not enough stock! Available: {stationary_item.quantity}, Requested: {quantity_issued}')
 				return redirect('stationary')
 			
-			# Create the issue record
 			issue = StationaryIssue.objects.create(
 				emp_id=emp_id,
 				emp_name=emp_name,

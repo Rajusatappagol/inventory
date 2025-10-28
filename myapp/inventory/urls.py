@@ -31,7 +31,6 @@ urlpatterns = [
     path('stock/', views.stock_view, name='stock'),
     path('stock/add/', views.add_stock, name='add_stock'),
 
-    # Stationary pages and actions
     path('stationary/', views.stationary, name='stationary'),
     path('stationary/add-type/', views.add_stationary_type, name='add_stationary_type'),
     path('stationary/add-item/', views.add_stationary_item, name='add_stationary_item'),
@@ -42,16 +41,13 @@ urlpatterns = [
     path('download/employee-issue-report/', views.download_employee_issue_report, name='download_employee_issue_report'),
     path('download/employee-due-report/', views.download_employee_due_report, name='download_employee_due_report'),
     
-    # JSON endpoints for dashboard overview reports
     path('api/reports/issue/', views.issue_report_json, name='api_issue_report'),
     path('api/reports/due/', views.due_report_json, name='api_due_report'),
     path('api/reports/extra/', views.extra_report_json, name='api_extra_report'),
     path('api/reports/update-issue/', views.update_issue_ajax, name='api_update_issue'),
     
-    # Enhanced forecast API endpoints
     path('api/forecast/details/', views.forecast_details_api, name='api_forecast_details'),
     path('api/forecast/summary/', views.forecast_summary_api, name='api_forecast_summary'),
 
-    # Include DRF router URLs
     path('', include(router.urls)),
 ]

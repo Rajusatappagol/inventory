@@ -2,7 +2,6 @@ from rest_framework import serializers
 from .models import Inventory
         
 class InventorySerializer(serializers.ModelSerializer):
-    # Override model field types to allow dynamic categories/values beyond model choices
     item_type = serializers.CharField(allow_blank=False)
     color_or_type = serializers.CharField(source='color', allow_blank=True, required=False)
     color = serializers.CharField(allow_blank=True, required=False)

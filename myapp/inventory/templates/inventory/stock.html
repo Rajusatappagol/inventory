@@ -51,7 +51,6 @@
             padding-top: var(--nav-h);
         }
 
-        /* Modal and form styles */
         .addform {
             background: var(--white);
             border-radius: var(--border-radius);
@@ -142,7 +141,6 @@
             transform: translateY(0);
         }
 
-        /* Navbar Styles */
         .navbar {
             position: fixed;
             top: 0;
@@ -211,7 +209,6 @@
             box-shadow: none;
         }
 
-        /* Main Layout */
         .main {
             max-width: 1400px;
             margin: 1.5rem auto;
@@ -225,7 +222,6 @@
             align-items: start;
         }
 
-        /* Sidebar Styles */
         .sidebar {
             background: var(--white);
             border-radius: var(--border-radius);
@@ -286,7 +282,6 @@
             cursor: not-allowed;
         }
 
-        /* Content Area */
         .content-area {
             background: var(--white);
             border-radius: var(--border-radius);
@@ -295,7 +290,6 @@
             min-height: 600px;
         }
 
-        /* Top Controls */
         .top-controls {
             display: flex;
             align-items: end;
@@ -417,7 +411,6 @@
             gap: 0.5rem;
             flex: 0 0 auto;
         }
-        /* Stock Grid Styles */
         .table-section {
             padding: 0;
         }
@@ -584,7 +577,6 @@
             border: 1px solid var(--primary);
         }
 
-        /* Modal Styles */
         #formBackdrop {
             display: none;
             position: fixed;
@@ -594,7 +586,6 @@
             z-index: 10000;
         }
 
-        /* Popover Styles */
         .popover {
             position: fixed;
             top: calc(var(--nav-h) + 1rem);
@@ -637,7 +628,6 @@
             border: 1px solid var(--gray-200);
         }
 
-        /* Available Stock Display */
         #availableStockRow {
             background: linear-gradient(135deg, var(--primary-light) 0%, #dbeafe 100%);
             border: 1px solid var(--primary);
@@ -666,7 +656,6 @@
             box-shadow: var(--shadow-sm);
         }
 
-        /* Form Styles */
         .stock-form-title {
             color: var(--gray-800);
             font-size: 1.5rem;
@@ -677,7 +666,6 @@
             letter-spacing: 0.025em;
         }
 
-        /* Radio button styles for formals */
         .radio-group {
             display: flex;
             gap: 1rem;
@@ -694,7 +682,6 @@
             min-width: auto;
         }
 
-        /* Modal Styles */
         .modal {
             position: fixed;
             top: 50%;
@@ -754,7 +741,6 @@
             z-index: 998;
         }
 
-        /* Table Styles */
         .category-table {
             width: 100%;
             border-collapse: collapse;
@@ -799,7 +785,6 @@
             border-top: 2px solid var(--primary-dark);
         }
 
-        /* Management List Styles */
         #maintainList {
             max-height: 400px;
             overflow-y: auto;
@@ -861,7 +846,6 @@
             box-shadow: var(--shadow-md);
         }
 
-        /* Responsive Design */
         @media (max-width: 1024px) {
             .container {
                 grid-template-columns: 1fr;
@@ -1009,7 +993,6 @@
             }
         }
 
-        /* Animation */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -1033,7 +1016,6 @@
         .stock-card:nth-child(5) { animation-delay: 400ms; }
         .stock-card:nth-child(6) { animation-delay: 500ms; }
 
-        /* Loading animation */
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -1043,7 +1025,6 @@
             animation: pulse 1.5s ease-in-out infinite;
         }
 
-        /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -1066,10 +1047,8 @@
 </head>
 
 <body>
-    <!-- Backdrop for forms and modals -->
     <div id="formBackdrop" style="display:none"></div>
 
-    <!-- Navigation Bar -->
     <nav class="navbar">
         <ul class="navbar-list">
             <li class="navbar-left">
@@ -1088,7 +1067,6 @@
         </ul>
     </nav>
 
-    <!-- Success/Error Popovers -->
     <div id="successPopover" class="popover" style="display:none;">
         <i class="fas fa-check-circle"></i>
         Item added successfully
@@ -1098,15 +1076,12 @@
         Failed to add item
     </div>
 
-    <!-- Loading Indicator -->
     <div id="tableLoader" style="display:none;">
         <i class="fas fa-spinner fa-spin"></i>
         Loading stock data...
     </div>
 
-    <!-- Main Content -->
     <div class="main">
-        <!-- Top Controls -->
         <div class="top-controls">
             <div class="control-group">
                 <label for="entityViewSelect">Filter by Entity</label>
@@ -1132,9 +1107,7 @@
             </div>
         </div>
 
-        <!-- Main Container -->
         <div class="container">
-            <!-- Sidebar -->
             <aside class="sidebar" id="leftSidebar">
                 <h4>
                     <i class="fas fa-list"></i>
@@ -1165,17 +1138,14 @@
                 </div>
             </aside>
 
-            <!-- Content Area -->
             <div class="content-area">
                 <div class="table-section" id="tableSection">
                     <div id="stockGrid" class="stock-grid" aria-live="polite">
-                        <!-- Stock cards will be dynamically generated here -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Add Stock Form Modal -->
     <form id="addStockForm" class="stock-card addform" style="display:none;" action="/inventory/stock/add/" method="post">
         {% csrf_token %}
         <h2 class="stock-form-title">
@@ -1183,7 +1153,6 @@
             Add New Stock
         </h2>
 
-        <!-- Available Stock Display -->
         <div id="availableStockRow" style="display:none;">
             <label>
                 <i class="fas fa-warehouse"></i>
@@ -1192,7 +1161,6 @@
             <span id="availableStockValue">0</span>
         </div>
 
-        <!-- Item Type Selection -->
         <div class="form-row">
             <div class="form-group">
                 <label for="itemType">
@@ -1210,7 +1178,6 @@
             </div>
         </div>
 
-        <!-- Entity Selection -->
         <div class="form-row">
             <div class="form-group">
                 <label for="addEntitySelect">
@@ -1228,7 +1195,6 @@
             </div>
         </div>
 
-    <!-- T-Shirt Options -->
         <div id="tshirtOptions" class="form-row">
             <div class="form-group-inline">
                 <div class="form-group">
@@ -1437,7 +1403,6 @@
             </div>
         </div>
 
-        <!-- Custom Category Options (for user-defined categories) -->
         <div id="customOptions" class="form-row" style="display:none;">
             <div class="form-group-inline">
                 <div class="form-group">
@@ -1468,14 +1433,12 @@
             </div>
         </div>
 
-        <!-- Submit Button -->
         <button type="submit" class="stock-btn">
             <i class="fas fa-plus"></i>
             Add to Stock
         </button>
     </form>
 
-    <!-- Script for formal color/gender combination -->
     <script>
         const colorSelect = document.getElementById("formalColor");
         const genderRadios = document.querySelectorAll("input[name='gender']");
@@ -1500,7 +1463,6 @@
             genderRadios.forEach(radio => radio.addEventListener("change", updateCombinedValue));
         }
     </script>
-    <!-- Add Category Modal -->
     <div id="addCategoryBackdrop" class="modal-backdrop" style="display:none"></div>
     <div id="addCategoryModal" class="modal" style="display:none">
         <div class="modal-content">
@@ -1570,7 +1532,6 @@
         </div>
     </div>
 
-    <!-- Category Management Modal -->
     <div id="maintainBackdrop" class="modal-backdrop" style="display:none"></div>
     <div id="maintainModal" class="modal" style="display:none">
         <div class="modal-content">
@@ -1585,12 +1546,10 @@
                 </button>
             </div>
             <div id="maintainList" style="max-height:400px;overflow-y:auto;border-top:1px solid var(--gray-200);padding-top:1rem;">
-                <!-- Category management items will be populated here -->
             </div>
         </div>
     </div>
 
-    <!-- Category Details Modal -->
     <div id="modalBackdrop" class="modal-backdrop" style="display:none"></div>
     <div id="tshirtModal" class="modal" style="display:none">
         <div class="modal-content">
@@ -1602,7 +1561,6 @@
                 </button>
             </div>
             <div id="tshirtModalBody">
-                <!-- Table content will be populated here -->
             </div>
         </div>
     </div>
@@ -1629,7 +1587,6 @@
                                     justify-content: flex-start;
                                     transition: transform 160ms ease, box-shadow 160ms ease, opacity 200ms ease;
                                     overflow: hidden;
-                                    /* entrance animation with optional per-card delay */
                                     animation: cardEnter 420ms cubic-bezier(.2,.9,.2,1) both;
                                     animation-delay: var(--enter-delay, 0ms);
                                 }
@@ -1637,7 +1594,6 @@
                                 .color-box { transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease; }
                                 .color-box:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(18,38,92,0.08); }
                                 .stock-total { transition: color 180ms ease, transform 160ms ease; }
-                                /* loader pulse */
                                 #tableLoader { transition: opacity 220ms ease; }
                                 @keyframes pulse { 0%{ transform: scale(.995); opacity: .95 } 50%{ transform: scale(1.01); opacity: 1 } 100%{ transform: scale(.995); opacity: .95 } }
                                 #tableLoader[style*="display:block"]{ animation: pulse 900ms ease-in-out infinite; }
@@ -1774,14 +1730,12 @@
     async function renderGrid(){
         try{ document.getElementById('tableLoader').style.display = 'block'; } catch(e){}
         const stocks = await fetchStocks();
-        // if an entity is selected in the view selector, filter to that entity
         const viewEntity = entityViewSelect ? (entityViewSelect.value || '').toString().trim() : '';
-        // determine active sidebar category; when 'all' is active we should NOT filter by entity
         let activeCat = 'all';
         try{ const activeLi = sidebar && sidebar.querySelector && sidebar.querySelector('ul li.active'); activeCat = activeLi && activeLi.dataset ? (activeLi.dataset.cat || 'all') : 'all'; }catch(e){ /* ignore */ }
         latestStocks = (stocks || []).filter(s => {
             if (!viewEntity) return true;
-            if ((activeCat || 'all') === 'all') return true; // ignore entity filter when showing All
+            if ((activeCat || 'all') === 'all') return true; 
             const ent = (s.entity || '').toString().trim();
             return ent === viewEntity;
         });
@@ -1812,7 +1766,6 @@
                 card.style.setProperty('--enter-delay', (idx * 60) + 'ms'); 
             } catch(e) {}
 
-            // Create card header with icon and title
             const header = document.createElement('div'); 
             header.className = 'card-header';
             
@@ -1840,13 +1793,11 @@
             header.appendChild(titleSection);
             card.appendChild(header);
 
-            // Create color variants section
             const colorRow = document.createElement('div'); 
             colorRow.className = 'color-row';
             let itemTotal = 0;
             
             if ((itemKey || '').toString().toLowerCase() === 'formals') {
-                // Special handling for formals - group by gender
                 let gentsTotal = 0, ladiesTotal = 0;
                 Object.keys(groups[itemKey] || {}).forEach(color => {
                     const info = groups[itemKey][color];
@@ -1856,7 +1807,7 @@
                     const isLadies = lc.includes('ladies') || lc.includes('lady') || lc.includes('women') || lc.includes('female');
                     if (isGents) gentsTotal += info.total;
                     else if (isLadies) ladiesTotal += info.total;
-                    else gentsTotal += info.total; // fallback to gents
+                    else gentsTotal += info.total; 
                 });
                 
                 const gBox = document.createElement('div'); 
@@ -1876,7 +1827,6 @@
                 colorRow.appendChild(gBox);
                 colorRow.appendChild(lBox);
             } else {
-                // Standard handling for other items
                 Object.keys(groups[itemKey] || {}).forEach(color => {
                     const info = groups[itemKey][color];
                     itemTotal += info.total;
@@ -1892,7 +1842,6 @@
                 });
             }
 
-            // Create total section
             const totalSection = document.createElement('div'); 
             totalSection.className = 'stock-total';
             totalSection.innerHTML = `
@@ -1909,13 +1858,11 @@
             const colorLower = (color || '').toString().toLowerCase();
             const itemLower = (itemKey || '').toString().toLowerCase();
             
-            // Color-based icons
             if (colorLower.includes('black')) return '<i class="fas fa-circle" style="color: #000;"></i>';
             if (colorLower.includes('white')) return '<i class="fas fa-circle" style="color: #fff; text-shadow: 0 0 1px #000;"></i>';
             if (colorLower.includes('grey') || colorLower.includes('gray')) return '<i class="fas fa-circle" style="color: #6b7280;"></i>';
             if (colorLower.includes('blue')) return '<i class="fas fa-circle" style="color: #3b82f6;"></i>';
             
-            // Item-based icons
             if (itemLower === 'safety_shoes') {
                 if (colorLower.includes('ladies')) return '<i class="fas fa-female"></i>';
                 if (colorLower.includes('gents')) return '<i class="fas fa-male"></i>';
@@ -1927,12 +1874,10 @@
             if (itemLower === 'trainee') return '<i class="fas fa-user-graduate"></i>';
             if (itemLower === 'jeans') return '<i class="fas fa-tshirt"></i>';
             
-            // Default icon
             return '<i class="fas fa-tag"></i>';
         }        try{ document.getElementById('tableLoader').style.display = 'none'; } catch(e){}
     }
 
-    // Category management 
     function loadCustomCategories(){
         try{ return JSON.parse(localStorage.getItem('customCategories')||'[]'); }catch(e){ return []; }
     }
@@ -1940,14 +1885,12 @@
         try{ localStorage.setItem('customCategories', JSON.stringify(list||[])); }catch(e){}
     }
 
-    // Delete all inventory rows on the server for a given item_type (category key)
     async function deleteStocksForItemType(itemType){
         try{
             const res = await fetch(API_URL, { credentials: 'same-origin' });
             if (!res.ok) return false;
             const items = await res.json();
             const targets = (items || []).filter(it => (it.item_type||'').toString().toLowerCase() === (itemType||'').toString().toLowerCase());
-            // Fire deletes (best-effort)
             await Promise.all(targets.map(it => {
                 const url = API_URL + String(it.id) + '/';
                 return fetch(url, { method: 'DELETE', credentials: 'same-origin' }).catch(()=>{});
@@ -1982,15 +1925,13 @@
     function syncItemTypeOptions(){
         if (!itemType) return;
         const customs = loadCustomCategories();
-        // remove existing custom options to avoid duplicates
         Array.from(itemType.querySelectorAll('option[data-custom="1"]')).forEach(o=>o.remove());
         customs.filter(c => c.active !== false).forEach(c => {
             const opt = document.createElement('option');
             opt.value = c.key; opt.textContent = c.label || c.key; opt.setAttribute('data-custom','1');
             itemType.appendChild(opt);
         });
-        // disable default options that are deactivated via overrides
-        const overrides = customs; // same storage
+        const overrides = customs; 
         const inactiveDefaultKeys = (overrides||[]).filter(x => isDefaultType(x.key) && x.active === false).map(x=>x.key);
         const defaultOptions = Array.from(itemType.querySelectorAll('option')).filter(o => isDefaultType(o.value));
         defaultOptions.forEach(opt => {
@@ -2009,7 +1950,6 @@
         const cfgs = loadCustomCategories() || [];
         const found = cfgs.find(c => (c.key||'').toLowerCase() === k);
         if (found) return !(found.active === false);
-        // no override: default categories are active by default; unknown custom keys default to active
         return true;
     }
 
@@ -2022,7 +1962,6 @@
         if (!itemType) return;
         const val = (itemType.value||'');
         if (val && !isCategoryActive(val)){
-            // choose the first enabled option
             const firstEnabled = Array.from(itemType.options).find(o => !o.disabled);
             if (firstEnabled){ itemType.value = firstEnabled.value; itemType.dispatchEvent(new Event('change')); }
         }
@@ -2034,18 +1973,15 @@
         const defaults = ['all','tshirt','formals','jeans','safety_shoes','goggles' ,'trainee',];
         ul.innerHTML = '';
         const customs = loadCustomCategories();
-        // render defaults first, 
         defaults.forEach(k => {
             const override = (customs || []).find(x => x.key === k);
             const li = document.createElement('li'); li.dataset.cat = k;
             const label = (override && override.label) ? override.label : formatItemType(k);
             li.textContent = label;
             if (k === 'all') li.classList.add('active');
-            // if override says inactive, mark stock
             if (override && override.active === false) { li.style.opacity = '5.0'; li.title = 'Inactive category'; li.classList.add('inactive'); }
             ul.appendChild(li);
         });
-        // then append any custom categories 
         const extras = (customs || []).filter(x => !defaults.includes(x.key));
         if (extras && extras.length){
             const sep = document.createElement('hr'); sep.style.border='none'; sep.style.height='8px'; ul.appendChild(sep);
@@ -2057,7 +1993,6 @@
         }
     }
 
-    // show add category modal
     (function wireAddCategory(){
         const addBtn = document.getElementById('showAddCategoryBtn');
         const modal = document.getElementById('addCategoryModal');
@@ -2075,7 +2010,7 @@
         const sizeRangeRow = document.getElementById('sizeRangeRow');
         const sizesCustomRow = document.getElementById('sizesCustomRow');
         const newImgEl = document.getElementById('newCategoryImage');
-        let editMode = false; // false => create, otherwise holds key being edited
+        let editMode = false; 
         if (!addBtn || !modal) return;
         function toggleSizeRows(){
             const t = (newSizeTypeEl?.value || 'alpha').toString();
@@ -2136,7 +2071,7 @@
                 if (sizeType === 'custom' && sizesList.length === 0){ showErrorPopover('Provide custom sizes'); return; }
                 if (sizeType !== 'custom' && (!sizeFrom || !sizeTo)){ showErrorPopover('Provide size From and To'); return; }
                 const existing = loadCustomCategories();
-                // determine edit mode
+                
                 if (!editMode && modal && modal.getAttribute && modal.getAttribute('data-edit-key')){
                     editMode = modal.getAttribute('data-edit-key');
                 }
@@ -2159,7 +2094,6 @@
                     const idx = existing.findIndex(x=>x.key === editMode);
                     if (key !== editMode && existing.find(x=>x.key===key)){ alert('Another category with that key exists'); return; }
                     if (idx === -1){
-                        // creating an override for a default category
                         existing.push({ key, label, image: img, variantLabel, variants, sizeType, sizeFrom, sizeTo, sizesList, active: true });
                     } else {
                         Object.assign(existing[idx], { key, label, image: img, variantLabel, variants, sizeType, sizeFrom, sizeTo, sizesList });
@@ -2195,7 +2129,6 @@
             const overrides = loadCustomCategories() || [];
             listEl.innerHTML = '';
 
-            // render defaults
             defaults.forEach(def => {
                 const ov = overrides.find(x => x.key === def);
                 const c = ov || { key: def, label: formatItemType(def), image: '', meta: '', active: true, isDefault: true };
@@ -2271,12 +2204,9 @@
                 const del = makeBtn('Delete', '#c33', ()=>{
                     (async () => {
                         if (!confirm('Delete custom category "'+(c.label||c.key)+'" and remove all its stock? This cannot be undone.')) return;
-                        // 1) Delete stocks from server
                         const ok = await deleteStocksForItemType(c.key);
-                        // 2) Remove from local categories
                         const remaining = loadCustomCategories().filter(x=>x.key!==c.key);
                         saveCustomCategories(remaining);
-                        // 3) Refresh UI
                         refreshList(); renderSidebarCategories(); syncItemTypeOptions(); await renderGrid();
                         try {
                             const pop = document.getElementById('successPopover');
@@ -2338,7 +2268,6 @@
         });
     }
 
-    // close add form when clicking on the form backdrop
     try{
         const fb = document.getElementById('formBackdrop');
         if (fb){
@@ -2353,11 +2282,9 @@
         }
     }catch(e){}
 
-    // toggle option panels
     if (itemType){
         itemType.addEventListener('change', () => {
             const val = (itemType.value || '').toString().toLowerCase();
-            // block UI panels if category is inactive
             if (!isCategoryActive(val)){
                 showErrorPopover('This category is deactivated');
             }
@@ -2369,20 +2296,16 @@
             else if (val === 'formal' || val === 'formals') formalsOptions.style.display = 'flex';
             else if (val === 'trainee') traineeOptions.style.display = 'flex';
             else {
-                // custom category: build variant and size controls
                 const cfg = (loadCustomCategories()||[]).find(c => (c.key||'').toLowerCase() === val);
                 if (cfg){
-                    // populate variants
                     customVariant.innerHTML = '';
                     (cfg.variants||[]).forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; customVariant.appendChild(o); });
-                    // populate sizes
                     customSize.innerHTML = '';
                     let sizes = [];
                     if (cfg.sizeType === 'alpha') sizes = makeAlphaRange(cfg.sizeFrom||'XS', cfg.sizeTo||'5XL');
                     else if (cfg.sizeType === 'numeric') sizes = makeNumericRange(cfg.sizeFrom||'1', cfg.sizeTo||'10');
                     else sizes = (cfg.sizesList||[]);
                     sizes.forEach(s => { const o=document.createElement('option'); o.value=s; o.textContent=s; customSize.appendChild(o); });
-                    // set variant label text
                     try {
                         const lbl = customOptions.querySelector("label[for='customVariant']");
                         if (lbl){ lbl.innerHTML = `<i class=\"fas fa-shapes\"></i> ${cfg.variantLabel || 'Variant'}`; }
@@ -2410,7 +2333,6 @@
             else if (type === 'safety_shoes'){ colorOrType = document.getElementById('safety_shoes').value; size = document.getElementById('safety_shoes_size').value; }
             else if (type === 'goggles'){ colorOrType = document.getElementById('goggles').value; size = document.getElementById('gogglessize').value; }
             else if (type === 'formal' || type === 'formals'){
-                // prefer the combined hidden value (gender_color). If missing, build it from controls.
                 const combined = (document.getElementById('formalCombined').value || '').toString().trim();
                 if (combined) {
                     colorOrType = combined;
@@ -2434,14 +2356,12 @@
                 if (errEl){ errEl.textContent = 'select quantity!'; errEl.style.display = 'block'; setTimeout(()=> errEl.style.display = 'none', 2200); }
                 return;
             }
-            // for formals require color/gender and size
             if ((type === 'formal' || type === 'formals') && (!colorOrType || colorOrType.trim() === '')){
                 const errEl = document.getElementById('errorPopover');
                 if (errEl){ errEl.textContent = 'Please select gender and color for Formals'; errEl.style.display = 'block'; setTimeout(()=> errEl.style.display = 'none', 2200); }
                 return;
             }
             const selectedEntity = addEntitySelect ? (addEntitySelect.value || '').toString().trim() : '';
-            // POST and handle response
             let resp = null;
             try{
                 resp = await addStock({ item_type: type, color_or_type: colorOrType, size: size, quantity: qty, entity: selectedEntity });  
@@ -2451,7 +2371,6 @@
                 if (resp && resp.ok){
                 try{ localStorage.setItem('stockUpdated', Date.now().toString()); } catch(_){}
                 if (successPopover){ successPopover.style.display = 'block'; setTimeout(()=> successPopover.style.display = 'none', 1800); }
-                // reset and hide form only after success
                 addStockForm.reset();
                 try{ if (tshirtOptions) tshirtOptions.style.display = 'flex'; }catch(e){}
                 try{ if (jeansOptions) jeansOptions.style.display = 'none'; }catch(e){}
@@ -2462,7 +2381,6 @@
                 if (tableSection) tableSection.style.display = 'block';
                 try{ addStockForm.classList.remove('centered-form'); }catch(e){}
                 addStockForm.style.display = 'none';
-                // hide the form backdrop if present and restore scrollbar compensation
                 const fb = document.getElementById('formBackdrop'); if (fb) fb.style.display = 'none';
                 try{ document.documentElement.style.paddingRight = ''; }catch(e){}
                 document.documentElement.style.overflow = '';
@@ -2481,7 +2399,6 @@
         if (!itemType) return;
         const type = (itemType.value || '').toString();
         if (type && !isCategoryActive(type)){
-            // hide available stock display when deactivated
             const row = document.getElementById('availableStockRow');
             if (row) row.style.display = 'none';
             return;
@@ -2497,7 +2414,6 @@
         else if ( type === 'safety_shoes'){ color = document.getElementById('safety_shoes').value || ''; size = document.getElementById('safety_shoes_size').value || ''; }
         else if (type === 'goggles'){ color = document.getElementById('goggles').value || ''; size = document.getElementById('gogglessize').value || ''; }
         else if (type === 'formal' || type === 'formals'){
-            // prefer the combined key (gender_color)
             color = document.getElementById('formalCombined') ? document.getElementById('formalCombined').value || document.getElementById('formalColor').value : (document.getElementById('formalColor').value || '');
             size = document.getElementById('FormalsSize').value || '';
         }
@@ -2505,7 +2421,6 @@
         else { color = (customVariant?.value || ''); size = (customSize?.value || ''); }
             try{
             const stocksAll = await fetchStocks();
-            // when sidebar 'all' is active, ignore entity filter (show aggregate availability across entities)
             let activeCat = 'all';
             try{ const activeLi = sidebar && sidebar.querySelector && sidebar.querySelector('ul li.active'); activeCat = activeLi && activeLi.dataset ? (activeLi.dataset.cat || 'all') : 'all'; }catch(e){ }
             const stocks = (stocksAll || []).filter(s => {
@@ -2515,7 +2430,6 @@
                 return ent === viewEntity;
             });
             let total = 0;
-            // For formals, compute both total across sizes for the selected gender/color and per-size availability
             if ((type === 'formal' || type === 'formals')){
                 const wantToken = (color || '').toString().trim().toLowerCase();
                 let perSize = 0;
@@ -2524,7 +2438,6 @@
                     if ((s.item_type || '').toString().toLowerCase() !== 'formals') return;
                     const col = (s.color_or_type || s.color || '').toString().trim().toLowerCase();
                     const sz = (s.size || '').toString().trim();
-                    // determine if this stock row matches the requested gender/color token
                     let matches = false;
                     if (!wantToken) matches = true;
                     else if (col === wantToken) matches = true;
@@ -2574,9 +2487,7 @@
         const el = document.getElementById(id); if (el) el.addEventListener('change', updateAvailableStock);
     });
 
-        // when the view entity changes, re-render the grid
         if (entityViewSelect){ entityViewSelect.addEventListener('change', ()=> { renderGrid(); }); }
-        // when the add-form entity changes, update availability shown in the add form
         if (addEntitySelect){ addEntitySelect.addEventListener('change', ()=> { updateAvailableStock(); }); }
 
     
@@ -2629,7 +2540,6 @@
         </div>
 
         <script>
-        // Fetch stocks and update the T-shirt table grouped by color and size
         window.updateTshirtTable = async function(){
             const API = '/api/stocks/';
             function normalize(v){ return (v||'').toString().trim().toLowerCase(); }
@@ -2637,7 +2547,6 @@
                 const res = await fetch(API, { credentials: 'same-origin' });
                 if (!res.ok) return console.error('Failed to load stocks', res.status);
                 let data = await res.json();
-                // apply entity view filter if selected, but skip filtering when sidebar 'all' is active
                 const viewEntity = entityViewSelect ? (entityViewSelect.value || '').toString().trim() : '';
                 let activeCatForTshirt = 'all';
                 try{ const activeLi = sidebar && sidebar.querySelector && sidebar.querySelector('ul li.active'); activeCatForTshirt = activeLi && activeLi.dataset ? (activeLi.dataset.cat || 'all') : 'all'; }catch(e){}
@@ -2680,7 +2589,6 @@
                 if (!tbl) return;
                 const tbody = tbl.querySelector('tbody');
                 let totals = { white:0, black:0, all:0 };
-                // Update rows by size (only White and Black columns)
                 Array.from(tbody.rows).forEach(r=>{
                     const size = r.cells[0].textContent.trim();
                     const w = grid.white[size] || 0;
@@ -2713,7 +2621,6 @@
                 const header = table.createTHead();
                 const hrow = header.insertRow();
 
-                // category-specific mapping for columns and sizes
                 const mappings = {
                     'tshirt': { cols:['White', 'Black'], sizes:['XS','S','M','L','XL','XXL','3XL','4XL','5XL'] },
                     'jeans': { cols:['Jeans'], sizes:['28','30','32','34','36','38','40','42','44','46','48'] },
@@ -2724,17 +2631,13 @@
                 };
                 const map = mappings[category] || { cols:['Type'], sizes:[] };
 
-                // build headers
-                // For formals we want a grouped header: Size | Gents (Grey Shirt, White Shirt) | Ladies (Grey Shirt, White Shirt)
                 const thSize = document.createElement('th'); thSize.textContent = 'Size'; hrow.appendChild(thSize);
 
                 if (category === 'formals') {
-                    // first header row: group labels
                     const gentsTh = document.createElement('th'); gentsTh.textContent = 'Gents'; gentsTh.colSpan = 2; gentsTh.style.textAlign = 'center'; hrow.appendChild(gentsTh);
                     const ladiesTh = document.createElement('th'); ladiesTh.textContent = 'Ladies'; ladiesTh.colSpan = 2; ladiesTh.style.textAlign = 'center'; hrow.appendChild(ladiesTh);
 
                     const hrow2 = header.insertRow();
-                    // empty cell under Size for second header row
                     const empty = document.createElement('th'); empty.textContent = '';
                     hrow2.appendChild(empty);
                     const thGentsGrey = document.createElement('th'); thGentsGrey.textContent = 'Grey Shirt'; hrow2.appendChild(thGentsGrey);
@@ -2746,9 +2649,7 @@
                 }
 
                 const tbody = table.createTBody();
-                // prepare counts grid
                 const grid = {};
-                // normalize column keys for consistent lookup
                 map.cols.forEach(c=> grid[c.toString().toLowerCase()] = {});
                 map.sizes.forEach(sz => map.cols.forEach(c => grid[c.toString().toLowerCase()][sz] = 0));
 
@@ -2756,11 +2657,9 @@
                     if ((it.item_type||'').toString().toLowerCase() !== category) return;
                     const color = (it.color_or_type || it.color || '').toString().trim().toLowerCase();
                     const size = (it.size||'').toString().trim();
-                    // determine column key for formals
                     const availableCols = map.cols.map(x=>x.toString().toLowerCase());
                     let colKey = null;
                     const token = (color||'').toString().toLowerCase().replace(/\s+/g,'_');
-                    // Accept explicit tokens like 'gents_grey' or 'ladies_white'
                     if (token && availableCols.includes(token)) colKey = token;
                     if (!colKey) {
                         const isGents = token.includes('gents') || token.includes('male');
@@ -2777,7 +2676,6 @@
                         else if (isLadies) colKey = 'white shirt'; 
                     }
                     if (!colKey){
-                        // try find any column with substring match
                         colKey = availableCols.find(k => token && (k.includes(token) || token.includes(k)));
                     }
                     if (!colKey) colKey = availableCols[0] || null;
@@ -2798,9 +2696,7 @@
                 map.sizes.forEach(sz=>{
                     const r = tbody.insertRow();
                     const c0 = r.insertCell(); c0.textContent = sz;
-                    // when formals, the order of columns is: gents_grey, gents_white, ladies_grey, ladies_white
                     if (category === 'formals'){
-                        // use canonical column keys matching map.cols: gents_grey, gents_white, ladies_grey, ladies_white
                         const order = ['gents_grey','gents_white','ladies_grey','ladies_white'];
                         order.forEach(colKey => {
                             const v = (grid[colKey] && grid[colKey][sz]) ? grid[colKey][sz] : 0;
@@ -2844,9 +2740,7 @@
                 if (category === 'formals') label = 'Formals';
                 if (titleEl) titleEl.textContent = (category === 'formals' ? label + ' — by Gender & Color' : label + ' — by Color & Size');
                 modal.setAttribute('data-category', category);
-                // fetch current stocks then build table
                 fetch('/api/stocks/', { credentials: 'same-origin' }).then(r=> r.ok ? r.json() : Promise.reject(r)).then(data=>{
-                    // if an entity is selected in the view selector, filter the data to that entity
                     const viewEntity = entityViewSelect ? (entityViewSelect.value || '').toString().trim() : '';
                     let activeCatForModal = 'all';
                     try{ const activeLi = sidebar && sidebar.querySelector && sidebar.querySelector('ul li.active'); activeCatForModal = activeLi && activeLi.dataset ? (activeLi.dataset.cat || 'all') : 'all'; }catch(e){}
@@ -2875,12 +2769,10 @@
                     const li = e.target.closest('li'); if(!li) return;
                     const cat = li.getAttribute('data-cat');
                     if (!cat || cat === 'all') { closeModal(); return; }
-                    // block opening inactive custom categories
                     if (li.classList && li.classList.contains('inactive')){
                         const errEl = document.getElementById('errorPopover'); if (errEl){ errEl.textContent = 'This category is inactive'; errEl.style.display='block'; setTimeout(()=> errEl.style.display='none', 1800); }
                         return;
                     }
-                    // open modal for the selected category
                     openModalFor(cat);
                 });
             }
@@ -2890,26 +2782,18 @@
             window.updateTshirtTable = async function(){
                 if (typeof originalUpdate === 'function') await originalUpdate();
                     try{
-                        // If modal is open and showing a category, refresh it
                         if (modal.style.display === 'block'){
                             const current = modal.getAttribute('data-category');
                             if (current) openModalFor(current);
                         }
-                        // Additionally, if the entity-view produced no rows but the sidebar is on 'all',
-                        // ensure the underlying fetch-based table updater doesn't remain empty.
-                        // (originalUpdate already re-ran, but originalUpdate filters by entity;
-                        // if that produced an empty set while 'all' is active, call originalUpdate again
-                        // with the unfiltered stocks by re-fetching and re-running original logic.)
+                      
                         try{
                             const activeLi = sidebar && sidebar.querySelector && sidebar.querySelector('ul li.active');
                             const activeCat = activeLi && activeLi.dataset ? (activeLi.dataset.cat || 'all') : 'all';
                             const viewEntity = entityViewSelect ? (entityViewSelect.value || '').toString().trim() : '';
                             if ((activeCat || 'all') === 'all' && viewEntity){
-                                // re-fetch to check whether there are any rows for this entity
                                 const res = await fetch('/api/stocks/', { credentials: 'same-origin' });
-                                // when sidebar 'all' is active we intentionally ignore entity filtering,
-                                // so nothing additional is required here. originalUpdate has already run.
-                                // (leave behavior as-is)
+                              
                             }
                         }catch(_){ }
                     }catch(e){ /* ignore */ }

@@ -28,7 +28,6 @@
   html,body{height:100%;margin:0}
   body{font-family:"Segoe UI",Roboto,Arial,sans-serif;background:#ffffff;color:var(--text);-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
 
-  /* Fixed left sidebar (compact) */
   .sidebar{position:fixed;left:12px;top:72px;bottom:18px;width:160px;padding:14px;background:var(--sidebar-accent);border-radius:12px;box-shadow:0 12px 34px rgba(15,23,42,0.12);overflow:auto;z-index:2100}
   .sidebar .logo{display:none}
   .sidebar ul{list-style:none;padding:6px 0;margin:0}
@@ -36,10 +35,8 @@
   .sidebar li:hover{background:rgba(255,255,255,0.04);transform:translateX(2px)}
   .sidebar li.active{background:rgba(255,255,255,0.06);box-shadow: inset 0 1px 0 rgba(255,255,255,0.02)}
 
-  /* Page container moved right of compact sidebar */
   .page-wrap{margin-left:200px;padding-top:84px;padding-left:28px;padding-right:28px;max-width:calc(var(--max-width) + 200px);position:relative;z-index:2000}
 
-    /* Top navbar inside page content */
   .navbar{position:fixed;left:0;right:0;top:0;height:64px;background:var(--accent-2);padding:12px 24px;margin:0;color:#fff;display:flex;align-items:center;z-index:2200}
   .navbar-list{display:flex;align-items:center;gap:8px;margin:0;padding:0;list-style:none}
   .nav-logo{width:100px;height:40px;background-color:transparent;border-radius:0;padding:0;background-image:url("{% static 'AEQUS_logo.jpg' %}");background-repeat:no-repeat;background-position:center center;background-size:contain;box-shadow:none}
@@ -49,7 +46,6 @@
 
   h1{font-size:1.25rem;margin:0 0 8px;color:var(--text);font-weight:800}
 
-    /* Controls bar */
     .controls{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
     .controls .left{display:flex;gap:12px;align-items:center}
     .controls .right{display:flex;gap:8px;align-items:center}
@@ -57,42 +53,35 @@
     .btn{background:var(--accent-2);color:#fff;border:none;padding:8px 12px;border-radius:8px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(37,99,235,0.12)}
     .btn.secondary{background:#0ea5a4}
 
-    /* KPI cards */
     .cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:5px}
     .card{background:linear-gradient(180deg,rgba(255,255,255,0.95),var(--card));border-radius:12px;padding:5px;box-shadow:0 10px 20px rgba(2,6,23,0.06);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:62px}
     .card h2{margin: 0;margin-left:50px;color:#243b55;font-size:0.92rem}
     .card .number{margin-top:5px;margin-left:40%;font-size:1.45rem;font-weight:900;color:var(--accent-2);letter-spacing:0.5px}
     .card .muted{font-size:0.82rem;color:var(--muted)}
 
-    /* Charts grid */
     .charts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;align-items:start}
     .chart-card{background:var(--card);border-radius:18px;padding:8px;box-shadow:0 8px 10px rgba(2,6,23,0.06);display:flex;flex-direction:column;align-items:stretch}
     .chart-card .chart-title{font-weight:800;color:#123;margin-bottom:5px}
   .chart-canvas{width:100% !important;height:auto !important;aspect-ratio:1/1;max-width:400px;max-height:400px;border-radius:8px;margin-left:100px;display:block;object-fit:contain}
 
-    /* Smaller, attractive forecast chart */
     .decor-waves{position:fixed;left:0;right:0;top:24px;height:160px;pointer-events:none;z-index:0;opacity: 0.58}
     .decor-waves svg{width:140%;height:160px;display:block;margin-left:-10%}
     .wave-1{animation:waveMove 36s linear infinite}
     .wave-2{animation:waveMove 48s linear infinite reverse}
     @keyframes waveMove{0%{transform:translateX(0)}100%{transform:translateX(-15%)}}
 
-  /* modal */
   .chart-modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center;z-index:3000}
   .chart-modal{width:min(640px,92%);background:var(--card);border-radius:12px;padding:12px}
 
-    /* tables and entity content */
     table{width:100%;border-collapse:collapse;background:transparent}
     table thead th{background:#f8fafc;padding:10px;text-align:left;border-bottom:1px solid #e6eef9}
     table tbody td{padding:10px;border-bottom:1px solid #f1f5f9}
 
-    /* Responsive behavior */
     @media (max-width: 1100px){
       .sidebar{left:12px;width:200px}
       .page-wrap{margin-left:230px;padding:18px}
       .charts-grid{grid-template-columns:1fr}
       
-      /* Forecast responsive adjustments */
       .forecast-charts-grid {
         grid-template-columns: 1fr !important;
       }
@@ -102,10 +91,8 @@
       .sidebar{position:relative;width:100%;height:auto;left:0;top:0;margin:0 0 12px;border-radius:10px}
       .page-wrap{margin-left:0;padding:14px}
       .charts-grid{grid-template-columns:1fr}
-      /* keep charts square on narrower screens - slightly smaller */
       .chart-canvas{aspect-ratio:1/1;max-width:320px;max-height:320px}
       
-      /* Forecast mobile styles */
       .forecast-controls {
         flex-direction: column !important;
         align-items: stretch !important;
@@ -158,7 +145,6 @@
         justify-content: center;
       }
       
-      /* Make table horizontally scrollable on mobile */
       .forecast-table-container > div:last-of-type {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -175,7 +161,6 @@
         white-space: nowrap;
       }
       
-      /* Stock analysis mobile */
       .stock-analysis {
         padding: 15px !important;
       }
@@ -191,7 +176,6 @@
       .card{min-height:76px;padding:10px}
       .chart-canvas{aspect-ratio:1/1}
       
-      /* Forecast very small screens */
       .forecast-summary {
         grid-template-columns: 1fr !important;
       }
@@ -250,7 +234,6 @@
       }
     }
     
-    /* Touch-friendly buttons on mobile */
     @media (hover: none) and (pointer: coarse) {
       .btn {
         min-height: 44px;
@@ -263,7 +246,6 @@
       }
     }
     
-    /* High DPI screen adjustments */
     @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
       .chart-canvas {
         image-rendering: -webkit-optimize-contrast;
@@ -271,12 +253,9 @@
       }
     }
     
-    /* Dark mode support (if needed in future) */
     @media (prefers-color-scheme: dark) {
-      /* Can add dark mode styles here if needed */
     }
     
-    /* Reduced motion for accessibility */
     @media (prefers-reduced-motion: reduce) {
       .loading-spinner {
         animation: none;
@@ -287,7 +266,6 @@
       }
     }
     
-    /* Print styles for forecast reports */
     @media print {
       .forecast-controls,
       .sidebar,
@@ -326,7 +304,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 </head>
 <body>
   <aside class="sidebar">
@@ -339,11 +316,9 @@
     </ul>
   </aside>
 
-  <!-- Decorative waves background -->
   <div class="decor-waves" aria-hidden="true">
     <svg viewBox="0 0 1600 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
       <g transform="translate(0,10)">
-        <!-- soft white waves -->
         <path class="wave-1" fill="#ffffff" d="M0,60 C200,100 400,20 800,60 C1200,100 1400,40 1600,60 L1600,200 L0,200 Z" opacity="0.14"></path>
         <path class="wave-2" fill="#ffffff" d="M0,80 C250,40 450,140 850,80 C1250,20 1450,120 1600,80 L1600,200 L0,200 Z" opacity="0.08"></path>
       </g>
@@ -358,7 +333,6 @@
         <a href="/stationary/stationary/">Stationary</a>
         <a href="/inventory/employee_issue_items/">Issue</a>
         <a href="/inventory/stock/">Stocks</a>
-        <!-- <a href="/admin/custom_admin/">Admin</a> -->
         <a href="/inventory/logout/">Logout</a>
       </div>
     </div>
@@ -590,13 +564,11 @@
       viewDiv.innerHTML = tableHTML;
       viewDiv.style.display = 'block';
 
-      // After rendering table, fetch rows from server
       const startInputId = (type === 'due') ? 'dueFrom' : (type === 'issue' ? 'issueFrom' : 'extraFrom');
       const endInputId = (type === 'due') ? 'dueTo' : (type === 'issue' ? 'issueTo' : 'extraTo');
       const start = document.getElementById(startInputId).value;
       const end = document.getElementById(endInputId).value;
       if (!start || !end) {
-        // leave table empty until dates filled
         return;
       }
 
@@ -610,7 +582,6 @@
           tbody.innerHTML = '';
           
           if (items.length === 0) {
-            // Show a helpful message when no data is found
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td colspan="${type === 'due' ? '9' : '10'}" style="text-align: center; color: #666; font-style: italic; padding: 20px;">
@@ -624,14 +595,12 @@
             items.forEach(it => {
               const tr = document.createElement('tr');
               
-              // Debug logging for date fields
               console.log(`Item ${it.emp_id}:`, {
                 issued_date: it.issued_date,
                 Next_issue_date: it.Next_issue_date,
                 type: type
               });
               
-              // Format dates properly
               let displayDate = '';
               if (type === 'due') {
                 displayDate = it.Next_issue_date || it.next_issue_date || it.next_Issue_date || '';
@@ -639,7 +608,6 @@
                 displayDate = it.issued_date || it.Issued_date || '';
               }
               
-              // Format date if it exists and is not empty
               if (displayDate && displayDate !== '' && displayDate !== null) {
                 try {
                   const dateObj = new Date(displayDate);
@@ -647,11 +615,11 @@
                     displayDate = dateObj.toLocaleDateString('en-GB'); // DD/MM/YYYY format
                   } else {
                     console.warn('Invalid date:', displayDate);
-                    displayDate = displayDate; // Keep original if can't parse
+                    displayDate = displayDate; 
                   }
                 } catch (e) {
                   console.warn('Date formatting error:', e, 'for date:', displayDate);
-                  displayDate = displayDate; // Keep original if error
+                  displayDate = displayDate; 
                 }
               } else {
                 displayDate = type === 'due' ? 'No due date' : 'No issue date';
@@ -715,7 +683,6 @@
     }
 
     function saveRow(btn){
-      // Local-only save (no server). Reverts editable state.
       const row = btn.closest("tr");
       const tds = row.querySelectorAll("td");
       for(let i=0;i<tds.length-1;i++){ tds[i].removeAttribute("contenteditable"); tds[i].style.background=""; }
@@ -723,7 +690,6 @@
       row.querySelector("button[onclick*='editRow']").style.display="inline-block";
     }
 
-    // Helper to get CSRF token from cookies (Django default)
     function getCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
@@ -732,7 +698,6 @@
 
     function saveRowAjax(btn, issueId){
       const row = btn.closest('tr');
-      // clear contenteditable and set title attributes
       const setTitles = () => {
         const tds = row.querySelectorAll('td');
         tds.forEach(td => {
@@ -752,14 +717,11 @@
       payload.append('Issued_quantity', get('.qty'));
       payload.append('issued_date', get('.date'));
       
-      // Only include price for non-due reports (since due reports don't have price column)
       const priceCell = row.querySelector('.price');
       if (priceCell) {
-        // Extract price value (remove ₹ symbol if present)
         const priceText = priceCell.textContent.trim();
         let priceValue = priceText.replace('₹', '').replace('-', '').trim();
         
-        // Handle the new ₹0.00 format
         if (priceValue === '0.00' || priceValue === '' || priceValue === '0') {
           priceValue = '0';
         }
@@ -778,7 +740,6 @@
         },
       }).then(r => r.json()).then(data => {
         if (data && data.ok) {
-          // finalize row edit locally
           saveRow(btn);
           setTitles();
         } else {
@@ -790,19 +751,16 @@
       });
     }
 
-    // Prevent Enter/newline in contenteditable cells to keep rows single-line
     document.addEventListener('keydown', function(e){
       const el = document.activeElement;
       if (el && el.getAttribute && el.getAttribute('contenteditable') === 'true'){
         if (e.key === 'Enter'){
           e.preventDefault();
-          // blur to finish editing if user presses Enter
           el.blur();
         }
       }
     });
 
-    // Test function to check PDF library availability
     function testPDFLibrary() {
       console.log('=== PDF Library Test ===');
       console.log('typeof jsPDF:', typeof jsPDF);
@@ -831,7 +789,6 @@
           console.log('✅ PDF library working! Source:', source);
           console.log('✅ AutoTable available:', !!testDoc.autoTable);
           alert(`PDF library is working!\nSource: ${source}\nAutoTable: ${testDoc.autoTable ? 'Available' : 'Not available'}`);
-          // Don't save the test document
         } catch (error) {
           console.error('❌ Error creating test PDF:', error);
           alert(`PDF library found but error creating document:\n${error.message}`);
@@ -868,10 +825,9 @@
       const headerRow = table.querySelector('thead tr');
       if (headerRow) {
         headerRow.querySelectorAll('th').forEach((th, index) => {
-          if (index < headerRow.children.length - 1) { // Exclude Actions column
+          if (index < headerRow.children.length - 1) { 
             let headerText = th.textContent.trim();
             
-            // Clean header text - remove extra symbols for better CSV/PDF format
             if (headerText.includes('Buy Price (₹)')) {
               headerText = 'Buy Price';
             } else if (headerText.includes('Price')) {
@@ -883,27 +839,22 @@
         });
       }
       
-      // Get data rows
       table.querySelectorAll('tbody tr').forEach(row => {
-        if (row.style.display !== 'none') { // Only visible rows
+        if (row.style.display !== 'none') { 
           const rowData = [];
           row.querySelectorAll('td').forEach((td, index) => {
-            if (index < row.children.length - 1) { // Exclude Actions column
+            if (index < row.children.length - 1) { 
               let cellText = td.textContent.trim();
               
-              // Clean price data - remove ₹ symbol and handle empty values
               if (td.classList.contains('price')) {
                 const originalPrice = cellText;
                 if (cellText === '-' || cellText === '' || cellText === '₹0.00') {
                   cellText = '0.00';
                 } else {
-                  // Remove ₹ symbol and any other currency symbols
                   cellText = cellText.replace(/₹/g, '').replace(/[^\d.-]/g, '').trim();
-                  // If still empty after cleaning, set to 0
                   if (cellText === '' || cellText === '-') {
                     cellText = '0.00';
                   } else {
-                    // Ensure proper decimal formatting
                     const numValue = parseFloat(cellText);
                     if (!isNaN(numValue)) {
                       cellText = numValue.toFixed(2);
@@ -951,23 +902,19 @@
     function downloadExcel(data, headers, reportName, fromDate, toDate) {
       let csvContent = '';
       
-      // Add report title and date range
       csvContent += `${reportName}\n`;
       if (fromDate && toDate) {
         csvContent += `Date Range: ${formatDateInput(fromDate)} to ${formatDateInput(toDate)}\n`;
       }
       csvContent += `Generated: ${new Date().toLocaleDateString()}\n\n`;
       
-      // Add headers
       csvContent += headers.join(',') + '\n';
       
-      // Add data
       data.forEach(row => {
         const cleanedRow = row.map(cell => {
-          // Clean cell data and handle commas
-          let cleanCell = cell.replace(/"/g, '""'); // Escape quotes
+          let cleanCell = cell.replace(/"/g, '""'); 
           if (cleanCell.includes(',') || cleanCell.includes('\n') || cleanCell.includes('"')) {
-            cleanCell = `"${cleanCell}"`; // Wrap in quotes if contains special chars
+            cleanCell = `"${cleanCell}"`; 
           }
           return cleanCell;
         });
@@ -988,10 +935,8 @@
 
     // PDF download function
     function downloadPDF(data, headers, reportName, fromDate, toDate) {
-      // Check if jsPDF is available with multiple possible references
       let jsPDFInstance = null;
       
-      // Try different ways to access jsPDF
       if (window.jspdf && window.jspdf.jsPDF) {
         jsPDFInstance = window.jspdf.jsPDF;
         console.log('Found jsPDF at window.jspdf.jsPDF');
@@ -1007,7 +952,6 @@
           Object.keys(window).filter(k => k.toLowerCase().includes('pdf')));
         console.error('Available jspdf object:', window.jspdf);
         
-        // Fallback: try to create a simple text-based download
         console.error('jsPDF not available, falling back to text download');
         downloadPDFAsText(data, headers, reportName, fromDate, toDate);
         return;
@@ -1017,26 +961,21 @@
         const doc = new jsPDFInstance();
         console.log('Successfully created jsPDF instance');
         
-        // Add title
         doc.setFontSize(16);
         doc.setFont(undefined, 'bold');
         doc.text(reportName, 20, 20);
         
-        // Add date range
         if (fromDate && toDate) {
           doc.setFontSize(12);
           doc.setFont(undefined, 'normal');
           doc.text(`Date Range: ${formatDateInput(fromDate)} to ${formatDateInput(toDate)}`, 20, 30);
         }
         
-        // Add generated date
         doc.setFontSize(10);
         doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 40);
         
-        // Prepare table data
         const tableData = data.map(row => row.map(cell => cell.substring(0, 50))); // Limit cell length
         
-        // Add table using autoTable if available
         if (doc.autoTable) {
           console.log('Using autoTable for PDF generation');
           doc.autoTable({
@@ -1065,14 +1004,12 @@
             },
             margin: { top: 50, left: 10, right: 10 },
             didDrawPage: function (data) {
-              // Footer with page numbers
               doc.setFontSize(8);
               doc.text(`Page ${doc.internal.getNumberOfPages()}`, data.settings.margin.left, doc.internal.pageSize.height - 10);
             }
           });
         } else {
           console.log('autoTable not available, using manual table creation');
-          // Manual table creation if autoTable is not available
           let yPosition = 60;
           
           // Headers
@@ -1087,7 +1024,7 @@
           doc.setFont(undefined, 'normal');
           doc.setFontSize(8);
           tableData.forEach(row => {
-            if (yPosition > 280) { // New page if needed
+            if (yPosition > 280) {
               doc.addPage();
               yPosition = 20;
             }
@@ -1109,7 +1046,6 @@
       }
     }
 
-    // Fallback function for PDF when jsPDF is not available
     function downloadPDFAsText(data, headers, reportName, fromDate, toDate) {
       let textContent = '';
       
@@ -1131,7 +1067,6 @@
         textContent += row.join('\t') + '\n';
       });
       
-      // Create and download file
       const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8;' });
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
@@ -1237,7 +1172,7 @@
         </div>
       </div>
       
-      <!-- Responsive Table Container -->
+      <!-- Table Container -->
       <div style="overflow-x: auto; border-radius: 8px; border: 1px solid #e5e7eb;">
         <table id="forecastTable" style="width: 100%; border-collapse: collapse; font-size: 14px;">
           <thead style="background: #f3f4f6;">
@@ -1271,7 +1206,6 @@
     </div>
 
     <style>
-      /* Responsive Design for Forecast Tab */
       @media (max-width: 1200px) {
         .forecast-charts-grid {
           grid-template-columns: 1fr !important;
@@ -1315,7 +1249,6 @@
         }
       }
       
-      /* Loading Animation */
       .loading-spinner {
         display: inline-block;
         width: 20px;
@@ -1323,7 +1256,7 @@
         border: 3px solid #f3f3f3;
         border-top: 3px solid #3498db;
         border-radius: 50%;
-        animation: spin 1s linear infinite;
+        animation: spin 0.001s linear infinite;
       }
       
       @keyframes spin {
@@ -1380,7 +1313,6 @@
     })();
   </script>
 
-  <!-- display-each-tabs -->
   <script>
     (function(){
       var tabs = Array.prototype.slice.call(document.querySelectorAll('#sidebarTabs li'));
@@ -1394,13 +1326,10 @@
           tabs.forEach(function(x){ x.classList.remove('active'); });
           t.classList.add('active');
           var tab = t.getAttribute('data-tab');
-          // if the clicked li doesn't have a data-tab (like Stationary link now) skip showing panes
           if (!tab) return;
           showTab(tab);
-          // if forecast tab, initialize the enhanced forecast functionality
           if (tab === 'tab-forecast'){
             try{
-              // Initialize forecast if not already done
               if (!window.forecastData.initialized) {
                 initializeForecast();
                 window.forecastData.initialized = true;
@@ -1409,7 +1338,6 @@
           }
         });
       });
-      // ensure default tab visible
       showTab('tab-dashboard');
     })();
   </script>
@@ -1549,9 +1477,7 @@
       window.forecastData.entities = ['AEQUS SEZ PRIVATE LIMITED', 'AEQUS ENGINEERED PLASTICS PRIVATE LIMITED'];
     }
 
-    // Forecast functionality
     function initializeForecast() {
-      // Check if required elements exist
       const requiredElements = [
         'forecastFilter',
         'updateForecast', 
@@ -1566,12 +1492,10 @@
         return;
       }
       
-      // Set up event listeners
       document.getElementById('forecastFilter').addEventListener('change', updateFilterOptions);
       document.getElementById('updateForecast').addEventListener('click', loadForecastData);
       document.getElementById('forecastTableSearch').addEventListener('keyup', filterForecastTable);
       
-      // Initialize filter options
       updateFilterOptions();
       
       // Load initial data
@@ -1655,7 +1579,7 @@
       const totalEmployees = forecastData.reduce((sum, month) => sum + month.total_employees, 0);
       const avgMonthly = forecastData.length > 0 ? Math.round(totalQty / forecastData.length) : 0;
       
-      // Find peak month
+      // peak month
       const peakMonth = forecastData.reduce((peak, month) => 
         month.total_quantity > (peak.total_quantity || 0) ? month : peak, 
         { month: '-', total_quantity: 0 }
@@ -1670,10 +1594,8 @@
     function updateForecastCharts(data) {
       const forecastData = data.forecast_data || [];
       
-      // Update monthly forecast chart
       updateMonthlyForecastChart(forecastData);
       
-      // Update breakdown chart based on filter type
       updateBreakdownChart(data, forecastData);
     }
 
@@ -1753,7 +1675,6 @@
         window.forecastData.charts.breakdown.destroy();
       }
       
-      // Aggregate data across all months for breakdown
       const breakdown = {};
       forecastData.forEach(month => {
         const monthBreakdown = month[`by_${filterType}`] || [];
@@ -1884,7 +1805,6 @@
     }
 
     function viewMonthDetails(startDate) {
-      // This would open a detailed modal or navigate to a detailed view
       alert(`Detailed view for ${startDate} - To be implemented`);
     }
 
@@ -1903,7 +1823,6 @@
     }
 
     function exportToExcel(data) {
-      // Simple CSV export for now
       const forecastData = data.forecast_data || [];
       const headers = ['Month', 'Total Quantity', 'Employee Required', 'Top Category', 'Top Entity', 'Top Size'];
       
@@ -1967,11 +1886,9 @@
       `;
     }
 
-    // Initialize forecast when the forecast tab is shown
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOM loaded, setting up forecast tab listener');
       
-      // Add forecast tab initialization to existing tab switching logic
       const forecastTab = document.querySelector('#sidebarTabs li[data-tab="tab-forecast"]');
       if (forecastTab) {
         console.log('Forecast tab found, adding listener');
@@ -1985,13 +1902,12 @@
             } else {
               console.log('Forecast already initialized');
             }
-          }, 100); // Small delay to ensure tab is shown
+          }, 100); 
         });
       } else {
         console.error('Forecast tab not found');
       }
       
-      // Also add a global function to manually initialize
       window.initForecastManually = function() {
         console.log('Manual forecast initialization');
         initializeForecast();
@@ -2005,7 +1921,6 @@
       <div class="chart-card" style="padding:14px;"> 
       <label style="margin-top:12px; display:block; font-weight:700;">Entity Stock Details</label>
         
-        <!-- Add CSS for table hover effects -->
         <style>
           .entity-table-row:hover {
             background-color: #f8f9fa !important;
@@ -2086,7 +2001,6 @@
       </div>
   </div>
   <script>
-    // Make sure to define showTab function in the global scope first
     function showTab(name){
       document.querySelectorAll('.tab-pane').forEach(function(p){ p.style.display = 'none'; });
       var el = document.getElementById(name);
@@ -2139,11 +2053,10 @@
           
           rows.forEach(function(r){
             if (!val || val === '') {
-              // Show all rows if no entity selected
               r.style.display = '';
             } else {
               var entityName = r.cells[0].textContent || r.cells[0].innerText || '';
-              // Clean and compare entity names
+              //  entity names
               var cleanEntityName = entityName.trim();
               var cleanSelectedValue = val.trim();
               
@@ -2155,25 +2068,20 @@
             }
           });
           
-          // Update summary after filtering
           updateSummary();
           
-          // Switch to entity tab and make it active
           document.querySelectorAll('#sidebarTabs li').forEach(function(x){ x.classList.remove('active'); });
           var entityTab = document.querySelector('#sidebarTabs li[data-tab="tab-entity"]');
           if (entityTab) entityTab.classList.add('active');
           showTab('tab-entity');
         });
         
-        // Initialize summary on page load
         setTimeout(updateSummary, 100);
       }
     }
   </script>
   
-  <!-- Additional Forecast Styles -->
   <style>
-    /* Forecast specific styles for better display */
     .forecast-charts-grid .chart-card {
       min-height: 400px;
       display: flex;
@@ -2186,20 +2094,17 @@
       max-height: 350px !important;
     }
     
-    /* Fix chart container sizing */
     #monthlyForecastChart, #breakdownChart {
       width: 100% !important;
       height: 300px !important;
       max-height: 350px !important;
     }
     
-    /* Ensure forecast tab content is visible */
     #tab-forecast {
       min-height: 100vh;
       background: #f8f9fa;
     }
     
-    /* Fix summary cards spacing */
     .forecast-summary .summary-card {
       min-height: 120px;
       display: flex;
@@ -2207,7 +2112,6 @@
       justify-content: center;
     }
     
-    /* Better table display */
     .forecast-table-container table {
       background: white;
       border-radius: 8px;

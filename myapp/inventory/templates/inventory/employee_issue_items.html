@@ -4,9 +4,7 @@
 <head>
     <title>Employee Issue Items</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
-    <!-- Inter for UI typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Font Awesome for icons (fallback if needed) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p6O8X1k6k3q1y8d6kz5q2+6V8e8b1qf6q1i9Yx1w2Z3v4Y5a6b7c8d9e0f1g2h3i4j5k6l7m8n9o0p==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         :root{
@@ -24,7 +22,7 @@
         .navbar a:hover{background:rgba(255,255,255,0.12)}
         .navbar a.active, .navbar a.active:hover{background:rgba(255,255,255,0.24); box-shadow:0 4px 12px rgba(0,0,0,0.1)}  
         .container{max-width:1100px; margin:22px auto; padding:0 16px}
-    .card-grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:18px; margin-bottom:18px}
+        .card-grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:18px; margin-bottom:18px}
         .card{background:var(--card); border-radius:12px; padding:18px; box-shadow:0 6px 18px rgba(15,23,42,0.06); display:flex; flex-direction:column; justify-content:space-between}
         .card .card-icon{font-size:44px}
         .card h3{margin:6px 0 8px 0}
@@ -35,7 +33,6 @@
 
         .table-wrap { background:var(--card); border-radius:12px; padding:14px; box-shadow:0 6px 18px rgba(15,23,42,0.04) }
         
-        /* Scrollable table container styles */
         .scrollable-table-container {
             max-height: 400px;
             overflow-y: auto;
@@ -93,7 +90,7 @@
         }
         #overlayBackdrop{
             position: fixed;
-            inset: 0; /* top:0; right:0; bottom:0; left:0 */
+            inset: 0; 
             background: rgba(2,6,23,0.45);
             backdrop-filter: blur(3px);
             -webkit-backdrop-filter: blur(3px);
@@ -104,7 +101,6 @@
         }
         #overlayBackdrop.show { opacity:1; visibility:visible; }
 
-        /* Mobile: make overlay act like full-screen drawer */
         @media (max-width:720px){
             .form-overlay{ width: 100%; left:50%; top:50%; transform: translate(-50%,-50%); border-radius:12px; max-height:90vh; padding:14px; }
             .form-overlay .form-header { border-radius:8px 8px 0 0; }
@@ -176,7 +172,6 @@
                         <div class="brand"><img src="{% static 'AEQUS_logo.jpg' %}" alt="Aequs Logo" style="height: 40px; width: 100px; object-fit: contain;"></div>
                         <div class="navlinks">
 
-                            <!-- <a href="/inventory/home/">Home</a> -->
                             <a href="/admin/dashboard/">Dashboard</a>
                             <a href="/inventory/employee_issue_items/">Issue Item</a>
                             <a href="/inventory/stock/">Stock</a>
@@ -271,7 +266,7 @@
                 <div class="table-wrap">
                 </div>
             <div id="overlayBackdrop"></div>
-                 <!-- Uniform Overlay Form -->
+                 <!-- Uniform  Form -->
                      <div id="uniformOverlay" class="form-overlay">
                      <button type="button" class="card-btn" style="float:right; background:#d32f2f; padding:6px 10px;" id="closeUniform">Close</button>
                 <div class="form-header" style="background:linear-gradient(90deg, rgba(37,99,235,0.06), rgba(16,185,129,0.03)); padding:10px 12px; border-radius:8px; margin-bottom:12px; align-items:center;">
@@ -508,7 +503,7 @@
                 </form>
             </div>
 
-            <!-- Safety Shoes Overlay -->
+            <!-- Safety Shoes  -->
                 <div id="shoesOverlay" class="form-overlay">
                 <button type="button" class="card-btn" style="float:right; background:#d32f2f; padding:6px 10px;" id="closeShoes">Close</button>
                 <div class="form-header">
@@ -632,7 +627,7 @@
                     </div>
                 </form>
             </div>
-            <!-- Accessory Overlay -->
+            <!-- Accessory  -->
             <div id="accessoryOverlay" class="form-overlay">
                 <button type="button" class="card-btn" style="float:right; background:#d32f2f; padding:6px 10px;" id="closeAccessory">Close</button>
                 <div class="form-header">
@@ -752,7 +747,7 @@
         </div>
     </div>
 </div>
-     <!-- Issues Table with Scrollable Container -->
+     <!-- Issues Table  Container -->
             <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e6eef8; border-radius: 8px; margin-top: 12px;">
             <table id="issueTable" style="width:100%; border-collapse: collapse; margin-top: 0;">
             <thead style="position: sticky; top: 0; background: #f0f2f5; z-index: 10;">
@@ -808,7 +803,7 @@
             document.head.appendChild(style);
         })();
     </script>
-    <!-- Forecast Modal -->
+    <!-- Forecast -->
     <div id="forecastBackdrop"></div>
     <div id="forecastModal" class="form-overlay">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -845,7 +840,6 @@
                 if (!data || !Array.isArray(data.months)) { content.innerHTML = '<p style="color:var(--muted)">No data</p>'; return; }
                 var html = '';
                 data.months.forEach(function(m){
-                    // make month block clickable and carry start date for details fetch
                     html+= '<div class="forecast-month" data-start="'+(m.start||'')+'" style="cursor:pointer;margin-bottom:10px;padding:8px;border-bottom:1px solid #f1f5f9">';
                     html+= '<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700">'+(m.label||'')+'</div><div style="font-weight:800">'+(m.total||0)+'</div></div>';
                     if (m.by_category) {
@@ -857,11 +851,9 @@
                     }
                     html+= '</div>';
                 });
-                // details container 
                 html+= '<div id="forecastMonthDetails" style="margin-top:12px; display:none; background:#fff; border-radius:8px; padding:8px; box-shadow:0 6px 18px rgba(2,6,23,0.04)"></div>';
                 content.innerHTML = html;
 
-                // wire click handlers for months
                 Array.prototype.slice.call(document.querySelectorAll('.forecast-month')).forEach(function(el){
                     el.addEventListener('click', function(){
                         var start = el.getAttribute('data-start');
@@ -892,7 +884,6 @@
                 });
                 html+= '</tbody></table>';
                 detailsEl.innerHTML = html;
-                // scroll modal to details
                 try { detailsEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e){}
             }
         })();
@@ -941,7 +932,6 @@
             if (debounceTimer) clearTimeout(debounceTimer);
             debounceTimer = setTimeout(function(){
                     if (!q) {
-                        // reload the page to restore the original server-rendered all-records list
                         try { window.location.reload(); } catch (e) { renderItems([]); }
                         return;
                     }
@@ -950,14 +940,12 @@
         });
     });
 </script>
-    <!-- Overlay Backdrop -->
     <script>
         function openOverlay(overlayId) {
             var backdrop = document.getElementById('overlayBackdrop');
             var overlay = document.getElementById(overlayId);
             if (backdrop) backdrop.classList.add('show');
             if (overlay) overlay.classList.add('show');
-            // prevent body scroll while modal open
             try { document.body.style.overflow = 'hidden'; } catch(e){}
         }
         function closeOverlay(overlayId) {
@@ -972,7 +960,6 @@
         if (issueUniformBtn) {
             issueUniformBtn.addEventListener('click', function(){
                 var ov = document.getElementById('uniformOverlay'); if (ov) { var hid = ov.querySelector('.issue-id'); if (hid) hid.value = ''; }
-                // reset uniform form sections
                 var uf = document.getElementById('uniformForm'); if (uf) {
                     try { uf.reset(); } catch(e) {}
                     var t = document.getElementById('traineeSection'); if (t) t.style.display = 'none';
@@ -986,7 +973,6 @@
         if (issueShoesBtn) {
             issueShoesBtn.addEventListener('click', function(){
                 var ov = document.getElementById('shoesOverlay'); if (ov) { var hid = ov.querySelector('.issue-id'); if (hid) hid.value = ''; }
-                // set category to safety_shoes by default
                 try { var sc = document.getElementById('safetyCategory'); if (sc) { sc.value = 'safety_shoes'; sc.dispatchEvent(new Event('change')); } } catch(e){}
                 try { var sf = document.getElementById('shoesForm'); if (sf) sf.reset(); }catch(e){}
                 openOverlay('shoesOverlay');
@@ -1036,9 +1022,7 @@
         }
         wireAllEmpSelects();
         
-        // Stock validation functionality
         (function(){
-            // Function to check stock availability via AJAX
             function checkStockAvailability(entity, category, subcategory, size, quantity, callback) {
                 var params = new URLSearchParams({
                     entity: entity || '',
@@ -1061,7 +1045,6 @@
                     });
             }
 
-            // Add stock validation to forms before submission
             function validateStockBeforeSubmit(formElement, entity, category, subcategory, size, quantity) {
                 if (quantity <= 0) return true;
                 
@@ -1085,15 +1068,13 @@
                         }
                         return false;
                     } else {
-                        // Stock available, submit the form
                         formElement.submit();
                         return true;
                     }
                 });
-                return false; // Prevent immediate submission while checking
+                return false; 
             }
         })();
-            // Shoes gender mapping
             (function(){
                 var shoesForm = document.getElementById('shoesForm');
                 if (!shoesForm) return;
@@ -1126,7 +1107,6 @@
                 var init = genderRadios.find(function(r){ return r.checked; });
                 applyGender(init ? init.value : null);
 
-                // client-side validation for shoes form
                 var shoesError = document.getElementById('shoesError');
                 if (shoesForm) {
                     shoesForm.addEventListener('submit', function(e){
@@ -1138,7 +1118,6 @@
                                 if (shoesError) { shoesError.style.display = 'block'; shoesError.innerText = 'Please select gender for safety shoes.'; shoesError.scrollIntoView && shoesError.scrollIntoView({behavior:'smooth', block:'center'}); }
                                 return;
                             }
-                            // determine size value based on visible/enabled size inputs
                             var sizeVal = '';
                             if (shoesSizeSelect && !shoesSizeSelect.disabled && shoesSizeSelect.offsetParent !== null) {
                                 sizeVal = shoesSizeSelect.value;
@@ -1147,7 +1126,6 @@
                             } else {
                                 sizeVal = (shoesSizeSelect && shoesSizeSelect.value) || (shoesSizeDropdown && shoesSizeDropdown.value) || '';
                             }
-                            // ensure form posts `size` field: create/assign hidden input named 'size'
                             try {
                                 var hiddenSize = shoesForm.querySelector('input[name="size"]');
                                 if (!hiddenSize) {
@@ -1166,7 +1144,6 @@
                                 if (shoesError) { shoesError.style.display = 'block'; shoesError.innerText = 'Please enter a valid quantity (at least 1).'; shoesError.scrollIntoView && shoesError.scrollIntoView({behavior:'smooth', block:'center'}); }
                                 return;
                             }
-                            // If user didn't check Buy, call server to check block and prevent submit if blocked
                             var buyChecked = !!(shoesForm.querySelector('input[name="Buy"]')||{}).checked;
                             if (!buyChecked) {
                                 var empId = (shoesForm.querySelector('select[name="empId"]')||{}).value || '';
@@ -1188,7 +1165,6 @@
                 }
             })();
 
-        // Show/hide uniform sub-sections based on uniformType
         var uniformType = document.getElementById('uniformType');
         if (uniformType) {
             uniformType.addEventListener('change', function(){
@@ -1204,7 +1180,6 @@
     </script>
     <script>
         (function(){
-            // handle regular color radios
             var regularRadios = document.querySelectorAll('input[name="regular_color"]');
             var regularControls = document.getElementById('regularControls');
             var regularSubHidden = document.getElementById('regularSubHidden');
@@ -1242,7 +1217,6 @@
                             // set main fields
                             var mainSub = document.querySelector('input[name="Subcategory"][type="hidden"]') || document.getElementById('regularSubHidden');
                             if (!mainSub) {
-                                // ensure a hidden input exists for Subcategory
                                 var inp = document.createElement('input'); inp.type='hidden'; inp.name='Subcategory'; inp.id='mainSubHidden'; inp.value = sub || '';
                                 uniformForm.appendChild(inp);
                                 mainSub = inp;
@@ -1258,7 +1232,6 @@
                     } catch(ex) { /* swallow */ }
                 });
             }
-            // accessory form: pre-check blocking when Buy not selected
             try {
                 var accessoryFormEl = document.getElementById('accessoryForm');
                 if (accessoryFormEl) {
@@ -1283,7 +1256,6 @@
                     });
                 }
             } catch(e) {}
-            // enable/disable white/black controls
             var whiteChk = document.getElementById('tshirtWhiteChk');
             var blackChk = document.getElementById('tshirtBlackChk');
             var whiteSize = document.getElementById('tshirtWhiteSize');
@@ -1291,7 +1263,6 @@
             var blackSize = document.getElementById('tshirtBlackSize');
             var blackQty = document.getElementById('tshirtBlackQty');
             
-            // Add buy price functionality for t-shirts
             var whiteBuy = document.getElementById('tshirtWhiteBuy');
             var blackBuy = document.getElementById('tshirtBlackBuy');
             var whitePriceDiv = document.getElementById('tshirtWhitePriceDiv');
@@ -1334,7 +1305,6 @@
                 }
             }
             
-            // Buy checkbox handlers for t-shirts
             if (whiteBuy && whitePriceDiv && whitePrice) {
                 whiteBuy.addEventListener('change', function() {
                     if (this.checked) {
@@ -1365,7 +1335,6 @@
                 });
             }
             
-            // Jeans buy functionality
             var jeansRegularBuy = document.getElementById('jeansRegularBuy');
             var jeansRegularPriceDiv = document.getElementById('jeansRegularPriceDiv');
             var jeansRegularPrice = document.getElementById('jeansRegularPrice');
@@ -1389,7 +1358,6 @@
             if (blackChk) blackChk.addEventListener('change', toggleTshirtControls);
             toggleTshirtControls();
 
-            // Safety shoes buy functionality
             var shoesBuyCheckbox = document.getElementById('shoesBuyCheckbox');
             var shoesPriceDiv = document.getElementById('shoesPriceDiv');
             var shoesPrice = document.getElementById('shoesPrice');
@@ -1409,7 +1377,6 @@
                 });
             }
             
-            // Accessory buy functionality
             var accessoryBuyCheckbox = document.getElementById('accessoryBuyCheckbox');
             var accessoryPriceDiv = document.getElementById('accessoryPriceDiv');
             var accessoryPrice = document.getElementById('accessoryPrice');
@@ -1429,7 +1396,6 @@
                 });
             }
 
-            // trainee controls
             var traineeTshirtChk = document.getElementById('traineeTshirtChk');
             var traineeTshirtSize = document.getElementById('traineeTshirtSize');
             var traineeTshirtQty = document.getElementById('traineeTshirtQty');
@@ -1475,7 +1441,6 @@
             if (formalWhiteChk) formalWhiteChk.addEventListener('change', toggleFormalControls);
             toggleFormalControls();
 
-            // show gender only for formals
             var genderSection = document.getElementById('genderSection');
             var uniformTypeEl = document.getElementById('uniformType');
             function updateGenderVisibility() {
@@ -1484,14 +1449,12 @@
             }
             if (uniformTypeEl) { uniformTypeEl.addEventListener('change', updateGenderVisibility); updateGenderVisibility(); }
 
-            // before submit, collect all selected items (regular, trainee, formals) 
             if (uniformForm) {
                 uniformForm.addEventListener('submit', function(e){
                     try {
                         var items = [];
                         var cat = (uniformTypeEl && (uniformTypeEl.value || '').toString().toLowerCase()) || '';
 
-                        // helper to push an item only when qty > 0
                         function pushItem(category, subcat, sizeVal, qtyVal, genderVal, buyFlag, priceVal) {
                             var q = parseInt(qtyVal || 0) || 0;
                             if (q > 0) {
@@ -1504,7 +1467,6 @@
                             }
                         }
 
-                        // Regular T-shirts (white/black) and regular jeans
                         if (whiteChk && whiteChk.checked) {
                             var whiteBuyChecked = (whiteBuy && whiteBuy.checked) || false;
                             var whitePriceValue = (whitePrice && whitePrice.value) || 0;
@@ -1544,7 +1506,6 @@
                                 existing.value = JSON.stringify(items);
                             } catch (err) { /* ignore small failures creating hidden field */ }
 
-                            // For multi-item submissions, pre-check each non-Buy item with the server
                             try {
                                 var nonBuy = items.filter(function(it){ return !it.Buy; });
                                 if (nonBuy.length > 0) {
@@ -1569,7 +1530,6 @@
                             } catch (e) { /* ignore fetch errors and allow submit to proceed */ }
                         }
                     } catch (ex) {
-                        // swallow errors but allow form to submit; log for debugging
                         try { console && console.error && console.error('uniformForm submit handler error', ex); } catch(_) {}
                     }
                 });
@@ -1586,7 +1546,6 @@
                                        '<option value="overhead">Overhead</option>';
                     accSub.disabled = false;
                     accSub.style.display = '';
-                    // also offer visible size choices matching subcategories
                     var accType = document.getElementById('accessoryType');
                     if (accType) {
                         accType.innerHTML = '<option value="">Select Size</option>' +
@@ -1626,7 +1585,6 @@
                     }
                 });
 
-                // initialize state based on current selection
                 (function(){
                     var v = (accCat.value||'').toLowerCase();
                     if (v === 'goggles') populateGoggles(); else hideSub();
