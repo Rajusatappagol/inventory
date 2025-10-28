@@ -39,7 +39,7 @@
 
   .navbar{position:fixed;left:0;right:0;top:0;height:64px;background:var(--accent-2);padding:12px 24px;margin:0;color:#fff;display:flex;align-items:center;z-index:2200}
   .navbar-list{display:flex;align-items:center;gap:8px;margin:0;padding:0;list-style:none}
-  .nav-logo{width:100px;height:40px;background-color:transparent;border-radius:0;padding:0;background-image:url("{% static 'AEQUS_logo.jpg' %}");background-repeat:no-repeat;background-position:center center;background-size:contain;box-shadow:none}
+  .nav-logo{width:100px;height:40px;border-radius:0;padding:0;background-image:url("{% static 'AEQUS_logo.jpg' %}");background-repeat:no-repeat;background-position:center center;background-size:contain;box-shadow:none}
   .navbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
   .navbar-right a{color:#fff;text-decoration:none;font-weight:700;padding:8px 12px;border-radius:8px;transition:transform 0.12s ease, box-shadow 0.12s ease, background 0.12s}
   .navbar-right a:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(37,99,235,0.18);background:rgba(255,255,255,0.06)}
@@ -313,6 +313,7 @@
       <li data-tab="tab-overview">Overview</li>
       <li data-tab="tab-forecast">Forecast</li>
       <!-- <li data-tab="tab-entity">Entity Stock</li> -->
+       <li class="active"><a href="/admin/register/">Register</a></li>
     </ul>
   </aside>
 
