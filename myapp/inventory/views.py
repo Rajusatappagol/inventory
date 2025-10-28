@@ -143,16 +143,17 @@ def sign_view(request):
 
 @login_required
 def stationary(request):
-	# Only admin can access stationary view
-	try:
-		if request.user.profile.role != 'admin':
-			messages.error(request, 'You do not have permission to access this page.')
-			return redirect('employee_issue_items')
-	except:
-		messages.error(request, 'You do not have permission to access this page.')
-		return redirect('employee_issue_items')
-	
-	return render(request, 'stationary/stationary.html',)
+    # Allow only admin and staff to access stationary view
+    try:
+        user_role = request.user.profile.role
+        if user_role not in ['admin', 'staff']:
+            messages.error(request, 'You do not have permission to access this page.')
+            return redirect('employee_issue_items')
+    except Exception as e:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('employee_issue_items')
+    
+    return render(request, 'stationary/stationary.html')
 
 def logout_view(request):
 	logout(request)
@@ -1586,10 +1587,7 @@ def issue_report_json(request):
 
 
 def due_report_json(request):
-	"""Return JSON list of EmployeeIssue items for Next_issue_date range.
-
-	Query params: start=YYYY-MM-DD, end=YYYY-MM-DD
-	"""
+	
 	try:
 		from datetime import datetime
 		start = request.GET.get('start')
@@ -1777,6 +1775,7 @@ def update_issue_ajax(request):
 from django.shortcuts import render, redirect
 from .models import Stationary, StationaryType
 def stationary(request):
+
 	from .models import Stationary, StationaryType, EmployeeDetails
 	items = Stationary.objects.all().order_by('-updated_at')
 	types = StationaryType.objects.all().order_by('name')

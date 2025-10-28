@@ -16,7 +16,7 @@
         .logo{height:32px; margin-right:8px ; vertical-align:middle;padding:0;}
         nav.navbar{display:flex; align-items:center; gap:14px; padding:12px 18px; background:linear-gradient(90deg,var(--primary),#3b82f6); color:white; box-shadow:0 6px 18px rgba(15,23,42,0.08);}
         .navbar .brand{display:flex; align-items:center; gap:12px; font-weight:700; font-size:1.05rem;}
-        .navbar .brand img{height:36px; margin-right:8px; vertical-align:middle; padding:0; background-color: #e6eef8; border-radius: 4px;}
+        .navbar .brand img{height:36px; margin-right:8px; vertical-align:middle; padding:0;  border-radius: 2px;}
         .navbar .navlinks{margin-left:auto; display:flex; gap:10px}
         .navbar a{color:rgba(255,255,255,0.95); text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:600}
         .navbar a:hover{background:rgba(255,255,255,0.12)}
@@ -173,7 +173,8 @@
                         <div class="navlinks">
 
                             <a href="/admin/dashboard/">Dashboard</a>
-                            <a href="/inventory/employee_issue_items/">Issue Item</a>
+                            <!-- <a href="/inventory/employee_issue_items/">Issue Item</a> -->
+                            <a href="/stationary/stationary/">Stationary</a>
                             <a href="/inventory/stock/">Stock</a>
                             <a href="{% url 'logout_view' %}" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.3);">Logout</a>
                         </div>
